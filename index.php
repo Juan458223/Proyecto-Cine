@@ -4,7 +4,7 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>LOGIN DE Barcos</title>
+        <title>LOGIN DE CINE</title>
     </head>
     <body>
         <div class="container">
@@ -23,7 +23,7 @@
                                 <label for="passw">PASSWORD</label>
                                 <input type="password" name="passw" class="form-control" placeholder="DIGITE EL PASSWORD">
                             </div>
-                                <div class="col-md-12">
+                            <div class="col-md-12">
                                 <br>
 
                                 <a href="./view/DatosRecordar.php">
@@ -32,11 +32,10 @@
 
                                 <input type="submit" class="btn btn-primary" value="INGRESAR" >
                             </div>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
-        </div>
-    </div>
     </body>
 </html>

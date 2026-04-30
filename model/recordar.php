@@ -16,8 +16,7 @@
             $user = $statement->fetch(PDO::FETCH_ASSOC);
 
             if($user){
-                echo "ta bien
-                Recuperemos la cuenta";
+                header("Location: /proyectocine/view/preguntas.php?correo=$correo");
             }else{
                 echo "ta mal
                 Boorra la cuenta";

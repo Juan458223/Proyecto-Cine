@@ -289,4 +289,4 @@ INSERT INTO `funcion` (`hora`, `pelicula_id_pelicula`, `sala_id_sala`, `boletas_
 
 INSERT INTO `Cine`.`usuario` (`identificacion`, `nombre`, `password`, `correo`, `permisos`, `pregunta1`, `pregunta2`, `pregunta3`) VALUES 
 
-(20241578221, 'Admin Cine', '12345', 'admin@cine.com', 1, 'Negro', 'Firulais', 'Bogotá');
+(20241578221, 'Admin Cine', '12345', 'admin@cine.com', 1, 'Negro', 'Firulais', 'Bogota');
