@@ -26,13 +26,13 @@ Este es un proyecto de la universidad que consiste en crear una aplicacion para 
     
     A continuación se muestra un ejemplo de la información que los cines proporcionarán al nuevo servicio telefónico.
 
-    ![ejemplos cine](image-1.png)
+    ![ejemplos cine](ejemplos.png)
     
 
 Adicionalmente de esto nosotros vamos a hacer que dentroo de la interfaz las personas puedan reservar sus entradas y añadir obviamente un limite de compra
 por funcion, a continuacion agregamos el modelo de la base de datos.
 
-![base de datos](image.png)
+![base de datos](database.png)
 
 Por esto mismo nosotros nos dividiremos el trabajo
 
