@@ -1,41 +1,29 @@
-<!doctype html>
-<html lang="es">
-    <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>LOGIN DE CINE</title>
-    </head>
-    <body>
-        <div class="container">
-            <div class="card">
-                <div class="card-header bg-info">
-                    <h3 class="text-white text-center">LOGIN DE CINE</h3>
-                </div>
-                <div class="card-body">
-                    <form name="form" action="/proyectocine/controller/verificar_contraseña.php" method="post">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="user">CORREO</label>
-                                <input type="text" name="correo" class="form-control" placeholder="DIGITE EL CORREO">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="passw">PASSWORD</label>
-                                <input type="password" name="passw" class="form-control" placeholder="DIGITE EL PASSWORD">
-                            </div>
-                            <div class="col-md-12">
-                                <br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login</title>
+</head>
+<body class="flex flex-col md:flex-row h-screen w-full overflow-hidden">
 
-                                <a href="./view/DatosRecordar.php">
-                                    Olvide mi Contraseña...
-                                </a>
+    <div class="bg-black text-white h-full w-full md:w-[400px] flex flex-col justify-center p-9 ">
+        <h1 class="text-3xl font-bold mb-5">Login</h1>
+        <form action="login.php" method="post" class=" flex flex-col">
+            <label class="font-semibold">Email</label>
+            <input class="border p-1 mb-4" type="email" name="email" required>
+            <label class="font-semibold">Password</label>
+            <a href="register.php" class="p-1 text-red-500 hover:text-red-400">Regístrate aquí</a>
+            <input class="border p-2 mb-4" type="password" name="password" required>
+            <input class="bg-red-800 text-white p-2 cursor-pointer" type="submit" value="Login">
+        </form>
+        <p>¿Aún no tienes cuenta?<a href="register.php" class="text-red-500 hover:text-red-400"> Regístrate aquí</a></p>
+    </div>
 
-                                <input type="submit" class="btn btn-primary" value="INGRESAR" >
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </body>
+    <div class="hidden md:block flex-1 bg-gray-200">
+        <img class="w-full h-full object-cover" src="https://i.pinimg.com/originals/8c/4e/c5/8c4ec5138991592cca31db6b2ed46e5e.gif" alt="cine">
+    </div>
+
+</body>
 </html>
