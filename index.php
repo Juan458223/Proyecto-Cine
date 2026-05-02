@@ -14,9 +14,9 @@
             <label class="font-semibold">Email</label>
             <input class="border p-1 mb-4" type="email" name="email" required>
             <label class="font-semibold">Password</label>
-            <a href="register.php" class="p-1 text-red-500 hover:text-red-400">Regístrate aquí</a>
+            <a href="register.php" class="p-1 text-red-500 hover:text-red-400">¿Olvidaste tu contraseña?</a>
             <input class="border p-2 mb-4" type="password" name="password" required>
-            <input class="bg-red-800 text-white p-2 cursor-pointer" type="submit" value="Login">
+            <input class="bg-red-800 text-white p-2 cursor-pointer hover:bg-red-700" type="submit" value="Login">
         </form>
         <p>¿Aún no tienes cuenta?<a href="register.php" class="text-red-500 hover:text-red-400"> Regístrate aquí</a></p>
     </div>
