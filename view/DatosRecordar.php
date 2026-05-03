@@ -7,7 +7,7 @@
     </head>
     <body>
         <h3>Ingrese su email: </h3>
-        <form action="/proyectocine/controller/verificar_email.php">
+        <form action="/proyectocine/controller/verificaremail.php">
             <div class="col-md-6">
                 <label for="user">EMAIL</label>
                 <input type="correo_rec" name="correo_rec" class="form-control" placeholder="DIGITE EL CORREO">
