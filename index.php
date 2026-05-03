@@ -30,6 +30,10 @@
                                     Olvide mi Contraseña...
                                 </a>
 
+                                <a href="./view/registro.php">
+                                    Registrarse
+                                </a>
+
                                 <input type="submit" class="btn btn-primary" value="INGRESAR" >
                             </div>
                         </div>

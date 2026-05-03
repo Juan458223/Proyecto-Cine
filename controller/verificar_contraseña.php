@@ -1,6 +1,6 @@
 <?php
-include("../model/login.php");
-$log = new Login();
+include("../model/usuarios.php");
+$log = new Usuario();
 $correo=$_REQUEST['correo'];
 $pass=$_REQUEST['passw'];
 $log->verificarUsuario($correo,$pass);

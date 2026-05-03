@@ -23,7 +23,7 @@
             $user = $statement->fetch(PDO::FETCH_ASSOC);
 
             if($user){
-                echo "paso";
+                echo "su contraseña es: ".$user['password'];
             }else{
                 echo "no";
             }

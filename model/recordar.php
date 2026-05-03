@@ -3,9 +3,11 @@
     include('DatabaseConnection.php');
     class recordar{
         private $db;
+
         public function __construct() {
             $this->db = DatabaseConnection::getInstance()->getConnection();
         }
+        
 
          public function verificar($correo) {
             // 3. Ejemplo de uso con PDO

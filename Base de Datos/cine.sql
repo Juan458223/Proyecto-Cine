@@ -148,7 +148,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `Cine`.`usuario`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`usuario` (
-  `identificacion` INT NOT NULL,
+  `identificacion` BIGINT NOT NULL auto_increment,
   `nombre` VARCHAR(45) NOT NULL,
   `password` VARCHAR(32) NOT NULL,
   `correo` VARCHAR(255) NOT NULL,
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `Cine`.`usuario` (
 CREATE TABLE IF NOT EXISTS `Cine`.`transaccion` (
   `id_transaccion` INT NOT NULL,
   `fecha` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `usuario_identificacion` INT NOT NULL,
+  `usuario_identificacion` BIGINT NOT NULL,
   `funcion_id_funcion` INT NOT NULL,
   PRIMARY KEY (`id_transaccion`),
   INDEX `fk_transaccion_usuario1_idx` (`usuario_identificacion` ASC) ,
@@ -246,16 +246,19 @@ INSERT INTO `protagonistas` (`id_actor`, `nombre`, `fecha_nacimiento`, `sexo`, `
 (6, 'William Hurt', '1950-03-20', 1, NULL),
 (7, 'Harvey Keitel', '1939-05-13', 1, NULL),
 (8, 'Keanu Reeves', '1964-09-02', 1, NULL),
-(9, 'Aitana Sánchez Gijón', '1968-11-05', 0, NULL),
+(9, 'Aitana Sanchez Gijon', '1968-11-05', 0, NULL),
 (10, 'Emma Thompson', '1959-04-15', 0, NULL),
 (11, 'Jonathan Pryce', '1947-06-01', 1, NULL),
 (12, 'Hugh Grant', '1960-09-09', 1, NULL),
 (13, 'Julianne Moore', '1960-12-03', 0, NULL),
 (14, 'Tim Allen', '1953-06-13', 1, NULL),
-(15, 'Judge Reinhold', '1957-05-21', 1, NULL);
+(15, 'Judge Reinhold', '1957-05-21', 1, NULL),
+(16, 'Irene Bedard', '1967-07-22', 0, NULL), -- Voz de Pocahontas
+(17, 'Mel Gibson', '1956-01-03', 1, NULL);
 
 -- 7. Relacionar Películas con Protagonistas (Tabla Intermedia)
 INSERT INTO `pelicula_has_protagonistas` (`pelicula_id_pelicula`, `protagonistas_id_protagonista`) VALUES
+(1, 16),(1, 17),
 (2, 1), (2, 2), (2, 3),   -- Two much
 (3, 4), (3, 5),           -- Los puentes de Madison
 (4, 6), (4, 7),           -- Smoke
