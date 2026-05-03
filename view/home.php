@@ -18,6 +18,13 @@ if(isset($_SESSION['id'])){
                     <li>Peliculas</li>
                     <li>Nuestros Cines</li>
                     <li>Mi perfil</li>
+                    <?php
+                        if($_SESSION['permisos']==1){
+                    ?>
+                    <li><a href="modificar_usuarios.php">Administrar Usuarios</a></li>
+                    <?php
+                        }
+                    ?>
                 </ul>
             </nav>
         </header>

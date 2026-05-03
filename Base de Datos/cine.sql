@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `Cine`.`usuario` (
   `identificacion` BIGINT NOT NULL auto_increment,
   `nombre` VARCHAR(45) NOT NULL,
   `password` VARCHAR(32) NOT NULL,
-  `correo` VARCHAR(255) NOT NULL,
+  `correo` VARCHAR(255) NOT NULL UNIQUE,
   `permisos` TINYINT(1) NOT NULL DEFAULT 0,
   `pregunta1` VARCHAR(10) NULL,
   `pregunta2` VARCHAR(10) NULL,
