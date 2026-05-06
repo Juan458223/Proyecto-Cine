@@ -104,18 +104,21 @@ async function handleFormSubmit(form, action, type, title) {
     }
 
     if (emptyFields.length > 0) {
-        openModal(title, "Por favor, llene todos los campos.", "", type);
+        openModal(title, "Validación", "", type);
         stopLoading();
         modalForm.classList.add("hidden");
+        modalError.textContent = "Por favor, llene todos los campos.";
+        modalError.classList.remove("hidden");
         return;
     }
 
     const email = formData.get("email");
-    // Validamos Gmail en registro y recuperación
     if ((action === "register" || action === "recover") && email && !isValidGmail(email)) {
-        openModal(title, "Solo se permiten correos de Gmail (@gmail.com).", "", type);
+        openModal(title, "Validación", "", type);
         stopLoading();
         modalForm.classList.add("hidden");
+        modalError.textContent = "Solo se permiten correos de Gmail (@gmail.com).";
+        modalError.classList.remove("hidden");
         return;
     }
 
@@ -134,14 +137,18 @@ async function handleFormSubmit(form, action, type, title) {
             modalMessage.textContent = result;
             stopLoading();
         } else {
-            modalMessage.textContent = result;
+            modalMessage.textContent = "Se ha detectado un error.";
             stopLoading();
             modalForm.classList.add("hidden");
+            modalError.textContent = result;
+            modalError.classList.remove("hidden");
         }
     } catch (error) {
         modalMessage.textContent = "Error de conexión.";
         stopLoading();
         modalForm.classList.add("hidden");
+        modalError.textContent = "No se pudo conectar con el servidor.";
+        modalError.classList.remove("hidden");
     }
 }
 
@@ -156,9 +163,11 @@ if (registerForm) {
     registerForm.addEventListener("submit", (e) => {
         e.preventDefault();
         if (registerForm.password.value !== registerForm.confirm_password.value) {
-            openModal("Registro", "Las contraseñas no coinciden.", "", "register_user");
+            openModal("Registro", "Validación", "", "register_user");
             stopLoading();
             modalForm.classList.add("hidden");
+            modalError.textContent = "Las contraseñas no coinciden.";
+            modalError.classList.remove("hidden");
             return;
         }
         handleFormSubmit(registerForm, "register", "register_user", "Registro de Usuario");
@@ -177,7 +186,8 @@ if (modalForm) {
         e.preventDefault();
         const code = modalCodeInput.value.trim();
         if (!code) {
-            alert("Por favor, ingrese el código de verificación.");
+            modalError.textContent = "Por favor, ingrese el código de verificación.";
+            modalError.classList.remove("hidden");
             return;
         }
         modalError.classList.add("hidden");
@@ -195,7 +205,7 @@ if (modalForm) {
                     if (changePasswordForm) changePasswordForm.classList.remove("hidden");
                 } else {
                     modalForm.classList.add("hidden");
-                    modalMessage.innerHTML = "<span class='text-green-600 font-bold'>¡Verificación exitosa!</span><br>Redirigiendo...";
+                    modalMessage.innerHTML = "<span class='font-bold'>¡Verificación exitosa!</span><br>Redirigiendo...";
                     setTimeout(() => {
                         window.location.href = "home.php";
                     }, 2000);
@@ -217,13 +227,17 @@ if (changePasswordForm) {
         const pass = newPasswordInput.value.trim();
         const confirm = confirmNewPasswordInput.value.trim();
 
+        modalError.classList.add("hidden");
+
         if (!pass || !confirm) {
-            alert("Por favor, complete ambos campos de contraseña.");
+            modalError.textContent = "Por favor, complete ambos campos de contraseña.";
+            modalError.classList.remove("hidden");
             return;
         }
 
         if (pass !== confirm) {
-            alert("Las contraseñas no coinciden.");
+            modalError.textContent = "Las contraseñas no coinciden.";
+            modalError.classList.remove("hidden");
             return;
         }
         try {
@@ -235,16 +249,17 @@ if (changePasswordForm) {
             const result = await response.text();
             if (result.includes("éxito")) {
                 changePasswordForm.classList.add("hidden");
-                modalMessage.innerHTML = `<span class='text-green-600 font-bold'>${result}</span><br>Redirigiendo...`;
+                modalMessage.innerHTML = `<span class='font-bold'>${result}</span><br>Redirigiendo...`;
                 setTimeout(() => {
                     window.location.href = "index.php";
                 }, 2000);
             } else {
-                modalMessage.textContent = result;
-                if (changePasswordForm) changePasswordForm.classList.add("hidden");
+                modalError.textContent = result;
+                modalError.classList.remove("hidden");
             }
         } catch (error) {
-            alert("Error al actualizar contraseña.");
+            modalError.textContent = "Error al actualizar contraseña.";
+            modalError.classList.remove("hidden");
         }
     });
 }
