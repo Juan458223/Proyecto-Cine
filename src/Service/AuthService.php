@@ -47,6 +47,10 @@ class AuthService {
                preg_match('/[0-9]/', $password);
     }
 
+    public function validarCorreo($correo) {
+        return filter_var($correo, FILTER_VALIDATE_EMAIL) && str_ends_with(strtolower($correo), '@gmail.com');
+    }
+
     public function cambiarPassword($correo, $nuevaPassword) {
         $userData = $this->usuarioDAO->obtenerUsuarioPorCorreo($correo);
         if ($userData) {
@@ -68,8 +72,17 @@ class AuthService {
     }
 
     public function registrarUsuario($nombre, $correo, $password) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $usuario = new Usuario($nombre, $correo, $hashedPassword);
+        // Verificar si el usuario ya existe
+        $userData = $this->usuarioDAO->obtenerUsuarioPorCorreo($correo);
+        
+        if ($userData) {
+            if ($userData['estado'] === 'pendiente') {
+                return new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo']);
+            }
+            return null; 
+        }
+
+        $usuario = new Usuario($nombre, $correo, $password);
         $id = $this->usuarioDAO->insertarUsuario($usuario);
         
         if ($id) {

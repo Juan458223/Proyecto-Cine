@@ -19,11 +19,12 @@
                 <form id="modal-form" class="hidden space-y-4">
                     <div>
                         <label for="verification-code" class="block mb-2 text-sm font-medium text-black uppercase tracking-wider text-center">Código de 6 dígitos</label>
-                        <input type="text" name="code" id="verification-code" class="bg-gray-50 border border-gray-300 text-black text-2xl rounded-lg focus:ring-red-800 focus:border-red-800 block w-full p-2.5 text-center font-bold tracking-[0.5em]" placeholder="000000" required maxlength="6">
+                        <input type="text" name="code" id="verification-code" class="bg-gray-50 border border-gray-300 text-black text-2xl rounded-lg focus:ring-red-800 focus:border-red-800 block w-full p-2.5 text-center font-bold tracking-[0.5em]" placeholder="000000" maxlength="6">
                     </div>
-                    <p id="modal-error" class="hidden text-xs text-red-600 font-medium italic text-center">Código no válido o expirado.</p>
                     <button type="submit" id="btn-submit-modal" class="w-full text-white bg-red-800 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Verificar</button>
                 </form>
+
+                <p id="modal-error" class="hidden text-xs text-red-600 font-medium italic text-center mt-4">Error detectado.</p>
 
                 <!-- Formulario Nueva Contraseña -->
                 <form id="change-password-form" class="hidden space-y-4">
