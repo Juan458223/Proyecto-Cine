@@ -104,7 +104,7 @@ async function handleFormSubmit(form, action, type, title) {
     }
 
     if (emptyFields.length > 0) {
-        openModal(title, "Validación", "", type);
+        openModal(title, "Error", "", type);
         stopLoading();
         modalForm.classList.add("hidden");
         modalError.textContent = "Por favor, llene todos los campos.";
@@ -114,7 +114,7 @@ async function handleFormSubmit(form, action, type, title) {
 
     const email = formData.get("email");
     if ((action === "register" || action === "recover") && email && !isValidGmail(email)) {
-        openModal(title, "Validación", "", type);
+        openModal(title, "Error", "", type);
         stopLoading();
         modalForm.classList.add("hidden");
         modalError.textContent = "Solo se permiten correos de Gmail (@gmail.com).";
@@ -137,7 +137,7 @@ async function handleFormSubmit(form, action, type, title) {
             modalMessage.textContent = result;
             stopLoading();
         } else {
-            modalMessage.textContent = "Se ha detectado un error.";
+            modalMessage.textContent = "Error";
             stopLoading();
             modalForm.classList.add("hidden");
             modalError.textContent = result;
@@ -163,7 +163,7 @@ if (registerForm) {
     registerForm.addEventListener("submit", (e) => {
         e.preventDefault();
         if (registerForm.password.value !== registerForm.confirm_password.value) {
-            openModal("Registro", "Validación", "", "register_user");
+            openModal("Registro", "Error", "", "register_user");
             stopLoading();
             modalForm.classList.add("hidden");
             modalError.textContent = "Las contraseñas no coinciden.";
