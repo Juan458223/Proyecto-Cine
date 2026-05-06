@@ -29,7 +29,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `Cine`.`cine`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`cine` (
-  `id_cine` INT NOT NULL,
+  `id_cine` INT NOT NULL auto_increment,
   `nombre` VARCHAR(45) NOT NULL,
   `direccion` VARCHAR(45) NOT NULL,
   `telefono` VARCHAR(45) NULL DEFAULT NULL,
@@ -47,7 +47,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `Cine`.`genero`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`genero` (
-  `id_genero` INT NOT NULL,
+  `id_genero` INT NOT NULL auto_increment,
   `nombre_genero` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id_genero`))
 ENGINE = InnoDB
@@ -58,7 +58,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `Cine`.`pelicula`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`pelicula` (
-  `id_pelicula` INT NOT NULL,
+  `id_pelicula` INT NOT NULL auto_increment,
   `titulo` VARCHAR(45) NOT NULL,
   `director` VARCHAR(45) NOT NULL,
   `clasificacion` INT NOT NULL,
@@ -77,7 +77,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `Cine`.`sala`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`sala` (
-  `id_sala` INT NOT NULL,
+  `id_sala` INT NOT NULL auto_increment,
   `capacidad` INT NOT NULL,
   `cine_id_cine` INT NOT NULL,
   PRIMARY KEY (`id_sala`),
@@ -115,7 +115,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `Cine`.`protagonistas`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`protagonistas` (
-  `id_actor` INT NOT NULL,
+  `id_actor` INT NOT NULL auto_increment,
   `nombre` VARCHAR(45) NOT NULL,
   `fecha_nacimiento` DATE NOT NULL,
   `sexo` TINYINT(1) NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `Cine`.`usuario` (
 -- Table `Cine`.`transaccion`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `Cine`.`transaccion` (
-  `id_transaccion` INT NOT NULL,
+  `id_transaccion` INT NOT NULL auto_increment,
   `fecha` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usuario_identificacion` BIGINT NOT NULL,
   `funcion_id_funcion` INT NOT NULL,
