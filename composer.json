@@ -1,0 +1,12 @@
+{
+    "name": "juanrodriguez/proyecto-cine",
+    "authors": [
+        {
+            "name": "Juan Rodriguez",
+            "email": "2305juanda@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
+    }
+}
