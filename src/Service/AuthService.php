@@ -219,7 +219,6 @@ class AuthService {
                         <p class='warning'>Este código expirará en 2 minutos.</p>
                         
                         <div class='footer'>
-                            <p>Si no solicitaste este código, puedes ignorar este mensaje.</p>
                             <hr style='border: 0; border-top: 1px solid #374151; margin: 20px 0;'>
                             <p>&copy; " . date('Y') . " Cine First. Todos los derechos reservados.</p>
                         </div>
