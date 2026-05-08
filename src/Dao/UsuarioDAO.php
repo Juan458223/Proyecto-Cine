@@ -35,11 +35,25 @@ class UsuarioDAO {
             $statement->execute([
                 'nombre' => $usuario->getNombre(),
                 'correo' => $usuario->getCorreo(),
-                'id' => $usuario->getId()
+                'id' => $usuario->getIdUsuario()
             ]);
             return $statement->rowCount() > 0;
         } catch (PDOException $e) {
             error_log("Error al actualizar usuario: ".$e->getMessage());
+            return false;
+        }
+    }
+
+    public function actualizarPermisos($id, $permisos) {
+        try {
+            $sql = "UPDATE usuarios SET permisos = :permisos WHERE id = :id";
+            $statement = $this->db->prepare($sql);
+            return $statement->execute([
+                'permisos' => $permisos,
+                'id' => $id
+            ]);
+        } catch (PDOException $e) {
+            error_log("Error al actualizar permisos: " . $e->getMessage());
             return false;
         }
     }

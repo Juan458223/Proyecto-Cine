@@ -27,6 +27,11 @@ const confirmNewPasswordInput = document.getElementById("confirm-new-password");
 let currentEmail = "";
 let currentAuthType = "validate_user";
 
+function isValidGmail(email) {
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    return gmailRegex.test(email.toLowerCase());
+}
+
 if (registerLink) {
     registerLink.addEventListener("click", (e) => {
         e.preventDefault();
@@ -99,13 +104,24 @@ async function handleFormSubmit(form, action, type, title) {
     }
 
     if (emptyFields.length > 0) {
-        openModal(title, "Por favor, llene todos los campos.", "", type);
+        openModal(title, "Error", "", type);
         stopLoading();
         modalForm.classList.add("hidden");
+        modalError.textContent = "Por favor, llene todos los campos.";
+        modalError.classList.remove("hidden");
         return;
     }
 
     const email = formData.get("email");
+    if ((action === "register" || action === "recover") && email && !isValidGmail(email)) {
+        openModal(title, "Error", "", type);
+        stopLoading();
+        modalForm.classList.add("hidden");
+        modalError.textContent = "Solo se permiten correos de Gmail (@gmail.com).";
+        modalError.classList.remove("hidden");
+        return;
+    }
+
     openModal(title, "Procesando solicitud...", email, type);
     try {
         const response = await fetch(`../src/Controller/AuthController.php?action=${action}`, {
@@ -114,18 +130,25 @@ async function handleFormSubmit(form, action, type, title) {
         });
         const result = await response.text();
 
-        if (result.includes("exitoso") || result.includes("éxito") || result.includes("enviado") || result.includes("activación")) {
+        if (result.includes("exitoso") || result.includes("éxito") || result.includes("enviado") || result.includes("pendiente")) {
+            if (result.includes("pendiente")) {
+                currentAuthType = "register_user";
+            }
             modalMessage.textContent = result;
             stopLoading();
         } else {
-            modalMessage.textContent = result;
+            modalMessage.textContent = "Error";
             stopLoading();
             modalForm.classList.add("hidden");
+            modalError.textContent = result;
+            modalError.classList.remove("hidden");
         }
     } catch (error) {
         modalMessage.textContent = "Error de conexión.";
         stopLoading();
         modalForm.classList.add("hidden");
+        modalError.textContent = "No se pudo conectar con el servidor.";
+        modalError.classList.remove("hidden");
     }
 }
 
@@ -140,9 +163,11 @@ if (registerForm) {
     registerForm.addEventListener("submit", (e) => {
         e.preventDefault();
         if (registerForm.password.value !== registerForm.confirm_password.value) {
-            openModal("Registro de Usuario", "Las contraseñas no coinciden.", "", "register_user");
+            openModal("Registro", "Error", "", "register_user");
             stopLoading();
             modalForm.classList.add("hidden");
+            modalError.textContent = "Las contraseñas no coinciden.";
+            modalError.classList.remove("hidden");
             return;
         }
         handleFormSubmit(registerForm, "register", "register_user", "Registro de Usuario");
@@ -159,7 +184,12 @@ if (recoverForm) {
 if (modalForm) {
     modalForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const code = modalCodeInput.value;
+        const code = modalCodeInput.value.trim();
+        if (!code) {
+            modalError.textContent = "Por favor, ingrese el código de verificación.";
+            modalError.classList.remove("hidden");
+            return;
+        }
         modalError.classList.add("hidden");
         try {
             const response = await fetch("../src/Controller/AuthController.php?action=verify", {
@@ -174,15 +204,19 @@ if (modalForm) {
                     modalMessage.textContent = "Token validado. Ingresa tu nueva contraseña.";
                     if (changePasswordForm) changePasswordForm.classList.remove("hidden");
                 } else {
-                    alert("¡Verificación exitosa!");
-                    window.location.href = "home.php";
+                    modalForm.classList.add("hidden");
+                    modalMessage.innerHTML = "<span class='font-bold'>¡Verificación exitosa!</span><br>Redirigiendo...";
+                    setTimeout(() => {
+                        window.location.href = "home.php";
+                    }, 2000);
                 }
             } else {
                 modalError.textContent = result === "token expirado" ? "El código ha expirado." : "Código incorrecto.";
                 modalError.classList.remove("hidden");
             }
         } catch (error) {
-            alert("Error al verificar.");
+            modalError.textContent = "Error al verificar.";
+            modalError.classList.remove("hidden");
         }
     });
 }
@@ -190,8 +224,17 @@ if (modalForm) {
 if (changePasswordForm) {
     changePasswordForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const pass = newPasswordInput.value;
-        const confirm = confirmNewPasswordInput.value;
+        const pass = newPasswordInput.value.trim();
+        const confirm = confirmNewPasswordInput.value.trim();
+
+        modalError.classList.add("hidden");
+
+        if (!pass || !confirm) {
+            modalError.textContent = "Por favor, complete ambos campos de contraseña.";
+            modalError.classList.remove("hidden");
+            return;
+        }
+
         if (pass !== confirm) {
             modalError.textContent = "Las contraseñas no coinciden.";
             modalError.classList.remove("hidden");
@@ -205,14 +248,18 @@ if (changePasswordForm) {
             });
             const result = await response.text();
             if (result.includes("éxito")) {
-                alert(result);
-                window.location.href = "index.php";
+                changePasswordForm.classList.add("hidden");
+                modalMessage.innerHTML = `<span class='font-bold'>${result}</span><br>Redirigiendo...`;
+                setTimeout(() => {
+                    window.location.href = "index.php";
+                }, 2000);
             } else {
-                modalMessage.textContent = result;
-                if (changePasswordForm) changePasswordForm.classList.add("hidden");
+                modalError.textContent = result;
+                modalError.classList.remove("hidden");
             }
         } catch (error) {
-            alert("Error al actualizar contraseña.");
+            modalError.textContent = "Error al actualizar contraseña.";
+            modalError.classList.remove("hidden");
         }
     });
 }

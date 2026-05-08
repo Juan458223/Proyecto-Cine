@@ -33,7 +33,8 @@ class AuthService {
             return new UsuarioDTO(
                 $userData['id'],
                 $userData['nombre'],
-                $userData['correo']
+                $userData['correo'],
+                $userData['permisos']
             );
         }
 
@@ -45,6 +46,10 @@ class AuthService {
         return strlen($password) >= 6 && 
                preg_match('/[A-Z]/', $password) && 
                preg_match('/[0-9]/', $password);
+    }
+
+    public function validarCorreo($correo) {
+        return filter_var($correo, FILTER_VALIDATE_EMAIL) && str_ends_with(strtolower($correo), '@gmail.com');
     }
 
     public function cambiarPassword($correo, $nuevaPassword) {
@@ -68,8 +73,17 @@ class AuthService {
     }
 
     public function registrarUsuario($nombre, $correo, $password) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $usuario = new Usuario($nombre, $correo, $hashedPassword);
+        // Verificar si el usuario ya existe
+        $userData = $this->usuarioDAO->obtenerUsuarioPorCorreo($correo);
+        
+        if ($userData) {
+            if ($userData['estado'] === 'pendiente') {
+                return new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
+            }
+            return null; 
+        }
+
+        $usuario = new Usuario($nombre, $correo, $password);
         $id = $this->usuarioDAO->insertarUsuario($usuario);
         
         if ($id) {
@@ -94,6 +108,7 @@ class AuthService {
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
+            $mail->CharSet    = 'UTF-8';
             $mail->Host       = $this->smtp->get('smtp_host');
             $mail->SMTPAuth   = true;
             $mail->Username   = $this->smtp->get('smtp_user');
@@ -104,26 +119,117 @@ class AuthService {
             $mail->addAddress($usuario->getCorreo(), $usuario->getNombre());
 
             $mail->isHTML(true);
+            
+            $titulo = '';
+            $mensaje = '';
             $subject = '';
-            $body = '';
 
             switch($type) {
                 case 'validate_user':
-                    $subject = 'Código de acceso - Cine First';
-                    $body = "Hola <b>{$usuario->getNombre()}</b>, tu código de inicio de sesión es: <h2 style='color: #b91c1c;'>{$tokenValue}</h2>";
+                    $subject = 'Código de Acceso - Cine First';
+                    $titulo = '¡Bienvenido de Nuevo!';
+                    $mensaje = 'Usa el siguiente código para completar tu inicio de sesión:';
                     break;
                 case 'register_user':
-                    $subject = 'Verifica tu cuenta - Cine First';
-                    $body = "Hola <b>{$usuario->getNombre()}</b>, gracias por registrarte. Tu código de verificación es: <h2 style='color: #b91c1c;'>{$tokenValue}</h2>";
+                    $subject = 'Verifica tu Cuenta - Cine First';
+                    $titulo = '¡Gracias por unirte!';
+                    $mensaje = 'Para completar tu registro en Cine First, utiliza este código de verificación:';
                     break;
                 case 'reset_password':
-                    $subject = 'Recuperar contraseña - Cine First';
-                    $body = "Hola <b>{$usuario->getNombre()}</b>, has solicitado restablecer tu contraseña. Usa este código: <h2 style='color: #b91c1c;'>{$tokenValue}</h2>";
+                    $subject = 'Recuperar Contraseña - Cine First';
+                    $titulo = 'Restablecer Contraseña';
+                    $mensaje = 'Has solicitado restablecer tu contraseña. Utiliza el siguiente código de seguridad:';
                     break;
             }
 
             $mail->Subject = $subject;
-            $mail->Body    = $body . "<br>Este código expira en 2 minutos.";
+            
+            $body = "
+            <html>
+            <head>
+                <style>
+                    .container {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        background-color: #000;
+                        color: #ffffff;
+                        border-radius: 15px;
+                        overflow: hidden;
+                        border: 2px solid #e11d48;
+                        background-image: url('https://i.pinimg.com/originals/ea/2d/6e/ea2d6ec2d94e5d1e492c58b102688282.gif');
+                        background-size: cover;
+                        background-position: center;
+                    }
+                    .overlay {
+                        background-color: rgba(0, 0, 0, 0.85);
+                        padding: 40px;
+                        text-align: center;
+                    }
+                    .logo {
+                        font-size: 32px;
+                        font-weight: bold;
+                        color: #e11d48;
+                        margin-bottom: 20px;
+                        text-transform: uppercase;
+                        letter-spacing: 3px;
+                    }
+                    .title {
+                        font-size: 24px;
+                        margin-bottom: 20px;
+                        color: #fcd34d;
+                    }
+                    .code-box {
+                        background-color: rgba(225, 29, 72, 0.1);
+                        border: 2px dashed #e11d48;
+                        border-radius: 10px;
+                        padding: 20px;
+                        margin: 30px 0;
+                        display: inline-block;
+                    }
+                    .code {
+                        font-size: 48px;
+                        font-weight: bold;
+                        letter-spacing: 10px;
+                        color: #ffffff;
+                        margin: 0;
+                    }
+                    .footer {
+                        margin-top: 30px;
+                        font-size: 14px;
+                        color: #9ca3af;
+                    }
+                    .warning {
+                        color: #f87171;
+                        font-style: italic;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='overlay'>
+                        <div class='logo'>CINE FIRST</div>
+                        <div class='title'>{$titulo}</div>
+                        <p style='font-size: 16px;'>Hola, <b>{$usuario->getNombre()}</b></p>
+                        <p style='font-size: 16px;'>{$mensaje}</p>
+                        
+                        <div class='code-box'>
+                            <p class='code'>{$tokenValue}</p>
+                        </div>
+                        
+                        <p class='warning'>Este código expirará en 2 minutos.</p>
+                        
+                        <div class='footer'>
+                            <hr style='border: 0; border-top: 1px solid #374151; margin: 20px 0;'>
+                            <p>&copy; " . date('Y') . " Cine First. Todos los derechos reservados.</p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            ";
+
+            $mail->Body = $body;
 
             $mail->send();
             return true;

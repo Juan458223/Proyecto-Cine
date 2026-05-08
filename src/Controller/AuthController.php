@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../Service/AuthService.php';
 
 $authService = new AuthService();
@@ -19,9 +20,9 @@ if ($action === 'login') {
         echo "Tu cuenta está bloqueada. Por favor, contacta al administrador.";
     } elseif ($usuario === 'pendiente') {
         $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
-        $usuarioDto = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo']);
+        $usuarioDto = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
         $authService->generarToken($usuarioDto, 'register_user');
-        echo "Cuenta pendiente de activación. Se ha enviado un nuevo código.";
+        echo "Estado de usuario: pendiente. Se ha enviado un nuevo código de activación.";
     } elseif ($usuario != null) {
         $authService->generarToken($usuario, 'validate_user');
         echo "Token generado con éxito.";
@@ -59,6 +60,11 @@ if ($action === 'login') {
         exit;
     }
 
+    if (!$authService->validarCorreo($correo)) {
+        echo "Solo se permiten correos de Gmail (@gmail.com).";
+        exit;
+    }
+
     if (!$authService->validarPassword($password)) {
         echo "La contraseña debe tener mínimo 6 caracteres, una mayúscula y números.";
         exit;
@@ -67,7 +73,7 @@ if ($action === 'login') {
     $usuario = $authService->registrarUsuario($nombre, $correo, $password);
     if ($usuario) {
         $authService->generarToken($usuario, 'register_user');
-        echo "Registro exitoso. Token enviado.";
+        echo "Estado de usuario: pendiente. Registro exitoso. Verifica tu correo.";
     } else {
         echo "Error al registrar el usuario. El correo ya existe.";
     }
@@ -79,9 +85,14 @@ if ($action === 'login') {
         exit;
     }
 
+    if (!$authService->validarCorreo($correo)) {
+        echo "Solo se permiten correos de Gmail (@gmail.com).";
+        exit;
+    }
+
     $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
     if ($userData) {
-        $usuario = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo']);
+        $usuario = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
         $authService->generarToken($usuario, 'reset_password');
         echo "Código de recuperación enviado.";
     } else {
@@ -100,8 +111,18 @@ if ($action === 'login') {
 
     $resultado = $authService->validarToken($correo, $token, $type);
     
-    if (isset($resultado['resultado'])) {
-        echo $resultado['resultado'];
+    if (isset($resultado['resultado']) && $resultado['resultado'] === 'token valido') {
+
+        $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
+        if ($userData) {
+            $_SESSION['usuario_id'] = $userData['id'];
+            $_SESSION['usuario_nombre'] = $userData['nombre'];
+            $_SESSION['usuario_correo'] = $userData['correo'];
+            $_SESSION['permisos'] = $userData['permisos'];
+        }
+        echo "token valido";
+    } elseif (isset($resultado['resultado'])) {
+        echo $resultado['resultado']; 
     } else {
         echo "Error en la validación.";
     }

@@ -4,11 +4,13 @@ class Usuario{
         private $nombre;
         private $correo;
         private $password;
+        private $permisos;
 
-        public function __construct( $nombre, $correo, $password) {
+        public function __construct( $nombre, $correo, $password, $permisos = 0) {
         $this->nombre = $nombre;
         $this->correo = $correo;
         $this->password = password_hash($password, PASSWORD_DEFAULT);
+        $this->permisos = $permisos;
         }
          public function getIdUsuario() {
             return $this->id_usuario;
@@ -22,6 +24,9 @@ class Usuario{
         public function getPassword() {
                 return $this->password;
         }
+        public function getPermisos() {
+            return $this->permisos;
+        }
         public function setNombre($nombre) {
                 $this->nombre = $nombre;
         }
@@ -30,6 +35,9 @@ class Usuario{
         }
         public function setPassword($password) {
                 $this->password = password_hash($password, PASSWORD_DEFAULT);
+        }
+        public function setPermisos($permisos) {
+            $this->permisos = $permisos;
         }
 
     }
