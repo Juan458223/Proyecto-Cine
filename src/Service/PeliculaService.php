@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Dao/PeliculaProtagonistaDAO.php';
 require_once __DIR__ . '/../Dao/GeneroDAO.php';
 require_once __DIR__ . '/../Dao/PeliculasDAO.php';
 require_once __DIR__ . '/../Model/Pelicula.php';
+require_once __DIR__ . '/../Model/Genero.php';
 
 class PeliculaService {
     private $peliculaDAO;
@@ -18,12 +19,18 @@ class PeliculaService {
         $this->pelihasprotaDAO = new PeliculaProtagonistaDAO();
     }
 
-    
+    public function listarGeneros() {
+        $generoDAO = $this->generoDAO->obtenerTodos();
+        $generos = [];
+        foreach ($generoDAO as $gen) {
+            $generos[] = new Genero($gen['id_genero'], $gen['nombre_genero']);
+        }
+        return $generos;
+    }
 
     public function listarPeliculas(){
         $movieData = $this->peliculaDAO->capturarPelis();
         $protaData = $this->protagonistaDAO->obtenerTodos();
-        $genderData = $this->generoDAO->obtenerTodos();
         $pelihasprota = $this->pelihasprotaDAO->obtenerTodos();
 
         $peliculas = [];
@@ -32,26 +39,26 @@ class PeliculaService {
                 $id_pelicula = $pelis['id_pelicula'];
                 $titulo = $pelis['titulo'];
                 $director = $pelis['director'];
-                if($pelis['clasificacion'] == 0){
+                $clasificacion = $pelis['clasificacion'];
+                if($pelis['clasificacion']==0){
                     $clasificacion = 'Todo Publico';
                 }else{
                     $clasificacion = '+'.$pelis['clasificacion'];
                 }
-                
                 $url_image = $pelis['url_image'];
-                if($pelis['genero_id_genero'] == "1"){
-                    $genero = 'Dibujos';
-                }elseif($pelis['genero_id_genero'] == "2"){
-                    $genero = 'Comedia';
-                }elseif($pelis['genero_id_genero'] == "3"){
-                    $genero = 'Dibujos';
+                if($pelis['genero_id_genero'] == '1'){
+                    $genero_id = 'Dibujos';
+                }elseif($pelis['genero_id_genero'] == '2'){
+                    $genero_id = 'Comedia';
+                }elseif($pelis['genero_id_genero'] == '3'){
+                    $genero_id = 'Drama';
                 }else{
-                    $genero = 'Sin genero';
+                    $genero_id = 'No especificado';
                 }
                 $protagonistas = [];
                 foreach($pelihasprota as $php){
                     
-                    if($php['pelicula_id_pelicula']==$pelis['id_pelicula']){
+                    if($php['pelicula_id_pelicula']==$id_pelicula){
                         
                         foreach($protaData as $protas){
                             if($protas['id_actor']==$php['protagonistas_id_protagonista']){
@@ -66,23 +73,70 @@ class PeliculaService {
                     $director, 
                     $clasificacion, 
                     $url_image, 
-                    $genero, 
+                    $genero_id, 
                     $protagonistas
                 );
                 $peliculas[] = $pelicula;
             }
         }
-
         return $peliculas;
+    }
+
+    public function obtenerPeliculasPaginadas($limit, $offset) {
+        $data = $this->peliculaDAO->obtenerPeliculasPaginadas($limit, $offset);
+        $peliculas = [];
+        foreach ($data as $row) {
+            $peliculas[] = new Pelicula(
+                $row['id_pelicula'],
+                $row['titulo'],
+                $row['director'],
+                $row['clasificacion'],
+                $row['url_image'],
+                $row['genero']
+            );
+        }
+        return $peliculas;
+    }
+
+    public function actualizarPelicula($pelicula){
+        return $this->peliculaDAO->actualizarPelicula($pelicula);
+    }
+
+    public function contarPeliculas() {
+        return $this->peliculaDAO->contarPeliculas();
+    }
+
+    public function eliminarPelicula($id) {
+        // Eliminamos la relación con protagonistas antes de borrar la película
+        $this->pelihasprotaDAO->eliminarTodosPorPelicula($id);
+        return $this->peliculaDAO->eliminarPelicula($id);
+    }
+
+    public function insertarPelicula($titulo, $director, $clasificacion, $url_image, $genero_id) {
+        $pelicula = new Pelicula(
+            0, //De valor temporal', al insertarlo al SQL no se pasara este atributo.
+            $titulo, 
+            $director, 
+            $clasificacion, 
+            $url_image, 
+            $genero_id
+        );
+        return $this->peliculaDAO->insertarPelicula($pelicula);
     }
 
     public function obtenerTablas() {
         $peliculas = $this->listarPeliculas();
+        $genderData = $this->generoDAO->obtenerTodos();
+
         foreach ($peliculas as $peli) {
+            // Formateo para la UI
+            $clasifUI = ($peli->getClasificacion() == 0) ? 'Todo Publico' : '+'.$peli->getClasificacion();
+            
+
             $json_data = htmlspecialchars(json_encode([
                 'titulo' => $peli->getTitulo(),
                 'director' => $peli->getDirector(),
-                'clasificacion' => $peli->getClasificacion(),
+                'clasificacion' => $clasifUI,
                 'imagen' => $peli->getUrlImage(),
                 'genero' => $peli->getGenero(),
                 'protagonistas' => implode(', ', $peli->getProtagonistas())
@@ -94,7 +148,7 @@ class PeliculaService {
                     <!-- Badge de Clasificación (Estilo Cine Colombia) -->
                     <div class='absolute top-2 left-2 z-10'>
                         <span class='bg-black/60 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-sm border border-white/20 uppercase'>
-                            {$peli->getClasificacion()}
+                            {$clasifUI}
                         </span>
                     </div>
 

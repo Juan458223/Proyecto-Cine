@@ -32,6 +32,10 @@ $peliculaService = new PeliculaService();
         @media (min-width: 768px) { .cine-grid { grid-template-columns: repeat(4, 1fr); } }
         @media (min-width: 1024px) { .cine-grid { grid-template-columns: repeat(5, 1fr); } }
         @media (min-width: 1280px) { .cine-grid { grid-template-columns: repeat(6, 1fr); } }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #09090b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #E50914; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -46,14 +50,24 @@ $peliculaService = new PeliculaService();
                 <ul class="hidden lg:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500">
                     <li class="text-white border-b-2 border-[#E50914] pb-1 cursor-pointer transition-all">Cartelera</li>
                     <li class="hover:text-white cursor-pointer transition-all">Cines</li>
-                    <?php
-                    if($_SESSION['permisos']==1){
-                    ?>
-                        <li class="hover:text-white cursor-pointer transition-all">Administrar</li>
-                    <?php
-                    }
-                    ?>
+                    <?php if($_SESSION['permisos'] == 1): ?>
+                        <li onclick="openAdminDashboard()" class="hover:text-[#E50914] cursor-pointer transition-all flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#E50914]"></span>
+                            Administrar
+                        </li>
+                    <?php endif; ?>
                 </ul>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4 pl-6 border-l border-zinc-800">
+                    <span class="hidden sm:block text-[10px] font-bold text-zinc-500 uppercase tracking-widest"><?php echo $_SESSION['usuario_nombre']; ?></span>
+                    <a href="logout.php" class="text-zinc-500 hover:text-[#E50914] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
@@ -122,10 +136,13 @@ $peliculaService = new PeliculaService();
         </div>
     </footer>
 
-    <!-- Modal de Detalles -->
+    <!-- Modales -->
     <?php include '../src/View/Modales/movie_admin_modal.php'; ?>
+    <?php include '../src/View/Modales/admin_dashboard_modal.php'; ?>
+    <?php include '../src/View/Modales/admin_insert_modal.php'; ?>
 
     <!-- Scripts -->
     <script src="./js/movie_admin.js"></script>
+    <script src="./js/admin_panel.js"></script>
 </body>
 </html>

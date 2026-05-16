@@ -1,19 +1,40 @@
 <?php
 class Usuario{
-        private $id_usuario;
+        private $id;
         private $nombre;
         private $correo;
         private $password;
         private $permisos;
+        private $estado_id;
 
-        public function __construct( $nombre, $correo, $password, $permisos = 0) {
-        $this->nombre = $nombre;
-        $this->correo = $correo;
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
-        $this->permisos = $permisos;
+        public function __construct( $nombre, $correo, $password, $permisos = 0, $id = null) {
+            $this->nombre = $nombre;
+            $this->correo = $correo;
+            // Solo hasheamos si no parece ser ya un hash de BCRYPT ($2y$)
+            $this->password = (strpos($password, '$2y$') === 0) ? $password : password_hash($password, PASSWORD_DEFAULT);
+            $this->permisos = $permisos;
+            $this->id = $id;
+            $this->estado_id = 1; // Default active
         }
+        
+        public function getId() {
+            return $this->id;
+        }
+        
+        public function setId($id) {
+            $this->id = $id;
+        }
+
+        public function getEstadoId() {
+            return $this->estado_id;
+        }
+
+        public function setEstadoId($estado_id) {
+            $this->estado_id = $estado_id;
+        }
+
          public function getIdUsuario() {
-            return $this->id_usuario;
+            return $this->id;
          }
         public function getNombre() {
                 return $this->nombre;
@@ -34,7 +55,8 @@ class Usuario{
                 $this->correo = $correo;
         }
         public function setPassword($password) {
-                $this->password = password_hash($password, PASSWORD_DEFAULT);
+                // Solo hasheamos si no parece ser ya un hash de BCRYPT ($2y$)
+                $this->password = (strpos($password, '$2y$') === 0) ? $password : password_hash($password, PASSWORD_DEFAULT);
         }
         public function setPermisos($permisos) {
             $this->permisos = $permisos;

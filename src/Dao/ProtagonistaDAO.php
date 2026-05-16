@@ -21,6 +21,29 @@ class ProtagonistaDAO {
         }
     }
 
+    public function obtenerProtagonistasPaginados($limit, $offset) {
+        try {
+            $sql = "SELECT * FROM protagonistas LIMIT :limit OFFSET :offset";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en ProtagonistaDAO::obtenerProtagonistasPaginados: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function contarProtagonistas() {
+        try {
+            return $this->db->query("SELECT COUNT(*) FROM protagonistas")->fetchColumn();
+        } catch (PDOException $e) {
+            error_log("Error en ProtagonistaDAO::contarProtagonistas: " . $e->getMessage());
+            return 0;
+        }
+    }
+
     public function insertarProtagonista($nombre) {
         try {
             $sql = "INSERT INTO protagonistas (nombre) VALUES (:nombre)";
