@@ -8,12 +8,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="./img/logo.svg">
-    <title>CINE FIRST - Acceso Premium</title>
+    <title>CINE FIRST</title>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
         .font-bebas { font-family: 'Bebas Neue', sans-serif; }
         
-        /* Estilo Minimalista: Solo línea inferior */
         .auth-input {
             background-color: transparent; 
             border: none;
@@ -85,7 +84,7 @@
             </form>
             
             <div class="pt-6 border-t border-zinc-900 flex justify-between items-center">
-                <p class="text-[12px] font-medium text-zinc-400">¿No tienes cuenta?</p>
+                <p class="text-[12px] font-medium text-zinc-400">¿No tiene cuenta?</p>
                 <a href="#" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors" id="register-link">Regístrate aquí</a>
             </div>
         </div>
@@ -100,7 +99,7 @@
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Recuperar Acceso</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Recuperar Contraseña</h1>
                 <p class="auth-subtitle italic">Enviaremos un código a su correo</p>
             </div>
             
