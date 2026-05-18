@@ -99,7 +99,7 @@
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Recuperar Contraseña</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Restablecer Contraseña</h1>
                 <p class="auth-subtitle italic">Enviaremos un código a su correo</p>
             </div>
             
