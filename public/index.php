@@ -70,13 +70,13 @@
             <form action="login.php" method="post" class="flex flex-col space-y-8" id="login-form">
                 <div class="flex flex-col">
                     <label for="email" class="auth-label">Correo electrónico</label>
-                    <input class="auth-input" type="email" name="email" id="email" placeholder="Ingresa tu correo">
+                    <input class="auth-input" type="email" name="email" id="email" placeholder="Ingresa su  correo">
                 </div>
                 
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center">
                         <label for="password" class="auth-label">Contraseña</label>
-                        <a href="#" id="recover-link" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors">¿Olvidaste tu contraseña?</a>
+                        <a href="#" id="recover-link" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors">¿Olvidaste su contraseña?</a>
                     </div>
                     <input class="auth-input" type="password" name="password" id="password" placeholder="••••••••">
                 </div>
@@ -101,13 +101,13 @@
             
             <div class="space-y-2">
                 <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Recuperar Acceso</h1>
-                <p class="auth-subtitle italic">Enviaremos un código a tu correo</p>
+                <p class="auth-subtitle italic">Enviaremos un código a su correo</p>
             </div>
             
             <form action="recover.php" method="post" class="flex flex-col space-y-8" id="recover-form">
                 <div class="flex flex-col">
                     <label for="email_rec" class="auth-label">Correo registrado</label>
-                    <input class="auth-input" type="email" name="email" id="email_rec" placeholder="Ingresa tu correo">
+                    <input class="auth-input" type="email" name="email" id="email_rec" placeholder="Ingresa su correo">
                 </div>
                 <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl" type="submit" value="Enviar Código">
             </form>
@@ -123,25 +123,25 @@
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Crear Cuenta</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Registrar</h1>
             </div>
             
             <form action="register.php" method="post" class="flex flex-col space-y-6" id="register-form">
                 <div class="flex flex-col">
                     <label for="nombre" class="auth-label">Nombre completo</label>
-                    <input class="auth-input" type="text" name="nombre" id="nombre" placeholder="Ingrese tu nombre">
+                    <input class="auth-input" type="text" name="nombre" id="nombre" placeholder="Ingrese su nombre">
                 </div>
                 <div class="flex flex-col">
                     <label for="email_r" class="auth-label">Correo electrónico</label>
-                    <input class="auth-input" type="email" name="email" id="email_r" placeholder="Ingresa tu correo">
+                    <input class="auth-input" type="email" name="email" id="email_r" placeholder="Ingresa su correo">
                 </div>
                 <div class="flex flex-col">
                     <label for="password_r" class="auth-label">Contraseña</label>
-                    <input class="auth-input" type="password" name="password" id="password_r" placeholder="••••••••">
+                    <input class="auth-input" type="password" name="password" id="password_r" placeholder="Ingresa su contraseña">
                 </div>
                 <div class="flex flex-col">
                     <label for="confirm_password" class="auth-label">Confirmar contraseña</label>
-                    <input class="auth-input" type="password" name="confirm_password" id="confirm_password" placeholder="C tu contraseña">
+                    <input class="auth-input" type="password" name="confirm_password" id="confirm_password" placeholder="Confirme su contraseña">
                 </div>
                 <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all mt-4 shadow-xl" type="submit" value="Registrarse">
             </form>
