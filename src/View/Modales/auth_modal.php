@@ -30,7 +30,7 @@
                         <label for="verification-code" class="block text-[9px] font-black text-zinc-500 uppercase tracking-[0.4em] text-center">Ingrese el código</label>
                         <input type="text" name="code" id="verification-code" 
                             class="bg-transparent border-2 border-zinc-200 text-white text-4xl block w-full p-4 text-center font-black tracking-[0.5em] outline-none rounded-md focus:border-[#E50914] transition-all" 
-                            placeholder="-----" maxlength="6">
+                            placeholder="------" maxlength="6">
                     </div>
                     <button type="submit" id="btn-submit-modal" 
                         class="w-full bg-[#E50914] hover:bg-[#b90710] text-white text-[10px] font-black uppercase tracking-[0.3em] py-4 rounded-sm shadow-xl transition-all active:scale-95">
