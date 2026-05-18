@@ -91,7 +91,7 @@ class UsuarioDAO {
     }
 
     public function obtenerUsuariosPaginados($limit, $offset) {
-        $sql = "SELECT u.id as id_usuario, u.nombre, u.correo, u.password, u.estado_id, u.permisos, e.nombre as estado 
+        $sql = "SELECT u.id as id_usuario, u.nombre, u.correo, u.estado_id, u.permisos, e.nombre as estado 
                 FROM usuarios u 
                 INNER JOIN estados e ON u.estado_id = e.id 
                 LIMIT :limit OFFSET :offset";

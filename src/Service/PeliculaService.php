@@ -144,37 +144,44 @@ class PeliculaService {
 
             echo "
             <li class='group flex flex-col cursor-pointer' onclick='window.openMovieAdmin($json_data)'>
-                <div class='relative aspect-[2/3] overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300'>
-                    <!-- Badge de Clasificación (Estilo Cine Colombia) -->
-                    <div class='absolute top-2 left-2 z-10'>
-                        <span class='bg-black/60 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-sm border border-white/20 uppercase'>
+                <div class='relative aspect-[2/3] overflow-hidden rounded-md bg-zinc-900 shadow-lg shadow-black/50 transition-all duration-500 group-hover:shadow-[#E50914]/10 group-hover:shadow-2xl'>
+                    <!-- Badge de Clasificación -->
+                    <div class='absolute top-3 left-3 z-20'>
+                        <span class='bg-black/40 backdrop-blur-md text-white text-[8px] font-black px-2 py-1 rounded-sm border border-white/10 uppercase tracking-widest'>
                             {$clasifUI}
                         </span>
                     </div>
 
-                    <!-- Imagen -->
+                    <!-- Imagen con efecto Zoom -->
                     <img 
                         src='{$peli->getUrlImage()}' 
                         alt='{$peli->getTitulo()}' 
-                        class='w-full h-full object-cover transition-transform duration-700 group-hover:scale-105'
+                        class='w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110'
                         loading='lazy'
                     >
 
-                    <!-- Overlay Hover (Cine Colombia style: Botón central) -->
-                    <div class='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4'>
-                        <button class='bg-[#E50914] text-white text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-2 rounded-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300'>
-                            Ver Detalles
-                        </button>
+                    <!-- Overlay Inteligente -->
+                    <div class='absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center p-6'>
+                        <div class='w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out'>
+                            <button class='w-full bg-[#E50914] hover:bg-[#b90710] text-white text-[9px] font-black uppercase tracking-[0.3em] py-3 rounded-sm shadow-2xl transition-all active:scale-95'>
+                                Ver Detalles
+                            </button>
+                        </div>
                     </div>
+                    
+                    <!-- Borde de acento inferior en hover -->
+                    <div class='absolute bottom-0 left-0 w-0 h-1 bg-[#E50914] transition-all duration-500 group-hover:w-full'></div>
                 </div>
 
-                <!-- Info debajo (Limpia y tipográfica) -->
-                <div class='mt-4 space-y-1'>
-                    <h3 class='text-white font-black text-sm md:text-base leading-tight uppercase tracking-tight font-bebas group-hover:text-[#E50914] transition-colors'>
+                <!-- Información con jerarquía visual -->
+                <div class='mt-5 space-y-1.5 px-1'>
+                    <h3 class='text-white font-black text-lg md:text-xl leading-none uppercase tracking-tight font-bebas group-hover:text-[#E50914] transition-colors duration-300'>
                         {$peli->getTitulo()}
                     </h3>
                     <div class='flex items-center gap-2'>
-                        <span class='text-zinc-500 text-[10px] font-bold uppercase tracking-widest'>{$peli->getGenero()}</span>
+                        <span class='text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]'>{$peli->getGenero()}</span>
+                        <span class='w-1 h-1 rounded-full bg-zinc-800'></span>
+                        <span class='text-zinc-600 text-[9px] font-bold uppercase tracking-widest italic'>{$peli->getDirector()}</span>
                     </div>
                 </div>
             </li>";

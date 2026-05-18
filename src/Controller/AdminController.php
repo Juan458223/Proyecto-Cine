@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once __DIR__ . '/../Service/PeliculaService.php';
-require_once __DIR__ . '/../Service/UsuarioService.php';
-require_once __DIR__ . '/../Service/ProtagonistaService.php';
+require_once __DIR__ . '/../src/Service/PeliculaService.php';
+require_once __DIR__ . '/../src/Service/UsuarioService.php';
+require_once __DIR__ . '/../src/Service/ProtagonistaService.php';
 require_once __DIR__ . '/../Model/Pelicula.php';
 require_once __DIR__ . '/../Model/Usuario.php';
 require_once __DIR__ . '/../Model/Protagonista.php';
@@ -113,7 +113,6 @@ if ($action === 'get') {
                     $data = [
                         'nombre' => $u['nombre'],
                         'correo' => $u['correo'],
-                        'password' => $u['password'],
                         'estado_id' => $u['estado_id'],
                         'permisos' => $u['permisos']
                     ];
@@ -187,12 +186,10 @@ if ($action === 'update') {
             // Recuperamos la contraseña actual para la actualización ya que no está en el formulario
             $password = '';
             if ($id) {
-                $usuarios = $usuarioService->listarUsuariosPaginados(100, 0);
-                foreach ($usuarios as $u) {
-                    if ($u['id_usuario'] == $id) {
-                        $password = $u['password']; // Es el hash
-                        break;
-                    }
+                // Buscamos en la DB vía DAO directamente para obtener el hash de forma segura
+                $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
+                if ($userData) {
+                    $password = $userData['password'];
                 }
             }
             
@@ -229,7 +226,7 @@ if ($action === 'insert') {
         $permisos = (int)($_POST['permisos'] ?? 0);
         
         // Contraseña por defecto para nuevos usuarios ya que el campo se eliminó del admin
-        $password = 'CineFirst123*'; 
+        $password = password_hash('CineFirst123*', PASSWORD_BCRYPT); 
         
         $usuario = new Usuario($nombre, $correo, $password, $permisos);
         $usuario->setEstadoId($estado_id);

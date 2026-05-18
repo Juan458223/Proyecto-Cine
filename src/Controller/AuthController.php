@@ -10,14 +10,14 @@ if ($action === 'login') {
     $password = $_POST['password'] ?? '';
 
     if (empty($correo) || empty($password)) {
-        echo "Por favor, completa todos los campos.";
+        echo "Por favor, complete todos los campos.";
         exit;
     }
 
     $usuario = $authService->validar($correo, $password);
     
     if ($usuario === 'bloqueado') {
-        echo "Tu cuenta está bloqueada. Por favor, contacta al administrador.";
+        echo "Su cuenta está desactivada. Si cree que esto ha sido un error, por favor contacte al administrador.";
     } elseif ($usuario === 'pendiente') {
         $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
         $usuarioDto = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
@@ -27,7 +27,7 @@ if ($action === 'login') {
         $authService->generarToken($usuario, 'validate_user');
         echo "Token generado con éxito.";
     } else {
-        echo "Correo o contraseña incorrectos.";
+        echo "Correo o contraseña incorrectos. Si cree que esto ha sido un error, por favor contacte al administrador.";
     }
 
 } elseif ($action === 'change_password') {
@@ -73,15 +73,15 @@ if ($action === 'login') {
     $usuario = $authService->registrarUsuario($nombre, $correo, $password);
     if ($usuario) {
         $authService->generarToken($usuario, 'register_user');
-        echo "Estado de usuario: pendiente. Registro exitoso. Verifica tu correo.";
+        echo "Estado de usuario: pendiente. Registro exitoso. Verifique su correo.";
     } else {
-        echo "Error al registrar el usuario. El correo ya existe.";
+        echo "Error al registrar el usuario. El correo ya existe. Si cree que esto ha sido un error, por favor contacte al administrador.";
     }
 
 } elseif ($action === 'recover') {
     $correo = $_POST['email'] ?? '';
     if (empty($correo)) {
-        echo "Ingresa tu correo electrónico.";
+        echo "Ingrese su correo electrónico.";
         exit;
     }
 
@@ -94,9 +94,9 @@ if ($action === 'login') {
     if ($userData) {
         $usuario = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
         $authService->generarToken($usuario, 'reset_password');
-        echo "Código de recuperación enviado.";
+        echo "Token de recuperación generado con éxito.";
     } else {
-        echo "Correo no encontrado.";
+        echo "Correo no encontrado.  Si cree que esto ha sido un error, por favor contacte al administrador.";
     }
 
 } elseif ($action === 'verify') {

@@ -127,18 +127,18 @@ class AuthService {
             switch($type) {
                 case 'validate_user':
                     $subject = 'Código de Acceso - Cine First';
-                    $titulo = '¡Bienvenido de Nuevo!';
-                    $mensaje = 'Usa el siguiente código para completar tu inicio de sesión:';
+                    $titulo = 'Verificación de Seguridad';
+                    $mensaje = 'Utilice el siguiente código para completar su inicio de sesión en nuestra plataforma.';
                     break;
                 case 'register_user':
-                    $subject = 'Verifica tu Cuenta - Cine First';
-                    $titulo = '¡Gracias por unirte!';
-                    $mensaje = 'Para completar tu registro en Cine First, utiliza este código de verificación:';
+                    $subject = 'Verifique su Cuenta - Cine First';
+                    $titulo = 'Activación de Cuenta';
+                    $mensaje = 'Bienvenido a la experiencia Cine First. Para activar su perfil, ingrese el siguiente código.';
                     break;
                 case 'reset_password':
                     $subject = 'Recuperar Contraseña - Cine First';
-                    $titulo = 'Restablecer Contraseña';
-                    $mensaje = 'Has solicitado restablecer tu contraseña. Utiliza el siguiente código de seguridad:';
+                    $titulo = 'Cambio de Contraseña';
+                    $mensaje = 'Hemos recibido una solicitud para restablecer su clave. Utilice este código de seguridad.';
                     break;
             }
 
@@ -146,85 +146,54 @@ class AuthService {
             
             $body = "
             <html>
-            <head>
-                <style>
-                    .container {
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        max-width: 600px;
-                        margin: 0 auto;
-                        background-color: #000;
-                        color: #ffffff;
-                        border-radius: 15px;
-                        overflow: hidden;
-                        border: 2px solid #e11d48;
-                        background-image: url('https://i.pinimg.com/originals/ea/2d/6e/ea2d6ec2d94e5d1e492c58b102688282.gif');
-                        background-size: cover;
-                        background-position: center;
-                    }
-                    .overlay {
-                        background-color: rgba(0, 0, 0, 0.85);
-                        padding: 40px;
-                        text-align: center;
-                    }
-                    .logo {
-                        font-size: 32px;
-                        font-weight: bold;
-                        color: #e11d48;
-                        margin-bottom: 20px;
-                        text-transform: uppercase;
-                        letter-spacing: 3px;
-                    }
-                    .title {
-                        font-size: 24px;
-                        margin-bottom: 20px;
-                        color: #fcd34d;
-                    }
-                    .code-box {
-                        background-color: rgba(225, 29, 72, 0.1);
-                        border: 2px dashed #e11d48;
-                        border-radius: 10px;
-                        padding: 20px;
-                        margin: 30px 0;
-                        display: inline-block;
-                    }
-                    .code {
-                        font-size: 48px;
-                        font-weight: bold;
-                        letter-spacing: 10px;
-                        color: #ffffff;
-                        margin: 0;
-                    }
-                    .footer {
-                        margin-top: 30px;
-                        font-size: 14px;
-                        color: #9ca3af;
-                    }
-                    .warning {
-                        color: #f87171;
-                        font-style: italic;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <div class='overlay'>
-                        <div class='logo'>CINE FIRST</div>
-                        <div class='title'>{$titulo}</div>
-                        <p style='font-size: 16px;'>Hola, <b>{$usuario->getNombre()}</b></p>
-                        <p style='font-size: 16px;'>{$mensaje}</p>
-                        
-                        <div class='code-box'>
-                            <p class='code'>{$tokenValue}</p>
-                        </div>
-                        
-                        <p class='warning'>Este código expirará en 2 minutos.</p>
-                        
-                        <div class='footer'>
-                            <hr style='border: 0; border-top: 1px solid #374151; margin: 20px 0;'>
-                            <p>&copy; " . date('Y') . " Cine First. Todos los derechos reservados.</p>
-                        </div>
-                    </div>
-                </div>
+            <body style='margin: 0; padding: 0; background-color: #000; font-family: \"Segoe UI\", Helvetica, Arial, sans-serif;'>
+                <table width='100%' border='0' cellspacing='0' cellpadding='0' style='background-color: #000; min-height: 100vh;'>
+                    <tr>
+                        <td align='center' style='padding: 40px 0;'>
+                            <table width='600' border='0' cellspacing='0' cellpadding='0' style='background-color: #0a0a0a; border-radius: 4px; overflow: hidden; border: 1px solid #1f1f1f;'>
+                                <!-- Header con Logo y GIF -->
+                                <tr>
+                                    <td style='background-color: #000; padding: 40px; text-align: center; border-bottom: 3px solid #E50914;'>
+                                        <h1 style='color: #E50914; font-size: 32px; font-weight: 900; margin: 0; letter-spacing: 6px; text-transform: uppercase;'>CINE FIRST</h1>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='position: relative; height: 300px; overflow: hidden;'>
+                                        <img src='https://i.pinimg.com/originals/ea/2d/6e/ea2d6ec2d94e5d1e492c58b102688282.gif' width='600' style='display: block; border: 0;' alt='Cinema Background'>
+                                    </td>
+                                </tr>
+                                <!-- Contenido -->
+                                <tr>
+                                    <td style='padding: 50px 40px; text-align: center;'>
+                                        <h2 style='color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;'>{$titulo}</h2>
+                                        <p style='color: #a1a1aa; font-size: 14px; line-height: 1.6; margin-bottom: 30px;'>
+                                            Hola, <strong style='color: #ffffff;'>{$usuario->getNombre()}</strong>.<br>
+                                            {$mensaje}
+                                        </p>
+                                        
+                                        <div style='padding: 30px; margin: 40px 0;'>
+                                            <p style='color: #71717a; font-size: 10px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 3px;'>Su código de acceso</p>
+                                            <h3 style='color: #c29d09; font-size: 56px; font-weight: 900; margin: 0; letter-spacing: 12px;'>{$tokenValue}</h3>
+                                        </div>
+                                        
+                                        <p style='color: #aa1717; font-size: 11px; font-weight: 700; font-style: italic; margin-top: 20px;'>
+                                            Este código tiene una validez de 2 minutos por seguridad.
+                                        </p>
+                                    </td>
+                                </tr>
+                                <!-- Footer -->
+                                <tr>
+                                    <td style='background-color: #050505; padding: 30px 40px; text-align: center; border-top: 1px solid #1f1f1f;'>
+                                        <p style='color: #52525b; font-size: 10px; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: 2px;'>
+                                            © " . date('Y') . " Cine First - Colombia
+                                        </p>
+                                    
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </body>
             </html>
             ";
