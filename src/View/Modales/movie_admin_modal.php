@@ -33,7 +33,7 @@
                     <!-- Columna Principal -->
                     <div class="md:col-span-2 space-y-10">
                         <div>
-                            <h3 class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">Ficha Técnica</h3>
+                            <h3 class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">FICHA TÉCNICA</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="bg-zinc-900/50 p-6 rounded-sm border border-zinc-800/50">
                                     <span class="text-zinc-500 text-[9px] font-black uppercase block mb-2 tracking-[0.2em]">Director</span>
@@ -47,7 +47,7 @@
                         </div>
 
                         <div>
-                            <h3 class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">Reparto</h3>
+                            <h3 class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6">REPARTO</h3>
                             <div class="bg-zinc-900/30 p-8 rounded-sm border border-zinc-800/30">
                                 <p id="modal-info-elenco" class="text-zinc-400 font-medium text-sm leading-relaxed uppercase tracking-tighter italic"></p>
                             </div>
@@ -58,11 +58,11 @@
                     <div class="flex flex-col justify-start">
                         <div class="bg-[#E50914]/5 border border-[#E50914]/20 p-8 rounded-sm space-y-6">
                             <div class="space-y-2">
-                                <h4 class="text-white font-black text-sm uppercase tracking-widest font-bebas">Experiencia Cine</h4>
+                                <h4 class="text-white font-black text-sm uppercase tracking-widest font-bebas">EXPERIENCIA CINE</h4>
                                 <p class="text-zinc-500 text-[10px] font-bold uppercase tracking-tight leading-relaxed">Disfruta esta producción con la mejor tecnología de proyección.</p>
                             </div>
                             <button class="w-full bg-[#E50914] hover:bg-[#b90710] text-white font-black py-4 rounded-sm transition-all text-[10px] uppercase tracking-[0.3em] shadow-2xl active:scale-95">
-                                Ver Horarios
+                                Ver horarios
                             </button>
                         </div>
                     </div>

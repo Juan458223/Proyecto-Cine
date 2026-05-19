@@ -22,7 +22,7 @@ if ($action === 'login') {
         $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
         $usuarioDto = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
         $authService->generarToken($usuarioDto, 'register_user');
-        echo "Estado de usuario: pendiente. Se ha enviado un nuevo código de activación.";
+        echo "Estado de usuario: pendiente. Se ha enviado un nuevo token de activación.";
     } elseif ($usuario != null) {
         $authService->generarToken($usuario, 'validate_user');
         echo "Token generado con éxito.";
@@ -125,6 +125,30 @@ if ($action === 'login') {
         echo $resultado['resultado']; 
     } else {
         echo "Error en la validación.";
+    }
+} elseif ($action === 'update_profile') {
+    header('Content-Type: application/json');
+    if (!isset($_SESSION['usuario_id'])) {
+        echo json_encode(['success' => false, 'error' => 'No autorizado']);
+        exit;
+    }
+
+    $nombre = $_POST['nombre'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+
+    if (empty($nombre)) {
+        echo json_encode(['success' => false, 'error' => 'El nombre es obligatorio']);
+        exit;
+    }
+
+    $success = $authService->actualizarPerfil($_SESSION['usuario_id'], $nombre, $password);
+    
+    if ($success) {
+        $_SESSION['usuario_nombre'] = $nombre;
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Error al actualizar el perfil']);
     }
 }
 ?>

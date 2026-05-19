@@ -15,6 +15,13 @@
             return $peli->fetchAll(PDO::FETCH_ASSOC);
         }
 
+        public function capturarPelisPorGenero($genero_id){
+            $sql = "SELECT * FROM pelicula WHERE genero_id_genero = :genero_id";
+            $peli = $this->db->prepare($sql);
+            $peli->execute(['genero_id' => $genero_id]);
+            return $peli->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         public function insertarPelicula(Pelicula $pelicula) {
             try {
                 $sql = "INSERT INTO pelicula (titulo, director, clasificacion, url_image, genero_id_genero)

@@ -28,8 +28,12 @@ class PeliculaService {
         return $generos;
     }
 
-    public function listarPeliculas(){
-        $movieData = $this->peliculaDAO->capturarPelis();
+    public function listarPeliculas($genero_id = null){
+        if ($genero_id) {
+            $movieData = $this->peliculaDAO->capturarPelisPorGenero($genero_id);
+        } else {
+            $movieData = $this->peliculaDAO->capturarPelis();
+        }
         $protaData = $this->protagonistaDAO->obtenerTodos();
         $pelihasprota = $this->pelihasprotaDAO->obtenerTodos();
 
@@ -41,7 +45,7 @@ class PeliculaService {
                 $director = $pelis['director'];
                 $clasificacion = $pelis['clasificacion'];
                 if($pelis['clasificacion']==0){
-                    $clasificacion = 'Todo Publico';
+                    $clasificacion = 'Todo público';
                 }else{
                     $clasificacion = '+'.$pelis['clasificacion'];
                 }
@@ -124,13 +128,13 @@ class PeliculaService {
         return $this->peliculaDAO->insertarPelicula($pelicula);
     }
 
-    public function obtenerTablas() {
-        $peliculas = $this->listarPeliculas();
+    public function obtenerTablas($genero_id = null) {
+        $peliculas = $this->listarPeliculas($genero_id);
         $genderData = $this->generoDAO->obtenerTodos();
 
         foreach ($peliculas as $peli) {
             // Formateo para la UI
-            $clasifUI = ($peli->getClasificacion() == 0) ? 'Todo Publico' : '+'.$peli->getClasificacion();
+            $clasifUI = ($peli->getClasificacion() == 0) ? 'Todo público' : '+'.$peli->getClasificacion();
             
 
             $json_data = htmlspecialchars(json_encode([
@@ -164,7 +168,7 @@ class PeliculaService {
                     <div class='absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center p-6'>
                         <div class='w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out'>
                             <button class='w-full bg-[#E50914] hover:bg-[#b90710] text-white text-[9px] font-black uppercase tracking-[0.3em] py-3 rounded-sm shadow-2xl transition-all active:scale-95'>
-                                Ver Detalles
+                                Ver detalles
                             </button>
                         </div>
                     </div>

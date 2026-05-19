@@ -8,8 +8,8 @@ $peliculaService = new PeliculaService();
 $action = $_GET['action'] ?? 'renderGrid';
 
 if ($action === 'renderGrid') {
-    // El método obtenerTablas ya realiza el echo de las tarjetas HTML
-    $peliculaService->obtenerTablas();
+    $genero_id = isset($_GET['genero_id']) ? (int)$_GET['genero_id'] : null;
+    $peliculaService->obtenerTablas($genero_id);
 
 } elseif ($action === 'tablaPelicula') {
     // Compatibilidad con llamadas antiguas

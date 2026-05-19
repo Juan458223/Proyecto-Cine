@@ -3,22 +3,24 @@
     <div class="bg-zinc-950 w-full max-w-6xl h-full max-h-[85vh] rounded-sm border border-zinc-800 flex flex-col shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="admin-modal-content">
         
         <!-- Header & Tabs -->
-        <div class="p-8 border-b border-zinc-900 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="p-8 border-b border-zinc-900 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
             <div>
-                <h2 class="text-4xl font-black text-[#E50914] font-bebas tracking-[0.2em] uppercase leading-none">Panel de Control</h2>
+                <h2 class="text-4xl font-black text-[#E50914] font-bebas tracking-[0.2em] uppercase leading-none">PANEL DE CONTROL</h2>
                 <p class="text-zinc-600 text-[9px] font-bold uppercase tracking-[0.3em] mt-2">Gestión centralizada de recursos</p>
             </div>
             
-            <div class="flex bg-zinc-900 p-1 rounded-sm border border-zinc-800">
-                <button onclick="switchAdminTab('movies')" id="tab-movies" class="px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all bg-[#E50914] text-white">
-                    Catálogo Cine
-                </button>
-                <button onclick="switchAdminTab('users')" id="tab-users" class="px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
-                    Usuarios
-                </button>
-                <button onclick="switchAdminTab('protagonists')" id="tab-protagonists" class="px-8 py-3 text-[10px] font-black uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
-                    Protagonistas
-                </button>
+            <div class="flex flex-wrap bg-zinc-900 p-1 rounded-sm border border-zinc-800 gap-1">
+                <button onclick="switchAdminTab('movies')" id="tab-movies" class="admin-tab active">Películas</button>
+                <button onclick="switchAdminTab('users')" id="tab-users" class="admin-tab">Usuarios</button>
+                <button onclick="switchAdminTab('cines')" id="tab-cines" class="admin-tab">Cines</button>
+                <button onclick="switchAdminTab('salas')" id="tab-salas" class="admin-tab">Salas</button>
+                <button onclick="switchAdminTab('funciones')" id="tab-funciones" class="admin-tab">Funciones</button>
+                <button onclick="switchAdminTab('generos')" id="tab-generos" class="admin-tab">Géneros</button>
+                <button onclick="switchAdminTab('tarifas')" id="tab-tarifas" class="admin-tab">Tarifas</button>
+                <button onclick="switchAdminTab('estados')" id="tab-estados" class="admin-tab">Estados</button>
+                <button onclick="switchAdminTab('tipos_tokens')" id="tab-tipos_tokens" class="admin-tab">Tipos Tokens</button>
+                <button onclick="switchAdminTab('tokens')" id="tab-tokens" class="admin-tab">Tokens</button>
+                <button onclick="switchAdminTab('protagonists')" id="tab-protagonists" class="admin-tab">Protagonistas</button>
             </div>
 
             <button onclick="closeAdminDashboard()" class="text-zinc-500 hover:text-[#E50914] transition-all bg-zinc-900 p-2 rounded-full border border-zinc-800">
@@ -28,15 +30,13 @@
             </button>
         </div>
 
-        <!-- Botón de Inserción (Nuevo) -->
-        <!-- Este contenedor se sitúa encima de la tabla para permitir acciones rápidas -->
+        <!-- Botón de Inserción -->
         <div class="px-8 py-4 bg-zinc-900/30 border-b border-zinc-900 flex justify-end">
             <button onclick="openInsertModal()" class="flex items-center gap-2 bg-[#E50914] hover:bg-[#b90710] text-white text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded-sm transition-all shadow-lg shadow-red-900/20">
-                <!-- Icono de Plus (+) -->
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
                 </svg>
-                <span id="insert-btn-text">Insertar Película</span>
+                <span id="insert-btn-text">Insertar película</span>
             </button>
         </div>
 
@@ -54,7 +54,6 @@
                     </tbody>
                 </table>
                 
-                <!-- Skeleton / Loading State (Opcional) -->
                 <div id="admin-loading" class="hidden py-20 text-center">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#E50914]"></div>
                 </div>
@@ -83,3 +82,12 @@
         </div>
     </div>
 </div>
+
+<style>
+    .admin-tab {
+        @apply px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all text-zinc-500 hover:text-white rounded-sm;
+    }
+    .admin-tab.active {
+        @apply bg-[#E50914] text-white;
+    }
+</style>

@@ -13,7 +13,7 @@
       <div class="relative m-3 items-center flex justify-between px-8 text-white h-24 rounded-lg bg-zinc-900 border border-zinc-800 shadow-md">
         <div class="flex flex-col">
             <h3 id="insert-modal-title" class="text-3xl font-black font-bebas tracking-widest uppercase italic leading-none">
-              Nuevo Registro
+              NUEVO REGISTRO
             </h3>
             <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-[0.4em] mt-2 block">Cine First Management</span>
         </div>
@@ -39,7 +39,7 @@
             id="form-submit-btn"
             class="w-full rounded-md bg-[#E50914] py-3.5 px-4 border border-transparent text-center text-[11px] font-black text-white transition-all shadow-lg hover:shadow-red-900/20 hover:bg-[#b90710] active:scale-[0.98] uppercase tracking-[0.2em]"
           >
-            Confirmar y Guardar
+            Confirmar y guardar
           </button>
           <button 
             type="button" 

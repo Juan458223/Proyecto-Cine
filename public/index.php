@@ -62,25 +62,25 @@
         <!-- Login -->
         <div id="login-section" class="space-y-10 animate-in fade-in slide-in-from-left duration-700">
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none">Iniciar Sesión</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none">INICIAR SESIÓN</h1>
                 <p class="auth-subtitle">Bienvenido a la experiencia Cine First</p>
             </div>
             
             <form action="login.php" method="post" class="flex flex-col space-y-8" id="login-form">
                 <div class="flex flex-col">
                     <label for="email" class="auth-label">Correo electrónico</label>
-                    <input class="auth-input" type="email" name="email" id="email" placeholder="Ingresa su  correo">
+                    <input class="auth-input" type="email" name="email" id="email" placeholder="Ingresa su correo">
                 </div>
                 
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center">
                         <label for="password" class="auth-label">Contraseña</label>
-                        <a href="#" id="recover-link" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors">¿Olvidaste su contraseña?</a>
+                        <a href="#" id="recover-link" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors">¿Olvidó su contraseña?</a>
                     </div>
                     <input class="auth-input" type="password" name="password" id="password" placeholder="••••••••">
                 </div>
                 
-                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl active:scale-95 w-full" type="submit" value="Iniciar Sesión">
+                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl active:scale-95 w-full" type="submit" value="Iniciar sesión">
             </form>
             
             <div class="pt-6 border-t border-zinc-900 flex justify-between items-center">
@@ -99,16 +99,16 @@
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Restablecer Contraseña</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">RESTABLECER CONTRASEÑA</h1>
                 <p class="auth-subtitle italic">Enviaremos un código a su correo</p>
             </div>
             
             <form action="recover.php" method="post" class="flex flex-col space-y-8" id="recover-form">
                 <div class="flex flex-col">
-                    <label for="email_rec" class="auth-label">Correo registrado</label>
+                    <label for="email_rec" class="auth-label">Correo electrónico</label>
                     <input class="auth-input" type="email" name="email" id="email_rec" placeholder="Ingresa su correo">
                 </div>
-                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl" type="submit" value="Enviar Código">
+                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl" type="submit" value="Enviar código">
             </form>
         </div>
 
@@ -122,7 +122,7 @@
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">Registrar</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">REGISTRAR</h1>
             </div>
             
             <form action="register.php" method="post" class="flex flex-col space-y-6" id="register-form">

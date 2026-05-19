@@ -1,13 +1,18 @@
 <?php
 session_start();
-require_once __DIR__ . '/../src/Service/PeliculaService.php';
-require_once __DIR__ . '/../src/Service/UsuarioService.php';
-require_once __DIR__ . '/../src/Service/ProtagonistaService.php';
+require_once __DIR__ . '/../Service/PeliculaService.php';
+require_once __DIR__ . '/../Service/UsuarioService.php';
+require_once __DIR__ . '/../Service/ProtagonistaService.php';
+require_once __DIR__ . '/../Dao/CineDAO.php';
+require_once __DIR__ . '/../Dao/SalaDAO.php';
+require_once __DIR__ . '/../Dao/FuncionDAO.php';
+require_once __DIR__ . '/../Dao/TarifaDAO.php';
+require_once __DIR__ . '/../Dao/GeneroDAO.php';
 require_once __DIR__ . '/../Model/Pelicula.php';
 require_once __DIR__ . '/../Model/Usuario.php';
 require_once __DIR__ . '/../Model/Protagonista.php';
 
-// Verificación de seguridad robusta siguiendo el patrón del proyecto
+// Verificación de seguridad
 if (!isset($_SESSION['usuario_id']) || $_SESSION['permisos'] != 1) {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'No autorizado']);
@@ -15,7 +20,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['permisos'] != 1) {
 }
 
 $action = $_GET['action'] ?? 'list';
-$type = $_GET['type'] ?? 'movies'; // 'movies', 'users', 'protagonists'
+$type = $_GET['type'] ?? 'movies';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 5;
 $offset = ($page - 1) * $limit;
@@ -23,51 +28,135 @@ $offset = ($page - 1) * $limit;
 $peliculaService = new PeliculaService();
 $usuarioService = new UsuarioService();
 $protagonistaService = new ProtagonistaService();
+$cineDAO = new CineDAO();
+$salaDAO = new SalaDAO();
+$funcionDAO = new FuncionDAO();
+$tarifaDAO = new TarifaDAO();
+$generoDAO = new GeneroDAO();
 
 header('Content-Type: application/json');
 
-// Obtener lista de géneros (Para el select dinámico)
 if ($action === 'genres') {
-    $generos = $peliculaService->listarGeneros();
-    $data = array_map(function($g) {
-        return [
-            'id_genero' => $g->getIdGenero(),
-            'nombre_genero' => $g->getNombreGenero()
-        ];
-    }, $generos);
+    $data = $generoDAO->obtenerTodos();
+    echo json_encode(['data' => $data]);
+    exit;
+}
+
+if ($action === 'cines_list') {
+    $data = $cineDAO->obtenerTodos();
+    echo json_encode(['data' => $data]);
+    exit;
+}
+
+if ($action === 'salas_list') {
+    $data = $salaDAO->obtenerTodas();
+    echo json_encode(['data' => $data]);
+    exit;
+}
+
+if ($action === 'tarifas_list') {
+    $data = $tarifaDAO->obtenerTodas();
     echo json_encode(['data' => $data]);
     exit;
 }
 
 if ($action === 'list') {
-    if ($type === 'users') {
-        $data = $usuarioService->listarUsuariosPaginados($limit, $offset);
-        $total = $usuarioService->contarUsuarios();
-    } elseif ($type === 'protagonists') {
-        $protagonistas = $protagonistaService->listarProtagonistasPaginados($limit, $offset);
-        $total = $protagonistaService->contarProtagonistas();
-        
-        $data = array_map(function($prota) {
-            return [
-                'ID actor' => $prota->getIdActor(),
-                'Nombre'   => $prota->getNombre()
-            ];
-        }, $protagonistas);
-    } else {
-        $peliculas = $peliculaService->obtenerPeliculasPaginadas($limit, $offset);
-        $total = $peliculaService->contarPeliculas();
-        
-        $data = array_map(function($peli) {
-            return [
-                'ID pelicula'      => $peli->getIdPelicula(),
-                'Titulo'           => $peli->getTitulo(),
-                'Director'         => $peli->getDirector(),
-                'Clasificacion'    => $peli->getClasificacion(),
-                'Genero'           => $peli->getGenero()
-            ];
-        }, $peliculas);
+    $data = [];
+    $total = 0;
+
+    switch ($type) {
+        case 'users':
+            $data = $usuarioService->listarUsuariosPaginados($limit, $offset);
+            $total = $usuarioService->contarUsuarios();
+            break;
+        case 'protagonists':
+            $protagonistas = $protagonistaService->listarProtagonistasPaginados($limit, $offset);
+            $total = $protagonistaService->contarProtagonistas();
+            $data = array_map(fn($p) => ['id' => $p->getIdActor(), 'nombre' => $p->getNombre()], $protagonistas);
+            break;
+        case 'movies':
+            $peliculas = $peliculaService->obtenerPeliculasPaginadas($limit, $offset);
+            $total = $peliculaService->contarPeliculas();
+            $data = array_map(fn($p) => [
+                'id' => $p->getIdPelicula(),
+                'titulo' => $p->getTitulo(),
+                'director' => $p->getDirector(),
+                'clasificacion' => $p->getClasificacion(),
+                'genero' => $p->getGenero()
+            ], $peliculas);
+            break;
+        case 'cines':
+            $res = $cineDAO->obtenerTodos($limit, $offset);
+            $total = $cineDAO->contarTodos();
+            $data = array_map(fn($c) => [
+                'id' => $c['id_cine'],
+                'Nombre' => $c['nombre'],
+                'Direccion' => $c['direccion'],
+                'Telefono' => $c['telefono']
+            ], $res);
+            break;
+        case 'salas':
+            $res = $salaDAO->obtenerTodas($limit, $offset);
+            $total = $salaDAO->contarTodas();
+            $data = array_map(fn($s) => [
+                'id' => $s['id_sala'],
+                'Capacidad' => $s['capacidad'],
+                'Cine' => $s['cine_nombre']
+            ], $res);
+            break;
+        case 'funciones':
+            $res = $funcionDAO->obtenerTodas($limit, $offset);
+            $total = $funcionDAO->contarTodas();
+            $data = array_map(fn($f) => [
+                'id' => $f['id_funcion'],
+                'Fecha' => $f['fecha_hora'],
+                'Pelicula' => $f['pelicula_titulo'],
+                'Cine' => $f['cine_nombre'],
+                'Sala' => $f['sala_id_sala'],
+                'Vendidas' => $f['boletas_vendidas'],
+                'Tarifa' => $f['tarifa_id_dia']
+            ], $res);
+            break;
+        case 'generos':
+            $res = $generoDAO->obtenerTodos();
+            $total = count($res);
+            $data = array_slice($res, $offset, $limit);
+            $data = array_map(fn($g) => ['id' => $g['id_genero'], 'Nombre' => $g['nombre_genero']], $data);
+            break;
+        case 'tarifas':
+            $res = $tarifaDAO->obtenerTodas();
+            $total = count($res);
+            $data = array_slice($res, $offset, $limit);
+            $data = array_map(fn($t) => ['id' => $t['id_dia'], 'Precio' => $t['precio']], $data);
+            break;
+        case 'estados':
+            $db = DatabaseConnection::getInstance()->getConnection();
+            $res = $db->query("SELECT * FROM estados")->fetchAll(PDO::FETCH_ASSOC);
+            $total = count($res);
+            $data = array_slice($res, $offset, $limit);
+            $data = array_map(fn($e) => ['id' => $e['id'], 'Nombre' => $e['nombre']], $data);
+            break;
+        case 'tipos_tokens':
+            $db = DatabaseConnection::getInstance()->getConnection();
+            $res = $db->query("SELECT * FROM tipos_tokens")->fetchAll(PDO::FETCH_ASSOC);
+            $total = count($res);
+            $data = array_slice($res, $offset, $limit);
+            $data = array_map(fn($t) => ['id' => $t['id'], 'Nombre' => $t['nombre']], $data);
+            break;
+        case 'tokens':
+            $db = DatabaseConnection::getInstance()->getConnection();
+            $res = $db->query("SELECT t.*, u.correo FROM tokens t JOIN usuarios u ON t.usuario_id = u.id ORDER BY t.fecha_c DESC")->fetchAll(PDO::FETCH_ASSOC);
+            $total = count($res);
+            $data = array_slice($res, $offset, $limit);
+            $data = array_map(fn($t) => [
+                'id' => $t['idtoken'],
+                'Token' => $t['token_valor'],
+                'Usuario' => $t['correo'],
+                'Fecha' => $t['fecha_c']
+            ], $data);
+            break;
     }
-    
+
     echo json_encode([
         'data' => $data,
         'total' => (int)$total,
@@ -77,165 +166,134 @@ if ($action === 'list') {
     exit;
 }
 
-if ($action === 'delete') {
-    $id = $_POST['id'] ?? null;
-    $success = false;
-    
-    if ($id) {
-        if ($type === 'users') {
-            if ($id != $_SESSION['usuario_id']) {
-                $success = $usuarioService->eliminarUsuario($id);
-            } else {
-                echo json_encode(['success' => false, 'error' => 'No puedes eliminarte a ti mismo']);
-                exit;
-            }
-        } elseif ($type === 'protagonists') {
-            $success = $protagonistaService->eliminarProtagonista($id);
-        } else {
-            $success = $peliculaService->eliminarPelicula($id);
-        }
-    }
-    
-    echo json_encode(['success' => $success]);
-    exit;
-}
-
 if ($action === 'get') {
     $id = $_GET['id'] ?? null;
     $data = null;
-    
-    if ($id) {
-        if ($type === 'users') {
-            // Buscamos el usuario para pre-rellenar el modal
-            $usuarios = $usuarioService->listarUsuariosPaginados(100, 0);
-            foreach ($usuarios as $u) {
-                if ($u['id_usuario'] == $id) {
-                    $data = [
-                        'nombre' => $u['nombre'],
-                        'correo' => $u['correo'],
-                        'estado_id' => $u['estado_id'],
-                        'permisos' => $u['permisos']
-                    ];
-                    break;
-                }
-            }
-        } elseif ($type === 'protagonists') {
-            $protagonistas = $protagonistaService->listarProtagonistasPaginados(1000, 0);
-            foreach ($protagonistas as $p) {
-                if ($p->getIdActor() == $id) {
-                    $data = [
-                        'nombre' => $p->getNombre()
-                    ];
-                    break;
-                }
-            }
-        } else {
-            // Pre-rellenado para películas
+    if (!$id) exit;
+
+    switch ($type) {
+        case 'users':
+            $users = $usuarioService->listarUsuariosPaginados(100, 0);
+            foreach ($users as $u) if ($u['id_usuario'] == $id) $data = $u;
+            break;
+        case 'protagonists':
+            $p = $protagonistaService->obtenerProtagonistaPorId($id);
+            if ($p) $data = ['nombre' => $p->getNombre()];
+            break;
+        case 'movies':
             $peliculas = $peliculaService->listarPeliculas();
             foreach ($peliculas as $p) {
                 if ($p->getIdPelicula() == $id) {
-                    $clasif = str_replace('+', '', $p->getClasificacion());
-                    if ($clasif === 'Todo Publico') $clasif = 0;
-
                     $data = [
                         'titulo' => $p->getTitulo(),
                         'director' => $p->getDirector(),
-                        'clasificacion' => (int)$clasif,
+                        'clasificacion' => (int)str_replace('+', '', $p->getClasificacion()),
                         'url_image' => $p->getUrlImage()
                     ];
-                    
-                    // Obtener el ID del género para el select
-                    $generos = $peliculaService->listarGeneros();
-                    foreach ($generos as $g) {
-                        if ($g->getNombreGenero() === $p->getGenero()) {
-                            $data['genero_id'] = $g->getIdGenero();
-                            break;
-                        }
-                    }
-                    break;
+                    $gs = $generoDAO->obtenerTodos();
+                    foreach ($gs as $g) if ($g['nombre_genero'] === $p->getGenero()) $data['genero_id'] = $g['id_genero'];
                 }
             }
-        }
+            break;
+        case 'cines':
+            $data = $cineDAO->obtenerPorId($id);
+            break;
+        case 'salas':
+            $data = $salaDAO->obtenerPorId($id);
+            break;
+        case 'funciones':
+            $data = $funcionDAO->obtenerPorId($id);
+            break;
+        case 'generos':
+            $gs = $generoDAO->obtenerTodos();
+            foreach ($gs as $g) if ($g['id_genero'] == $id) $data = $g;
+            break;
+        case 'tarifas':
+            $data = $tarifaDAO->obtenerPorId($id);
+            break;
+        case 'estados':
+            $db = DatabaseConnection::getInstance()->getConnection();
+            $stmt = $db->prepare("SELECT * FROM estados WHERE id = ?");
+            $stmt->execute([$id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            break;
     }
-    
     echo json_encode($data);
     exit;
 }
 
-if ($action === 'update') {
+if ($action === 'delete') {
     $id = $_POST['id'] ?? null;
     $success = false;
-    
-    if ($id) {
-        if ($type === 'movies') {
-            $titulo = $_POST['titulo'] ?? '';
-            $director = $_POST['director'] ?? '';
-            $clasificacion = (int)($_POST['clasificacion'] ?? 0);
-            $url_image = $_POST['url_image'] ?? '';
-            $genero_id = (int)($_POST['genero_id'] ?? 1);
-            
-            $pelicula = new Pelicula($id, $titulo, $director, $clasificacion, $url_image, $genero_id);
-            $success = $peliculaService->actualizarPelicula($pelicula);
-            
-        } elseif ($type === 'users') {
-            $nombre = $_POST['nombre'] ?? '';
-            $correo = $_POST['email'] ?? '';
-            $estado_id = (int)($_POST['estado_id'] ?? 1);
-            $permisos = (int)($_POST['permisos'] ?? 0);
-            
-            // Recuperamos la contraseña actual para la actualización ya que no está en el formulario
-            $password = '';
-            if ($id) {
-                // Buscamos en la DB vía DAO directamente para obtener el hash de forma segura
-                $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
-                if ($userData) {
-                    $password = $userData['password'];
-                }
-            }
-            
-            $usuario = new Usuario($nombre, $correo, $password, $permisos, $id);
-            $usuario->setEstadoId($estado_id);
-            $success = $usuarioService->actualizarUsuario($usuario);
-        } elseif ($type === 'protagonists') {
-            $nombre = $_POST['nombre'] ?? '';
-            $success = $protagonistaService->actualizarProtagonista($id, $nombre);
-        }
+    if (!$id) exit;
+
+    switch ($type) {
+        case 'users': $success = ($id != $_SESSION['usuario_id']) ? $usuarioService->eliminarUsuario($id) : false; break;
+        case 'protagonists': $success = $protagonistaService->eliminarProtagonista($id); break;
+        case 'movies': $success = $peliculaService->eliminarPelicula($id); break;
+        case 'cines': $success = $cineDAO->eliminar($id); break;
+        case 'salas': $success = $salaDAO->eliminar($id); break;
+        case 'funciones': $success = $funcionDAO->eliminar($id); break;
+        case 'generos': $success = $generoDAO->eliminarGenero($id); break;
+        case 'tarifas': $success = $tarifaDAO->eliminar($id); break;
+        case 'estados': 
+            $db = DatabaseConnection::getInstance()->getConnection();
+            $stmt = $db->prepare("DELETE FROM estados WHERE id = ?");
+            $success = $stmt->execute([$id]);
+            break;
     }
-    
-    echo json_encode(['success' => (bool)$success]);
+    echo json_encode(['success' => $success]);
     exit;
 }
 
-if ($action === 'insert') {
+if ($action === 'insert' || $action === 'update') {
+    $id = $_POST['id'] ?? null;
     $success = false;
-    
-    if ($type === 'movies') {
-        $titulo = $_POST['titulo'] ?? '';
-        $director = $_POST['director'] ?? '';
-        $clasificacion = (int)($_POST['clasificacion'] ?? 0);
-        $url_image = $_POST['url_image'] ?? '';
-        $genero_id = (int)($_POST['genero_id'] ?? 1);
-        
-        $pelicula = new Pelicula(0, $titulo, $director, $clasificacion, $url_image, $genero_id);
-        $success = $peliculaService->insertarPelicula($titulo, $director, $clasificacion, $url_image, $genero_id);
-        
-    } elseif ($type === 'users') {
-        $nombre = $_POST['nombre'] ?? '';
-        $correo = $_POST['email'] ?? '';
-        $estado_id = (int)($_POST['estado_id'] ?? 1);
-        $permisos = (int)($_POST['permisos'] ?? 0);
-        
-        // Contraseña por defecto para nuevos usuarios ya que el campo se eliminó del admin
-        $password = password_hash('CineFirst123*', PASSWORD_BCRYPT); 
-        
-        $usuario = new Usuario($nombre, $correo, $password, $permisos);
-        $usuario->setEstadoId($estado_id);
-        $success = $usuarioService->insertarUsuario($usuario);
-    } elseif ($type === 'protagonists') {
-        $nombre = $_POST['nombre'] ?? '';
-        $success = $protagonistaService->insertarProtagonista($nombre);
+
+    switch ($type) {
+        case 'movies':
+            $p = new Pelicula($id ?? 0, $_POST['titulo'], $_POST['director'], (int)$_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
+            $success = $id ? $peliculaService->actualizarPelicula($p) : $peliculaService->insertarPelicula($p->getTitulo(), $p->getDirector(), $p->getClasificacion(), $p->getUrlImage(), $p->getGeneroId());
+            break;
+        case 'users':
+            $u = new Usuario($_POST['nombre'], $_POST['email'], '', (int)$_POST['permisos'], $id);
+            $u->setEstadoId((int)$_POST['estado_id']);
+            if (!$id) $u->setPassword(password_hash('CineFirst123*', PASSWORD_BCRYPT));
+            else {
+                $existing = (new UsuarioDAO())->obtenerUsuarioPorCorreo($_POST['email']);
+                $u->setPassword($existing['password']);
+            }
+            $success = $id ? $usuarioService->actualizarUsuario($u) : $usuarioService->insertarUsuario($u);
+            break;
+        case 'protagonists':
+            $success = $id ? $protagonistaService->actualizarProtagonista($id, $_POST['nombre']) : $protagonistaService->insertarProtagonista($_POST['nombre']);
+            break;
+        case 'cines':
+            $success = $id ? $cineDAO->actualizar($id, $_POST['nombre'], $_POST['direccion'], $_POST['telefono']) : $cineDAO->insertar($_POST['nombre'], $_POST['direccion'], $_POST['telefono']);
+            break;
+        case 'salas':
+            $success = $id ? $salaDAO->actualizar($id, $_POST['capacidad'], $_POST['cine_id']) : $salaDAO->insertar($_POST['capacidad'], $_POST['cine_id']);
+            break;
+        case 'funciones':
+            $success = $id ? $funcionDAO->actualizar($id, $_POST['fecha_hora'], $_POST['pelicula_id'], $_POST['sala_id'], $_POST['boletas_vendidas'], $_POST['tarifa_id']) : $funcionDAO->insertar($_POST['fecha_hora'], $_POST['pelicula_id'], $_POST['sala_id'], $_POST['boletas_vendidas'], $_POST['tarifa_id']);
+            break;
+        case 'generos':
+            $success = $id ? $generoDAO->actualizarGenero($id, $_POST['nombre']) : $generoDAO->insertarGenero($_POST['nombre']);
+            break;
+        case 'tarifas':
+            $success = $id ? $tarifaDAO->actualizar($_POST['id_dia'], $_POST['precio']) : $tarifaDAO->insertar($_POST['id_dia'], $_POST['precio']);
+            break;
+        case 'estados':
+            $db = DatabaseConnection::getInstance()->getConnection();
+            if ($id) {
+                $stmt = $db->prepare("UPDATE estados SET nombre = ? WHERE id = ?");
+                $success = $stmt->execute([$_POST['nombre'], $id]);
+            } else {
+                $stmt = $db->prepare("INSERT INTO estados (nombre) VALUES (?)");
+                $success = $stmt->execute([$_POST['nombre']]);
+            }
+            break;
     }
-    
     echo json_encode(['success' => (bool)$success]);
     exit;
 }

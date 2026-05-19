@@ -2,7 +2,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('movie-admin-modal');
     const content = document.getElementById('movie-modal-content');
     const closeBtn = document.getElementById('close-movie-admin-modal');
+    const filterGenre = document.getElementById('filter-genre');
+    const movieGrid = document.querySelector('main ul');
     
+    if (filterGenre && movieGrid) {
+        filterGenre.addEventListener('change', async (e) => {
+            const generoId = e.target.value;
+            movieGrid.style.opacity = '0.5';
+            movieGrid.style.pointerEvents = 'none';
+            
+            try {
+                const response = await fetch(`../Controller/PelisController.php?action=renderGrid&genero_id=${generoId}`);
+                const html = await response.text();
+                movieGrid.innerHTML = html;
+            } catch (error) {
+                console.error("Error filtrando películas:", error);
+            } finally {
+                movieGrid.style.opacity = '1';
+                movieGrid.style.pointerEvents = 'auto';
+            }
+        });
+    }
+
     if (!modal || !content) return;
 
     // Función Global para abrir el modal

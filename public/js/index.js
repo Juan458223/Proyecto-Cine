@@ -229,7 +229,7 @@ if (modalForm) {
         
         // Validación en cliente: 6 dígitos numéricos
         if (code.length !== 6) {
-            showErrorInModal("Ingrese los 6 dígitos del código");
+            showErrorInModal("Ingrese los 6 dígitos del token");
             return;
         }
 
@@ -257,18 +257,18 @@ if (modalForm) {
                     if (changePasswordForm) changePasswordForm.classList.remove("hidden");
                 } else {
                     modalMessage.innerHTML = "¡Verificación exitosa!<br>Redireccionando...";
-                    setTimeout(() => window.location.href = "home.php", 1500);
+                    setTimeout(() => window.location.href = "../src/View/home.php", 1500);
                 }
             } else {
                 modalLoading.classList.add("hidden");
                 modalForm.classList.remove("hidden");
 
                 // RESTAURAR instrucción anterior y mostrar error abajo
-                modalMessage.textContent = "Ingrese el código";
+                modalMessage.textContent = "Ingrese el token";
 
 
                 
-                const errorMsg = result === "token expirado" ? "El código ha expirado" : "Código incorrecto";
+                const errorMsg = result === "token expirado" ? "El token ha expirado" : "Token incorrecto";
                 showErrorInModal(errorMsg);
             }
         } catch (error) {
@@ -316,7 +316,7 @@ if (changePasswordForm) {
             
             if (result.includes("éxito")) {
                 modalLoading.classList.add("hidden");
-                modalMessage.innerHTML = "¡Contraseña actualizada!<br>Reiniciando sesión...";
+                modalMessage.innerHTML = "¡Contraseña actualizada!<br>Redireccionando";
                 setTimeout(() => window.location.href = "index.php", 2000);
             } else {
                 modalLoading.classList.add("hidden");

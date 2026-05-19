@@ -211,5 +211,31 @@ class AuthService {
     public function validarToken($correo, $token, $type) {
         return $this->authDAO->validateToken($token, $type, $correo);
     }
+
+    public function actualizarPerfil($id, $nombre, $password) {
+        try {
+            $db = DatabaseConnection::getInstance()->getConnection();
+            if (!empty($password)) {
+                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                $sql = "UPDATE usuarios SET nombre = :nombre, password = :password WHERE id = :id";
+                $stmt = $db->prepare($sql);
+                return $stmt->execute([
+                    'nombre' => $nombre,
+                    'password' => $hashedPassword,
+                    'id' => $id
+                ]);
+            } else {
+                $sql = "UPDATE usuarios SET nombre = :nombre WHERE id = :id";
+                $stmt = $db->prepare($sql);
+                return $stmt->execute([
+                    'nombre' => $nombre,
+                    'id' => $id
+                ]);
+            }
+        } catch (PDOException $e) {
+            error_log("Error al actualizar perfil: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?>
