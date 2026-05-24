@@ -1,1 +1,153 @@
 @import "tailwindcss";
+
+@theme {
+    --font-outfit: "Outfit", sans-serif;
+    --font-bebas: "Bebas Neue", sans-serif;
+}
+
+/* Missing Animation Utilities (Tailwind v4) */
+@utility animate-in {
+    animation-name: enter;
+    animation-duration: 150ms;
+    --tw-enter-opacity: initial;
+    --tw-enter-scale: initial;
+    --tw-enter-rotate: initial;
+    --tw-enter-translate-x: initial;
+    --tw-enter-translate-y: initial;
+}
+
+@utility fade-in {
+    --tw-enter-opacity: 0;
+}
+
+@utility slide-in-from-left {
+    --tw-enter-translate-x: -100%;
+}
+
+@utility slide-in-from-bottom-4 {
+    --tw-enter-translate-y: 1rem;
+}
+
+@layer base {
+    * { @apply border-zinc-800; }
+    body { 
+        @apply bg-black text-zinc-100;
+        font-family: 'Outfit', sans-serif !important;
+    }
+}
+
+@layer components {
+    /* Forms Re-Styling - PREMIUM UX RESTORED */
+    .auth-input-group {
+        @apply relative flex items-center transition-all duration-300;
+    }
+
+    .auth-input-modern {
+        @apply w-full bg-transparent border-0 border-b-2 border-zinc-800 py-4 pr-12 text-lg md:text-xl font-medium text-white transition-all duration-500 outline-none focus:border-[#E50914] placeholder:opacity-0;
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    .auth-label-modern {
+        @apply absolute left-0 top-4 text-zinc-500 text-base md:text-lg font-medium transition-all duration-500 pointer-events-none capitalize;
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    .auth-input-modern:focus ~ .auth-label-modern,
+    .auth-input-modern:not(:placeholder-shown) ~ .auth-label-modern {
+        @apply -top-6 text-[11px] md:text-sm text-[#E50914] font-bold;
+    }
+
+    /* RECTANGULAR BUTTON WITH ROUNDED CORNERS (12px) - AS REQUESTED */
+    .btn-primary {
+        background-color: #E50914 !important;
+        color: #ffffff !important;
+        @apply font-black text-sm md:text-base px-10 py-5 rounded-xl cursor-pointer transition-all duration-300 shadow-lg shadow-red-900/20 active:scale-95 w-full font-outfit border-0 capitalize;
+    }
+
+    .btn-primary:hover {
+        background-color: #ff0f1b !important;
+        @apply shadow-xl shadow-red-900/40 -translate-y-0.5;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-btn {
+        @apply flex items-center gap-3 px-6 py-4 text-sm font-semibold transition-all duration-300 border-l-2 border-transparent text-zinc-500 hover:text-white hover:bg-zinc-900/50 w-full text-left capitalize;
+        font-family: 'Outfit', sans-serif !important;
+    }
+    .sidebar-btn.active {
+        @apply border-[#E50914] text-white bg-zinc-900/80;
+    }
+
+    /* Animated Close Button */
+    .btn-close-rot {
+        @apply absolute top-8 right-8 w-10 h-10 flex items-center justify-center bg-transparent text-white/40 transition-all duration-500 ease-in-out hover:text-[#E50914] hover:rotate-90 active:scale-75 cursor-pointer;
+    }
+
+    /* Modern CRUD Form Styles */
+    .crud-form-modern {
+        @apply space-y-12 bg-zinc-950/20 backdrop-blur-3xl p-12 rounded-[2.5rem] border border-white/10 shadow-2xl;
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    .crud-input-group {
+        @apply relative flex items-center transition-all duration-300 pt-6;
+    }
+
+    .crud-input {
+        @apply w-full bg-transparent border-0 border-b-2 border-zinc-800 py-4 pr-12 text-lg font-medium text-white transition-all duration-500 outline-none focus:border-[#E50914] placeholder:opacity-0;
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    .crud-label {
+        @apply absolute left-0 top-10 text-zinc-600 text-sm font-medium transition-all duration-500 pointer-events-none capitalize;
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    .crud-input:focus ~ .crud-label,
+    .crud-input:not(:placeholder-shown) ~ .crud-label {
+        @apply -top-10 text-[11px] text-[#E50914] font-bold;
+    }
+
+    .crud-select {
+        @apply w-full bg-zinc-900/50 border-2 border-zinc-800 rounded-2xl px-6 py-5 text-white text-base transition-all duration-500 focus:border-[#E50914] focus:bg-black appearance-none outline-none;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Links Scaling */
+    .link-responsive {
+        @apply text-xs md:text-sm lg:text-base font-medium transition-colors font-outfit;
+    }
+
+    /* Modal Spacing - AIRY GAPS RESTORED */
+    .modal-container-spacing {
+        @apply pt-28 pb-12 px-10 md:px-14;
+    }
+
+    /* Security Code Specific Input - ELEGANT SCALE & ANIMATION RESTORED */
+    .auth-input-token {
+        @apply w-full bg-transparent border-0 border-b-2 border-zinc-800 py-3 text-3xl md:text-5xl font-black text-white text-center transition-all duration-500 outline-none focus:border-[#E50914] tracking-[0.3em] placeholder:opacity-0;
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    /* Password Visibility Toggle */
+    .password-toggle-btn {
+        @apply flex items-center justify-center text-zinc-500 hover:text-white transition-all duration-300 cursor-pointer p-3 z-30;
+    }
+
+    .auth-input-modern:focus ~ .password-toggle-btn,
+    .auth-input-modern:not(:placeholder-shown) ~ .password-toggle-btn,
+    .crud-input:focus ~ .password-toggle-btn,
+    .crud-input:not(:placeholder-shown) ~ .password-toggle-btn {
+        @apply text-[#E50914];
+    }
+}
+
+/* Custom Animations */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-scale {
+    animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

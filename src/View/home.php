@@ -21,6 +21,23 @@ $peliculaService = new PeliculaService();
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="../../public/img/logo.svg">
     <style>
+        /* Modern Button Polish */
+        .btn-primary {
+            background-color: #E50914 !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.15em !important;
+            border-radius: 1.25rem !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 10px 25px -5px rgba(229, 9, 20, 0.3) !important;
+        }
+        .btn-primary:hover {
+            background-color: #ff1f2a !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 15px 30px -5px rgba(229, 9, 20, 0.5) !important;
+        }
         body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
         .font-bebas { font-family: 'Bebas Neue', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -167,54 +184,64 @@ $peliculaService = new PeliculaService();
         </div>
     </main>
 
-    <!-- Modal Ajustes de Usuario -->
-    <div id="user-settings-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-        <div class="bg-zinc-950 w-full max-w-md rounded-xl border border-zinc-800 shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="settings-modal-content">
-            <div class="p-8 border-b border-zinc-900 flex justify-between items-center">
-                <div>
-                    <h2 class="text-3xl font-black text-white font-bebas tracking-widest uppercase">AJUSTES DE CUENTA</h2>
-                    <p class="text-zinc-500 text-[9px] font-bold uppercase tracking-widest mt-1">Actualiza tu información personal</p>
-                </div>
-                <button onclick="closeUserSettings()" class="text-zinc-600 hover:text-[#E50914] transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+    <!-- Modal Ajustes de Usuario (ESTILO MODERNO UNIFICADO) -->
+    <div id="user-settings-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all duration-500 opacity-0 pointer-events-none" onclick="if(event.target === this) closeUserSettings()">
+        <div class="bg-zinc-950/40 backdrop-blur-2xl w-full max-w-md rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden transform transition-all duration-500 scale-95" id="settings-modal-content">
+            <div class="p-10 md:p-14">
+                <!-- Botón Cerrar Absoluto (Como en la captura) -->
+                <button onclick="closeUserSettings()" class="absolute top-8 right-8 btn-close-rot z-20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
+
+                <form id="user-settings-form" class="space-y-10">
+                    <div class="space-y-2 mb-10">
+                        <h2 class="text-3xl font-black text-white font-bebas tracking-widest uppercase leading-none">AJUSTES</h2>
+                        <p class="text-zinc-500 text-[9px] font-bold uppercase tracking-[0.3em]">Gestiona tu perfil personal</p>
+                    </div>
+
+                    <div class="crud-input-group">
+                        <input type="text" name="nombre" value="<?php echo $_SESSION['usuario_nombre']; ?>" class="crud-input" placeholder=" " required>
+                        <label class="crud-label">Nombre Completo</label>
+                    </div>
+                    
+                    <div class="crud-input-group">
+                        <input type="email" value="<?php echo $_SESSION['usuario_correo']; ?>" disabled class="crud-input !text-zinc-600 opacity-50 cursor-not-allowed" placeholder=" ">
+                        <label class="crud-label !text-zinc-700">Correo (No Editable)</label>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <input type="password" name="password" id="password_settings" class="auth-input-modern" placeholder=" ">
+                        <label class="auth-label-modern">Nueva Contraseña</label>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_settings')">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="auth-input-group">
+                        <input type="password" name="confirm_password" id="confirm_settings" class="auth-input-modern" placeholder=" ">
+                        <label class="auth-label-modern">Confirmar Contraseña</label>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('confirm_settings')">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="settings-message" class="hidden text-[9px] font-black uppercase tracking-widest text-center py-4 rounded-xl"></div>
+
+                    <button type="submit" class="w-full bg-[#E50914] hover:bg-[#b90710] text-white text-[11px] font-black uppercase tracking-[0.4em] py-5 rounded-2xl shadow-xl shadow-red-900/20 transition-all active:scale-95 font-montserrat mt-4">
+                        Guardar Cambios
+                    </button>
+                </form>
             </div>
-            
-            <form id="user-settings-form" class="p-8 space-y-6">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Nombre Completo</label>
-                    <input type="text" name="nombre" value="<?php echo $_SESSION['usuario_nombre']; ?>" required 
-                           class="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#E50914] transition-all">
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Correo Electrónico (No editable)</label>
-                    <input type="email" value="<?php echo $_SESSION['usuario_correo']; ?>" disabled 
-                           class="w-full bg-zinc-900/30 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-600 text-sm cursor-not-allowed">
-                </div>
-
-                <div class="h-px bg-zinc-900 my-4"></div>
-
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Nueva Contraseña (Dejar en blanco para no cambiar)</label>
-                    <input type="password" name="password" placeholder="••••••••" 
-                           class="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#E50914] transition-all">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Confirmar Nueva Contraseña</label>
-                    <input type="password" name="confirm_password" placeholder="••••••••" 
-                           class="w-full bg-zinc-900/50 border border-zinc-800 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-[#E50914] transition-all">
-                </div>
-
-                <div id="settings-message" class="hidden text-[10px] font-bold uppercase tracking-widest text-center py-2 px-4 rounded-sm"></div>
-
-                <button type="submit" class="w-full bg-[#E50914] hover:bg-[#b90710] text-white text-[11px] font-black uppercase tracking-[0.2em] py-4 rounded-lg shadow-lg shadow-red-900/20 transition-all active:scale-[0.98]">
-                    Guardar Cambios
-                </button>
-            </form>
         </div>
     </div>
 

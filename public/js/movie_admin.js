@@ -28,24 +28,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función Global para abrir el modal
     window.openMovieAdmin = function(data) {
-        // Inyectar datos
-        document.getElementById('modal-movie-title').textContent = data.titulo;
-        document.getElementById('modal-movie-subtitle').textContent = data.genero;
-        document.getElementById('modal-header-bg').style.backgroundImage = `url('${data.imagen}')`;
-        
-        document.getElementById('modal-info-director').textContent = data.director;
-        document.getElementById('modal-info-elenco').textContent = data.protagonistas;
-        document.getElementById('modal-info-clasif').textContent = data.clasificacion;
-        document.getElementById('modal-info-genero-ui').textContent = data.genero;
+        // Inyectar datos (Alineado con los IDs de movie_admin_modal.php)
+        const banner = document.getElementById('movie-admin-banner');
+        const poster = document.getElementById('movie-admin-poster');
+        const title = document.getElementById('movie-admin-title');
+        const director = document.getElementById('movie-admin-director');
+        const rating = document.getElementById('movie-admin-rating');
+        const genres = document.getElementById('movie-admin-genres');
+        const functions = document.getElementById('movie-admin-functions');
+
+        if (title) title.textContent = data.titulo;
+        if (director) director.textContent = data.director;
+        if (banner) banner.src = data.imagen || '';
+        if (poster) poster.src = data.imagen || '';
+        if (rating) rating.textContent = data.clasificacion;
+
+        // Limpiar y cargar géneros
+        if (genres) {
+            genres.innerHTML = '';
+            if (data.genero) {
+                const span = document.createElement('span');
+                span.className = "px-3 py-1 bg-[#E50914] text-white text-[9px] font-black uppercase tracking-widest rounded-full";
+                span.textContent = data.genero;
+                genres.appendChild(span);
+            }
+        }
+
+        // Limpiar y cargar funciones (Simulado o desde data si existe)
+        if (functions) {
+            functions.innerHTML = '<p class="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">No hay funciones programadas</p>';
+        }
 
         // Animación de entrada
         modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
+        modal.classList.add('flex');
+        
+        requestAnimationFrame(() => {
             modal.classList.add('opacity-100');
+            modal.classList.remove('pointer-events-none');
             content.classList.remove('scale-95');
             content.classList.add('scale-100');
-        }, 10);
+        });
         
         document.body.style.overflow = 'hidden';
     };

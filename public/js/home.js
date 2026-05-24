@@ -119,11 +119,13 @@ function openUserSettings() {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     
-    setTimeout(() => {
+    requestAnimationFrame(() => {
         modal.classList.add('opacity-100');
-        content.classList.remove('scale-95', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-    }, 10);
+        modal.classList.remove('pointer-events-none');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    });
+    document.body.style.overflow = 'hidden';
 }
 
 function closeUserSettings() {
@@ -132,15 +134,17 @@ function closeUserSettings() {
     const message = document.getElementById('settings-message');
     
     modal.classList.remove('opacity-100');
-    content.classList.add('scale-95', 'opacity-0');
-    content.classList.remove('scale-100', 'opacity-100');
+    modal.classList.add('pointer-events-none');
+    content.classList.add('scale-95');
+    content.classList.remove('scale-100');
     
     setTimeout(() => {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
         message.classList.add('hidden');
         document.getElementById('user-settings-form').reset();
-    }, 300);
+        document.body.style.overflow = 'auto';
+    }, 500);
 }
 
 document.getElementById('user-settings-form').onsubmit = async (e) => {
@@ -178,5 +182,24 @@ document.getElementById('user-settings-form').onsubmit = async (e) => {
         message.textContent = 'Error de conexión';
         message.className = 'text-red-500 bg-red-500/10 py-2 px-4 rounded-sm text-[10px] font-bold uppercase tracking-widest text-center';
         message.classList.remove('hidden');
+    }
+};
+
+window.togglePasswordVisibility = function(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    const btn = input.parentElement.querySelector(".password-toggle-btn");
+    const type = input.getAttribute("type") === "password" ? "text" : "password";
+    input.setAttribute("type", type);
+    
+    // Cambiar icono (Añadir/Quitar tachado)
+    if (btn) {
+        const slashPath = btn.querySelector(".eye-slash");
+        if (type === "text") {
+            slashPath.classList.remove("hidden");
+        } else {
+            slashPath.classList.add("hidden");
+        }
     }
 };

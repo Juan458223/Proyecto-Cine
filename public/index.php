@@ -1,3 +1,7 @@
+<?php 
+session_start();
+require_once __DIR__ . '/../src/View/Components/password_input.php'; 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,50 +10,29 @@
     <link rel="stylesheet" href="http://localhost:5173/public/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="./img/logo.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="img/logo.svg">
     <title>CINE FIRST</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
-        .font-bebas { font-family: 'Bebas Neue', sans-serif; }
-        
-        .auth-input {
-            background-color: transparent; 
-            border: none;
-            border-bottom: 2px solid #27272a; /* zinc-800 */
-            color: #fff;
-            padding: 0.6rem 0;
-            border-radius: 0;
-            transition: all 0.4s ease;
-            outline: none;
-            font-size: 1rem;
-            width: 100%;
+        /* Modern Button Polish */
+        .btn-primary {
+            background-color: #E50914 !important;
+            color: white !important;
+            border: none !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.15em !important;
+            border-radius: 1.25rem !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 10px 25px -5px rgba(229, 9, 20, 0.3) !important;
         }
-        .auth-input:focus {
-            border-bottom-color: #E50914;
-        }
-        .auth-input::placeholder {
-            color: #3f3f46; /* zinc-700 */
-            font-size: 0.9rem;
-        }
-        
-        /* Labels más claros y grandes */
-        .auth-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #a1a1aa; /* zinc-400 más claro */
-            margin-bottom: 0.25rem;
-        }
-
-        /* Texto de bienvenida más claro */
-        .auth-subtitle {
-            color: #a1a1aa;
-            font-size: 0.875rem;
-            font-weight: 500;
+        .btn-primary:hover {
+            background-color: #ff1f2a !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 15px 30px -5px rgba(229, 9, 20, 0.5) !important;
         }
     </style>
 </head>
-<body class="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-black">
+<body class="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-black font-outfit">
 
     <!-- Sección de Formulario -->
     <div class="bg-black text-white h-full w-full md:w-[450px] flex flex-col justify-center px-12 py-8 border-r border-zinc-900 shadow-2xl z-20">
@@ -63,86 +46,88 @@
         <div id="login-section" class="space-y-10 animate-in fade-in slide-in-from-left duration-700">
             <div class="space-y-2">
                 <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none">INICIAR SESIÓN</h1>
-                <p class="auth-subtitle">Bienvenido a la experiencia Cine First</p>
+                <p class="text-zinc-500 text-sm font-medium font-outfit">Bienvenido a la experiencia Cine First</p>
             </div>
             
-            <form action="login.php" method="post" class="flex flex-col space-y-8" id="login-form">
-                <div class="flex flex-col">
-                    <label for="email" class="auth-label">Correo electrónico</label>
-                    <input class="auth-input" type="email" name="email" id="email" placeholder="Ingresa su correo">
+            <form action="login.php" method="post" class="flex flex-col space-y-10" id="login-form">
+                <div class="auth-input-group">
+                    <input class="auth-input-modern" type="email" name="email" id="email" placeholder=" ">
+                    <label for="email" class="auth-label-modern">Correo electrónico</label>
                 </div>
                 
-                <div class="flex flex-col">
-                    <div class="flex justify-between items-center">
-                        <label for="password" class="auth-label">Contraseña</label>
-                        <a href="#" id="recover-link" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors">¿Olvidó su contraseña?</a>
-                    </div>
-                    <input class="auth-input" type="password" name="password" id="password" placeholder="••••••••">
+                <div class="auth-input-group">
+                    <input class="auth-input-modern" type="password" name="password" id="password" placeholder=" ">
+                    <label for="password" class="auth-label-modern">Contraseña</label>
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+                        </svg>
+                    </button>
                 </div>
                 
-                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl active:scale-95 w-full" type="submit" value="Iniciar sesión">
+                <div class="flex justify-end -mt-6">
+                    <a href="#" id="recover-link" class="link-responsive text-[#E50914] hover:text-red-400">¿Olvidó su contraseña?</a>
+                </div>
+                
+                <input class="btn-primary" type="submit" value="Iniciar sesión">
             </form>
             
-            <div class="pt-6 border-t border-zinc-900 flex justify-between items-center">
-                <p class="text-[12px] font-medium text-zinc-400">¿No tiene cuenta?</p>
-                <a href="#" class="text-[12px] font-bold text-[#E50914] hover:text-red-400 transition-colors" id="register-link">Regístrate aquí</a>
+            <div class="pt-6 border-t border-zinc-900 flex justify-between items-center font-outfit">
+                <p class="text-[13px] md:text-base lg:text-lg font-medium text-zinc-400">¿No tiene cuenta?</p>
+                <a href="#" class="link-responsive text-[#E50914] hover:text-red-400 font-bold" id="register-link">Regístrate aquí</a>
             </div>
         </div>
 
         <!-- Recuperar -->
         <div class="hidden space-y-10 animate-in fade-in slide-in-from-left duration-500" id="recover-section">
-            <a id="back-to-login-recover" href="#" class="inline-flex items-center text-zinc-400 hover:text-white transition-colors group">
+            <a id="back-to-login-recover" href="#" class="inline-flex items-center text-zinc-400 hover:text-white transition-colors group font-outfit">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 mr-2 group-hover:-translate-x-1 transition-transform">
                     <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 1 1 1.06 1.06L9.31 12l6.97 6.97a.75.75 0 1 1-1.06 1.06l-7.5-7.5Z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-[13px] font-medium">Volver</span>
+                <span class="text-[14px] font-medium">Volver</span>
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">RESTABLECER CONTRASEÑA</h1>
-                <p class="auth-subtitle italic">Enviaremos un código a su correo</p>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">RECUPERAR CONTRASEÑA</h1>
+                <p class="text-zinc-500 text-sm font-medium font-outfit">Enviaremos un código a su correo</p>
             </div>
             
-            <form action="recover.php" method="post" class="flex flex-col space-y-8" id="recover-form">
-                <div class="flex flex-col">
-                    <label for="email_rec" class="auth-label">Correo electrónico</label>
-                    <input class="auth-input" type="email" name="email" id="email_rec" placeholder="Ingresa su correo">
+            <form action="recover.php" method="post" class="flex flex-col space-y-10" id="recover-form">
+                <div class="auth-input-group">
+                    <input class="auth-input-modern" type="email" name="email" id="email_rec" placeholder=" ">
+                    <label for="email_rec" class="auth-label-modern">Correo electrónico</label>
                 </div>
-                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all shadow-xl" type="submit" value="Enviar código">
+                <input class="btn-primary" type="submit" value="Enviar código">
             </form>
         </div>
 
         <!-- Registro -->
         <div class="hidden space-y-8 animate-in fade-in slide-in-from-left duration-500" id="register-section">
-            <a id="back-to-login" href="#" class="inline-flex items-center text-zinc-400 hover:text-white transition-colors group">
+            <a id="back-to-login" href="#" class="inline-flex items-center text-zinc-400 hover:text-white transition-colors group mb-6 font-outfit">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 mr-2 group-hover:-translate-x-1 transition-transform">
                     <path fill-rule="evenodd" d="M7.72 12.53a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 1 1 1.06 1.06L9.31 12l6.97 6.97a.75.75 0 1 1-1.06 1.06l-7.5-7.5Z" clip-rule="evenodd" />
                 </svg>
-                <span class="text-[13px] font-medium">Volver</span>
+                <span class="text-[14px] font-medium">Volver</span>
             </a>
             
             <div class="space-y-2">
-                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">REGISTRAR</h1>
+                <h1 class="text-4xl font-normal uppercase tracking-tight font-bebas leading-none text-white">REGISTRARSE</h1>
             </div>
             
-            <form action="register.php" method="post" class="flex flex-col space-y-6" id="register-form">
-                <div class="flex flex-col">
-                    <label for="nombre" class="auth-label">Nombre completo</label>
-                    <input class="auth-input" type="text" name="nombre" id="nombre" placeholder="Ingrese su nombre">
+            <form action="register.php" method="post" class="flex flex-col space-y-8" id="register-form">
+                <div class="auth-input-group">
+                    <input class="auth-input-modern" type="text" name="nombre" id="nombre" placeholder=" ">
+                    <label for="nombre" class="auth-label-modern">Nombre completo</label>
                 </div>
-                <div class="flex flex-col">
-                    <label for="email_r" class="auth-label">Correo electrónico</label>
-                    <input class="auth-input" type="email" name="email" id="email_r" placeholder="Ingresa su correo">
+                <div class="auth-input-group">
+                    <input class="auth-input-modern" type="email" name="email" id="email_r" placeholder=" ">
+                    <label for="email_r" class="auth-label-modern">Correo electrónico</label>
                 </div>
-                <div class="flex flex-col">
-                    <label for="password_r" class="auth-label">Contraseña</label>
-                    <input class="auth-input" type="password" name="password" id="password_r" placeholder="Ingresa su contraseña">
-                </div>
-                <div class="flex flex-col">
-                    <label for="confirm_password" class="auth-label">Confirmar contraseña</label>
-                    <input class="auth-input" type="password" name="confirm_password" id="confirm_password" placeholder="Confirme su contraseña">
-                </div>
-                <input class="bg-[#E50914] text-white font-black uppercase tracking-[0.3em] text-[10px] py-3.5 rounded-sm cursor-pointer hover:bg-[#b90710] transition-all mt-4 shadow-xl" type="submit" value="Registrarse">
+                <?php echo render_password_input('password_r', 'password', 'Contraseña'); ?>
+                <?php echo render_password_input('confirm_password', 'confirm_password', 'Confirmar contraseña'); ?>
+                <input class="btn-primary" type="submit" value="Registrarse" style="background-color: #E50914 !important; color: white !important;">
             </form>
         </div>
     </div>
