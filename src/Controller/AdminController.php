@@ -12,13 +12,7 @@ require_once __DIR__ . '/../Model/Pelicula.php';
 require_once __DIR__ . '/../Model/Usuario.php';
 require_once __DIR__ . '/../Model/Protagonista.php';
 
-// Verificación de seguridad
-if (!isset($_SESSION['usuario_id']) || $_SESSION['permisos'] != 1) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'No autorizado']);
-    exit;
-}
-
+// Inicialización de variables y DAOs
 $action = $_GET['action'] ?? 'list';
 $type = $_GET['type'] ?? 'movies';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -33,6 +27,38 @@ $salaDAO = new SalaDAO();
 $funcionDAO = new FuncionDAO();
 $tarifaDAO = new TarifaDAO();
 $generoDAO = new GeneroDAO();
+
+// Verificación de seguridad básica para Admin
+$is_admin = isset($_SESSION['usuario_id']) && $_SESSION['permisos'] == 1;
+
+if ($action === 'list' && $type === 'cines' && !isset($_GET['admin_view'])) {
+    $home_limit = 6;
+    $home_offset = ($page - 1) * $home_limit;
+    $res = $cineDAO->obtenerTodos($home_limit, $home_offset);
+    $total = $cineDAO->contarTodos();
+    $pages = ceil($total / $home_limit);
+    
+    $data = array_map(function($c) use ($funcionDAO) {
+        return [
+            'id' => $c['id_cine'],
+            'Nombre' => $c['nombre'],
+            'Direccion' => $c['direccion'],
+            'Telefono' => $c['telefono'],
+            'funciones' => $funcionDAO->obtenerPorCine($c['id_cine']),
+            'salas' => $funcionDAO->obtenerSalasPorCine($c['id_cine'])
+        ];
+    }, $res);
+    
+    header('Content-Type: application/json');
+    echo json_encode(['data' => $data, 'pages' => $pages, 'currentPage' => $page]);
+    exit;
+}
+
+if (!$is_admin) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'No autorizado']);
+    exit;
+}
 
 header('Content-Type: application/json');
 

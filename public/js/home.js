@@ -3,6 +3,11 @@
  * Maneja el menú móvil, cambio de secciones y ajustes de usuario
  */
 
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 function toggleMobileMenu() {
     const menu = document.getElementById('mobile-menu');
     const icon = document.getElementById('hamburger-icon');
@@ -33,6 +38,8 @@ function showSection(sectionId) {
     
     sections.forEach(s => {
         const el = document.getElementById(`section-${s}`);
+        if (!el) return;
+        
         if (s === sectionId) {
             el.classList.remove('hidden');
             if (navItems[s]) {
@@ -54,30 +61,39 @@ function showSection(sectionId) {
     const heroBg = document.getElementById('hero-bg');
 
     if (sectionId === 'cartelera') {
-        heroTitle.innerHTML = 'CARTELERA <span class="text-[#E50914]">NACIONAL</span>';
-        heroSubtitle.textContent = 'La mejor experiencia en la pantalla grande';
-        heroBg.src = "https://images.unsplash.com/photo-1478720568477-152d9b164e26?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80";
+        if (heroTitle) heroTitle.innerHTML = 'CARTELERA <span class="text-[#E50914]">NACIONAL</span>';
+        if (heroSubtitle) heroSubtitle.textContent = 'La mejor experiencia en la pantalla grande';
+        if (heroBg) heroBg.src = "https://images.unsplash.com/photo-1478720568477-152d9b164e26?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80";
     } else if (sectionId === 'cines') {
-        heroTitle.innerHTML = 'NUESTROS <span class="text-[#E50914]">CINES</span>';
-        heroSubtitle.textContent = 'Encuentra tu sala más cercana';
-        heroBg.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80";
-        loadCines();
+        if (heroTitle) heroTitle.innerHTML = 'NUESTROS <span class="text-[#E50914]">CINES</span>';
+        if (heroSubtitle) heroSubtitle.textContent = 'Encuentra tu sala más cercana';
+        if (heroBg) heroBg.src = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80";
+        loadCines(1);
     }
 }
 
-async function loadCines() {
+let currentCinePage = 1;
+let currentCineData = null;
+
+async function loadCines(page = 1) {
     const grid = document.getElementById('cines-grid');
+    const pagination = document.getElementById('cines-pagination');
+    if (!grid) return;
+
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#E50914]"></div></div>';
     
     try {
-        const response = await fetch('../Controller/AdminController.php?action=list&type=cines');
+        const response = await fetch(`../Controller/AdminController.php?action=list&type=cines&page=${page}`);
         const result = await response.json();
         
         if (result.data && result.data.length > 0) {
             grid.innerHTML = '';
             result.data.forEach(cine => {
+                const nombre = capitalize(cine.Nombre);
+                const direccion = capitalize(cine.Direccion);
+                
                 grid.innerHTML += `
-                    <div class="group bg-zinc-950 border border-zinc-900 hover:border-[#E50914] transition-all p-8 rounded-sm font-outfit">
+                    <div onclick='openCineDetail(${JSON.stringify(cine)})' class="group bg-zinc-950 border border-zinc-900 hover:border-[#E50914] transition-all p-8 rounded-sm font-outfit cursor-pointer">
                         <div class="flex items-start justify-between mb-6">
                             <div class="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center text-[#E50914] group-hover:bg-[#E50914] group-hover:text-white transition-all">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,13 +101,13 @@ async function loadCines() {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
                             </div>
-                            <span class="text-[10px] font-bold text-zinc-700 group-hover:text-zinc-500 tracking-wider">Cine First</span>
+                            <span class="text-xs font-black text-zinc-700 group-hover:text-zinc-500 tracking-[0.1em] uppercase font-bebas">CINE FIRST</span>
                         </div>
-                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[#E50914] transition-colors tracking-tight capitalize">${cine.Nombre.toLowerCase()}</h4>
-                        <p class="text-zinc-500 text-xs font-medium mb-6 leading-relaxed capitalize">${cine.Direccion.toLowerCase()}</p>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[#E50914] transition-colors tracking-tight">${nombre}</h4>
+                        <p class="text-zinc-500 text-xs font-medium mb-6 leading-relaxed">${direccion}</p>
                         <div class="flex items-center gap-4 border-t border-zinc-900 pt-6">
                             <div class="flex flex-col">
-                                <span class="text-xs font-bold text-zinc-600">Teléfono</span>
+                                <span class="text-xs font-bold text-zinc-600">${capitalize('Teléfono')}</span>
                                 <span class="text-sm font-bold text-zinc-400 tracking-tight">${cine.Telefono || 'No disponible'}</span>
                             </div>
                             <button class="ml-auto bg-zinc-900 hover:bg-[#E50914] text-white p-3 rounded-sm transition-all shadow-lg">
@@ -103,77 +119,242 @@ async function loadCines() {
                     </div>
                 `;
             });
+
+            // Render Pagination
+            if (pagination) {
+                renderCinePagination(result.pages, result.currentPage);
+            }
+            currentCinePage = page;
+
         } else {
             grid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-medium py-20">No hay cines disponibles en este momento</p>';
         }
     } catch (error) {
+        console.error("Error cargando cines:", error);
         grid.innerHTML = '<p class="col-span-full text-center text-red-500/80 font-medium py-20">Error al cargar la lista de cines</p>';
     }
 }
 
-// User Settings Logic
-function openUserSettings() {
-    const modal = document.getElementById('user-settings-modal');
-    const content = document.getElementById('settings-modal-content');
-    
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    
-    requestAnimationFrame(() => {
-        modal.classList.add('opacity-100');
-        modal.classList.remove('pointer-events-none');
-        content.classList.remove('scale-95');
-        content.classList.add('scale-100');
-    });
-    document.body.style.overflow = 'hidden';
+function renderCinePagination(totalPages, currentPage) {
+    const container = document.getElementById('cines-pagination');
+    if (!container || totalPages <= 1) {
+        if (container) container.innerHTML = '';
+        return;
+    }
+
+    let html = `
+        <button onclick="loadCines(${currentPage - 1})" class="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${currentPage <= 1 ? 'opacity-30 pointer-events-none' : ''}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+    `;
+
+    for (let i = 1; i <= totalPages; i++) {
+        const active = i === currentPage ? 'bg-[#E50914] text-white border-[#E50914]' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white';
+        html += `<button onclick="loadCines(${i})" class="w-10 h-10 rounded-xl border font-bold text-xs transition-all ${active}">${i}</button>`;
+    }
+
+    html += `
+        <button onclick="loadCines(${currentPage + 1})" class="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${currentPage >= totalPages ? 'opacity-30 pointer-events-none' : ''}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+    `;
+
+    container.innerHTML = html;
 }
 
-function closeUserSettings() {
-    const modal = document.getElementById('user-settings-modal');
-    const content = document.getElementById('settings-modal-content');
-    const message = document.getElementById('settings-message');
+// --- Cine Detail Modal ---
+
+window.openCineDetail = function(cine) {
+    currentCineData = cine;
+    const modal = document.getElementById('cine-detail-modal');
+    const content = document.getElementById('cine-detail-content');
     
+    document.getElementById('cine-detail-name').textContent = capitalize(cine.Nombre);
+    document.getElementById('cine-detail-address').textContent = capitalize(cine.Direccion);
+    document.getElementById('cine-detail-phone').textContent = cine.Telefono ? `TEL: ${cine.Telefono}` : 'SIN TELÉFONO';
+
+    // Poblar Filtro de Salas
+    const select = document.getElementById('cine-filter-sala');
+    select.innerHTML = '<option value="">Todas las salas</option>';
+    if (cine.salas) {
+        cine.salas.forEach(s => {
+            select.innerHTML += `<option value="${s.id_sala}">Sala ${s.id_sala}</option>`;
+        });
+    }
+
+    renderCineFunctions();
+
+    modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.add('flex');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+};
+
+function renderCineFunctions(salaId = "") {
+    const container = document.getElementById('cine-functions-list');
+    container.innerHTML = '';
+
+    if (!currentCineData.funciones || currentCineData.funciones.length === 0) {
+        container.innerHTML = '<p class="col-span-full text-zinc-600 text-[10px] font-bold uppercase tracking-widest italic opacity-50 py-10">No hay funciones programadas para este cine.</p>';
+        return;
+    }
+
+    const filtered = salaId === "" 
+        ? currentCineData.funciones 
+        : currentCineData.funciones.filter(f => f.sala_id_sala.toString() === salaId);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="col-span-full text-zinc-600 text-[10px] font-bold uppercase tracking-widest italic opacity-50 py-10">No hay funciones en esta sala.</p>';
+        return;
+    }
+
+    filtered.forEach(f => {
+        const dateStr = f.fecha_hora.replace(' ', 'T');
+        const date = new Date(dateStr);
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dayRaw = date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+        const day = capitalize(dayRaw);
+        
+        const div = document.createElement('div');
+        div.className = "bg-zinc-900/50 border border-white/5 p-5 rounded-2xl flex items-center gap-4 hover:border-[#E50914] transition-all group";
+        div.innerHTML = `
+            <img src="${f.pelicula_imagen}" class="w-16 h-20 object-cover rounded-lg shadow-lg group-hover:scale-105 transition-transform">
+            <div class="flex-1 min-w-0">
+                <h5 class="text-white font-bold text-sm truncate">${capitalize(f.pelicula_titulo)}</h5>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[#E50914] text-[9px] font-black tracking-tighter">${day}</span>
+                    <span class="w-1 h-1 rounded-full bg-zinc-800"></span>
+                    <span class="text-zinc-400 text-xs font-black">${time}</span>
+                </div>
+                <div class="flex items-center justify-between mt-3">
+                    <span class="text-zinc-600 text-[9px] font-bold">Sala ${f.sala_id_sala}</span>
+                    <span class="text-white text-[10px] font-black bg-zinc-800 px-2 py-1 rounded-md">$${parseFloat(f.tarifa_valor).toLocaleString()}</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+window.closeCineDetail = function() {
+    const modal = document.getElementById('cine-detail-modal');
+    const content = document.getElementById('cine-detail-content');
     modal.classList.remove('opacity-100');
-    modal.classList.add('pointer-events-none');
     content.classList.add('scale-95');
     content.classList.remove('scale-100');
-    
     setTimeout(() => {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        message.classList.add('hidden');
-        document.getElementById('user-settings-form').reset();
+        modal.classList.add('hidden', 'pointer-events-none');
         document.body.style.overflow = 'auto';
     }, 500);
-}
+};
+
+// --- Auth Modal Global Handler ---
+window.openModal = function(title_ignored, message, email, type) {
+    const authModal = document.getElementById('auth-modal');
+    const modalContainerInner = document.getElementById('auth-modal-content');
+    const modalMessage = document.getElementById('auth-modal-message');
+
+    if (!authModal) return;
+    
+    if (modalMessage) {
+        modalMessage.textContent = message;
+    }
+    
+    authModal.classList.remove("hidden", "pointer-events-none");
+    authModal.classList.add("flex");
+    requestAnimationFrame(() => {
+        authModal.classList.add("opacity-100");
+        if (modalContainerInner) {
+            modalContainerInner.classList.remove("scale-95");
+            modalContainerInner.classList.add("scale-100");
+        }
+    });
+    document.body.style.overflow = "hidden";
+};
+
+
+// User Settings Logic
+window.openUserSettings = function() {
+    const modal = document.getElementById('user-settings-modal');
+    const content = document.getElementById('settings-modal-content');
+    
+    if (!modal || !content) return;
+
+    modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.add('flex');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeUserSettings = function() {
+    const modal = document.getElementById('user-settings-modal');
+    const content = document.getElementById('settings-modal-content');
+    
+    if (!modal || !content) return;
+
+    modal.classList.remove('opacity-100');
+    content.classList.add('scale-95');
+    content.classList.remove('scale-100');
+    setTimeout(() => {
+        modal.classList.add('hidden', 'pointer-events-none');
+        document.body.style.overflow = 'auto';
+    }, 500);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Escuchar cambios en el filtro de géneros
+    const filterGenre = document.getElementById('filter-genre');
+    if (filterGenre) {
+        filterGenre.addEventListener('change', (e) => {
+            const genreId = e.target.value;
+            // Podrías implementar filtrado dinámico aquí si fuera necesario
+            // Por ahora, recargamos la página con el filtro si PeliculaService lo soporta
+            // O simplemente mostramos la sección cartelera
+            showSection('cartelera');
+        });
+    }
+
+    const filterSala = document.getElementById('cine-filter-sala');
+    if (filterSala) {
+        filterSala.addEventListener('change', (e) => {
+            renderCineFunctions(e.target.value);
+        });
+    }
+});
 
 // Reutilizamos el modal de alertas de administrador para las validaciones
 window.showSettingsAlert = function(title, message, isError = false) {
     const modal = document.getElementById('admin-alert-modal');
     const content = document.getElementById('admin-alert-content');
-    const titleEl = document.getElementById('admin-alert-title');
     const messageEl = document.getElementById('admin-alert-message');
-    const iconEl = document.getElementById('admin-alert-icon');
 
-    if (!modal) return;
+    if (!modal) {
+        console.error("No se encontró el modal de alertas (admin-alert-modal)");
+        return;
+    }
 
-    titleEl.textContent = title;
-    messageEl.textContent = message;
-
-    // Icono según tipo
-    if (isError) {
-        iconEl.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
-        iconEl.className = 'w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500';
-    } else {
-        iconEl.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
-        iconEl.className = 'w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto text-green-500';
+    // Solo mostramos el mensaje principal, igual que en el index
+    if (messageEl) {
+        messageEl.textContent = message;
     }
 
     modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.add('flex');
+    
     setTimeout(() => {
         modal.classList.add('opacity-100');
-        content.classList.remove('scale-95');
-        content.classList.add('scale-100');
+        if (content) {
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
     }, 10);
 };
 
@@ -194,8 +375,15 @@ document.getElementById('user-settings-form').onsubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     
+    const nombre = formData.get('nombre');
     const pass = formData.get('password');
     const confirm = formData.get('confirm_password');
+
+    // Validación Manual: Nombre Vacío
+    if (!nombre || nombre.trim().length === 0) {
+        window.showSettingsAlert('Campo Requerido', 'Por favor, ingresa tu nombre completo', true);
+        return;
+    }
 
     if (pass || confirm) {
         if (pass !== confirm) {

@@ -84,6 +84,50 @@ class FuncionDAO {
         }
     }
 
+    public function obtenerPorPelicula($id_pelicula) {
+        try {
+            $sql = "SELECT f.*, s.id_sala as sala_nombre, c.nombre as cine_nombre, c.direccion as cine_direccion, c.telefono as cine_telefono
+                    FROM funcion f 
+                    JOIN sala s ON f.sala_id_sala = s.id_sala
+                    JOIN cine c ON s.cine_id_cine = c.id_cine
+                    WHERE f.pelicula_id_pelicula = :id_pelicula
+                    ORDER BY f.fecha_hora ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_pelicula' => $id_pelicula]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function obtenerPorCine($id_cine) {
+        try {
+            $sql = "SELECT f.*, p.titulo as pelicula_titulo, p.url_image as pelicula_imagen, s.id_sala as sala_nombre, t.precio as tarifa_valor
+                    FROM funcion f 
+                    JOIN pelicula p ON f.pelicula_id_pelicula = p.id_pelicula
+                    JOIN sala s ON f.sala_id_sala = s.id_sala
+                    JOIN tarifa t ON f.tarifa_id_dia = t.id_dia
+                    WHERE s.cine_id_cine = :id_cine
+                    ORDER BY f.fecha_hora ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_cine' => $id_cine]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function obtenerSalasPorCine($id_cine) {
+        try {
+            $sql = "SELECT id_sala FROM sala WHERE cine_id_cine = :id_cine";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_cine' => $id_cine]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
     public function eliminar($id) {
         try {
             $sql = "DELETE FROM funcion WHERE id_funcion = :id";

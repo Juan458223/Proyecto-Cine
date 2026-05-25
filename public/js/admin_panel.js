@@ -49,6 +49,30 @@ function closeAdminDashboard() {
     }, 500);
 }
 
+// Reutilizamos el modal de alertas para notificaciones administrativas
+function showAdminAlert(title, message, isError = false) {
+    const modal = document.getElementById('admin-alert-modal');
+    const content = document.getElementById('admin-alert-content');
+    const messageEl = document.getElementById('admin-alert-message');
+
+    if (!modal) return;
+
+    if (messageEl) {
+        messageEl.textContent = message;
+    }
+
+    modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.add('flex');
+    
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        if (content) {
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }
+    }, 10);
+}
+
 function switchAdminTab(tab) {
     if (currentTab === tab) return;
     currentTab = tab;
@@ -59,7 +83,10 @@ function switchAdminTab(tab) {
     const activeBtn = document.getElementById(`tab-${tab}`);
     if (activeBtn) activeBtn.classList.add('active', 'border-l-2', 'border-[#E50914]', 'bg-zinc-900/50');
 
-    document.getElementById('current-tab-title').textContent = TAB_LABELS[tab].toUpperCase();
+    const titleEl = document.getElementById('current-tab-title');
+    if (titleEl) {
+        titleEl.textContent = TAB_LABELS[tab].toUpperCase();
+    }
     
     loadAdminData();
 }

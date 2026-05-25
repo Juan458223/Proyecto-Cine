@@ -39,10 +39,6 @@ $peliculaService = new PeliculaService();
         }
         body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
         .font-bebas { font-family: 'Bebas Neue', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #09090b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #E50914; }
         
         #mobile-menu.active {
             max-height: 500px;
@@ -179,11 +175,11 @@ $peliculaService = new PeliculaService();
 
             <div id="cines-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Inyectado por JS -->
-                <div class="animate-pulse flex flex-col gap-4">
-                    <div class="h-64 bg-zinc-900 rounded-sm"></div>
-                    <div class="h-6 w-3/4 bg-zinc-900 rounded-sm"></div>
-                    <div class="h-4 w-1/2 bg-zinc-900 rounded-sm"></div>
-                </div>
+            </div>
+
+            <!-- Paginación de Cines -->
+            <div id="cines-pagination" class="flex items-center justify-center gap-4 mt-16">
+                <!-- Inyectado por JS -->
             </div>
         </div>
     </main>
@@ -204,7 +200,7 @@ $peliculaService = new PeliculaService();
                 <div class="pt-4"></div>
 
                 <div class="auth-input-group">
-                    <input type="text" name="nombre" value="<?php echo $_SESSION['usuario_nombre']; ?>" class="auth-input-modern" placeholder=" " required>
+                    <input type="text" name="nombre" value="<?php echo $_SESSION['usuario_nombre']; ?>" class="auth-input-modern" placeholder=" ">
                     <label class="auth-label-modern">Nombre completo</label>
                 </div>
                 
@@ -257,6 +253,7 @@ $peliculaService = new PeliculaService();
 
     <!-- Modales -->
     <?php include './Modales/movie_admin_modal.php'; ?>
+    <?php include './Modales/cine_detail_modal.php'; ?>
     <?php include './Modales/admin_dashboard_modal.php'; ?>
     <?php include './Modales/admin_insert_modal.php'; ?>
     <?php include './Modales/admin_alert_modal.php'; ?>

@@ -4,9 +4,22 @@ let currentMovieGenre = "";
 
 /**
  * Función Global para abrir el modal de detalles de película
- * @param {Object} data - Datos de la película (JSON)
+ * @param {Object|string} data - Datos de la película (JSON)
  */
 window.openMovieAdmin = function(data) {
+    // Depuración (puedes ver esto en la consola del navegador F12)
+    console.log("Datos recibidos en el modal:", data);
+
+    // Si recibimos una cadena, intentamos parsearla
+    if (typeof data === 'string') {
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            console.error("Error al parsear datos de la película:", e);
+            return;
+        }
+    }
+
     const modal = document.getElementById('movie-admin-modal');
     const content = document.getElementById('movie-admin-content');
     
@@ -23,12 +36,22 @@ window.openMovieAdmin = function(data) {
     const rating = document.getElementById('movie-admin-rating');
     const genres = document.getElementById('movie-admin-genres');
     const functions = document.getElementById('movie-admin-functions');
+    const cast = document.getElementById('movie-admin-cast');
 
-    if (title) title.textContent = data.titulo;
-    if (director) director.textContent = `Dirigida por ${data.director}`;
+    // Helper para Capitalización (Primera Mayúscula, resto minúscula)
+    const capitalize = (val) => {
+        if (!val || typeof val !== 'string') return '';
+        const low = val.toLowerCase().trim();
+        if (low.length === 0) return '';
+        return low.charAt(0).toUpperCase() + low.slice(1);
+    };
+
+    if (title) title.textContent = capitalize(data.titulo);
+    if (director) director.textContent = `Dirigida por ${capitalize(data.director)}`;
     if (banner) banner.src = data.imagen || '';
     if (poster) poster.src = data.imagen || '';
-    if (rating) rating.textContent = data.clasificacion;
+    if (rating) rating.textContent = capitalize(data.clasificacion);
+    if (cast) cast.textContent = data.protagonistas || 'Información de reparto no disponible';
 
     // Géneros (Badge Moderno)
     if (genres) {
@@ -36,14 +59,50 @@ window.openMovieAdmin = function(data) {
         if (data.genero) {
             const span = document.createElement('span');
             span.className = "px-4 py-1.5 bg-[#E50914] text-white text-[10px] font-bold rounded-full shadow-lg shadow-red-900/20";
-            span.textContent = data.genero;
+            span.textContent = capitalize(data.genero);
             genres.appendChild(span);
         }
     }
 
     // Funciones
     if (functions) {
-        functions.innerHTML = '<p class="text-zinc-600 text-xs font-medium italic">Próximamente más funciones...</p>';
+        functions.innerHTML = '';
+        // Normalizar funciones a Array
+        let funcs = [];
+        if (Array.isArray(data.funciones)) {
+            funcs = data.funciones;
+        } else if (data.funciones && typeof data.funciones === 'object') {
+            funcs = Object.values(data.funciones);
+        }
+        
+        if (funcs.length > 0) {
+            funcs.forEach(f => {
+                // Formatear fecha para compatibilidad (Sustituir espacio por T)
+                const dateStr = f.fecha_hora.replace(' ', 'T');
+                const date = new Date(dateStr);
+                
+                const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const dayRaw = date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+                const day = capitalize(dayRaw);
+                
+                const div = document.createElement('div');
+                div.className = "bg-zinc-900/50 border border-white/5 p-4 rounded-xl space-y-2 group/func hover:border-[#E50914] transition-all";
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-[#E50914] text-[10px] font-black tracking-widest">${day}</span>
+                        <span class="text-white font-black text-lg">${time}</span>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-white text-xs font-bold tracking-tight">${capitalize(f.cine_nombre)}</p>
+                        <p class="text-zinc-500 text-[10px] font-medium">${capitalize(f.cine_direccion)}</p>
+                        ${f.cine_telefono ? `<p class="text-zinc-600 text-[9px] font-bold tracking-tighter">TEL: ${f.cine_telefono}</p>` : ''}
+                    </div>
+                `;
+                functions.appendChild(div);
+            });
+        } else {
+            functions.innerHTML = '<p class="text-zinc-600 text-[10px] font-bold tracking-widest italic opacity-50">Próximamente más funciones...</p>';
+        }
     }
 
     // Mostrar Modal con Animación

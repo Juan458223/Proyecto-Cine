@@ -3,6 +3,7 @@ require_once __DIR__ . '/../Dao/ProtagonistaDAO.php';
 require_once __DIR__ . '/../Dao/PeliculaProtagonistaDAO.php';
 require_once __DIR__ . '/../Dao/GeneroDAO.php';
 require_once __DIR__ . '/../Dao/PeliculasDAO.php';
+require_once __DIR__ . '/../Dao/FuncionDAO.php';
 require_once __DIR__ . '/../Model/Pelicula.php';
 require_once __DIR__ . '/../Model/Genero.php';
 
@@ -11,12 +12,14 @@ class PeliculaService {
     private $protagonistaDAO;
     private $generoDAO;
     private $pelihasprotaDAO;
+    private $funcionDAO;
 
     public function __construct(){
         $this->peliculaDAO = new peliculaDAO();
         $this->protagonistaDAO = new ProtagonistaDAO();
         $this->generoDAO = new GeneroDAO();
         $this->pelihasprotaDAO = new PeliculaProtagonistaDAO();
+        $this->funcionDAO = new FuncionDAO();
     }
 
     public function listarGeneros() {
@@ -95,18 +98,18 @@ class PeliculaService {
         if($movieData){
             foreach ($movieData as $pelis) {
                 $id_pelicula = $pelis['id_pelicula'];
-                $titulo = mb_convert_case($pelis['titulo'], MB_CASE_TITLE, "UTF-8");
-                $director = mb_convert_case($pelis['director'], MB_CASE_TITLE, "UTF-8");
+                $titulo = $pelis['titulo'];
+                $director = $pelis['director'];
                 $clasificacion = ($pelis['clasificacion'] == 0) ? 'Todo público' : '+'.$pelis['clasificacion'];
                 $url_image = $pelis['url_image'];
-                $genero_nombre = mb_convert_case($pelis['genero_nombre'] ?? 'No especificado', MB_CASE_TITLE, "UTF-8");
+                $genero_nombre = $pelis['genero_nombre'] ?? 'No especificado';
 
                 $protagonistas = [];
                 foreach($pelihasprota as $php){
-                    if($php['pelicula_id_pelicula'] == $id_pelicula){
+                    if((int)$php['pelicula_id_pelicula'] === (int)$id_pelicula){
                         foreach($protaData as $protas){
-                            if($protas['id_actor'] == $php['protagonistas_id_protagonista']){
-                                $protagonistas[] = mb_convert_case($protas['nombre'], MB_CASE_TITLE, "UTF-8");
+                            if((int)$protas['id_actor'] === (int)$php['protagonistas_id_protagonista']){
+                                $protagonistas[] = $protas['nombre'];
                             }
                         }
                     }
@@ -132,13 +135,15 @@ class PeliculaService {
         }
 
         foreach ($peliculas as $peli) {
+            $funciones = $this->funcionDAO->obtenerPorPelicula($peli->getIdPelicula());
             $json_data = htmlspecialchars(json_encode([
                 'titulo' => $peli->getTitulo(),
                 'director' => $peli->getDirector(),
                 'clasificacion' => $peli->getClasificacion(),
                 'imagen' => $peli->getUrlImage(),
                 'genero' => $peli->getGenero(),
-                'protagonistas' => implode(', ', $peli->getProtagonistas())
+                'protagonistas' => implode(', ', $peli->getProtagonistas()),
+                'funciones' => $funciones
             ]), ENT_QUOTES, 'UTF-8');
 
             echo "
