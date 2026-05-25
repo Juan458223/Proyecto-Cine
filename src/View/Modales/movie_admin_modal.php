@@ -14,30 +14,29 @@
                 <img id="movie-admin-poster" src="" class="w-48 h-72 object-cover rounded-2xl shadow-2xl border border-white/10 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div class="flex-1 space-y-4">
                     <div id="movie-admin-genres" class="flex gap-2"></div>
-                    <h2 id="movie-admin-title" class="text-6xl font-black text-white font-bebas tracking-wider uppercase leading-none"></h2>
-                    <p id="movie-admin-director" class="text-[#E50914] text-sm font-bold tracking-[0.2em] font-montserrat uppercase"></p>
+                    <h2 id="movie-admin-title" class="text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-tight"></h2>
+                    <p id="movie-admin-director" class="text-[#E50914] text-base font-bold font-outfit"></p>
                 </div>
-            </div>
-        </div>
+            </div>                </div>
 
-        <div class="p-12 grid grid-cols-1 md:grid-cols-3 gap-12 bg-[#09090b]">
-            <div class="md:col-span-2 space-y-10">
+                <div class="p-12 grid grid-cols-1 md:grid-cols-3 gap-12 bg-[#09090b]">
+                <div class="md:col-span-2 space-y-10">
                 <div class="space-y-6">
-                    <h4 class="text-white font-black text-[10px] tracking-[0.4em] uppercase font-montserrat">Funciones Disponibles</h4>
+                    <h4 class="text-white font-bold text-xs uppercase tracking-widest font-montserrat">Funciones disponibles</h4>
                     <div id="movie-admin-functions" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Injected by JS -->
                     </div>
                 </div>
-            </div>
-            
-            <div class="space-y-10">
+                </div>
+
+                <div class="space-y-10">
                 <div class="space-y-6">
-                    <h4 class="text-white font-black text-[10px] tracking-[0.4em] uppercase font-montserrat">Clasificación</h4>
+                    <h4 class="text-white font-bold text-xs uppercase tracking-widest font-montserrat">Clasificación</h4>
                     <div class="flex items-center gap-4">
-                        <div id="movie-admin-rating" class="text-4xl font-black text-white font-bebas tracking-widest bg-zinc-900 px-6 py-3 rounded-xl border border-white/5"></div>
+                        <div id="movie-admin-rating" class="text-3xl font-black text-white font-bebas bg-zinc-900 px-6 py-3 rounded-xl border border-white/5"></div>
                     </div>
                 </div>
-            </div>
-        </div>
+                </div>
+                </div>
     </div>
 </div>

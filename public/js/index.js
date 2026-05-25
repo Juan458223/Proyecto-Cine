@@ -54,12 +54,23 @@ function isValidGmail(email) {
     return gmailRegex.test(email.toLowerCase());
 }
 
+function showSection(toShow, toHide, direction = "right") {
+    if (toHide) {
+        toHide.classList.add("hidden");
+        toHide.classList.remove("animate-slide-right", "animate-slide-left");
+    }
+    if (toShow) {
+        toShow.classList.remove("hidden");
+        const animationClass = direction === "right" ? "animate-slide-right" : "animate-slide-left";
+        toShow.classList.add(animationClass);
+    }
+}
+
 if (registerLink) {
     registerLink.addEventListener("click", (e) => {
         e.preventDefault();
         if (loginForm) loginForm.reset();
-        loginSection.classList.add("hidden");
-        registerSection.classList.remove("hidden");
+        showSection(registerSection, loginSection, "right");
     });
 }
 
@@ -67,8 +78,7 @@ if (recoverLink) {
     recoverLink.addEventListener("click", (e) => {
         e.preventDefault();
         if (loginForm) loginForm.reset();
-        loginSection.classList.add("hidden");
-        recoverSection.classList.remove("hidden");
+        showSection(recoverSection, loginSection, "right");
     });
 }
 
@@ -76,9 +86,9 @@ const returnToLogin = (e) => {
     e.preventDefault();
     if (registerForm) registerForm.reset();
     if (recoverForm) recoverForm.reset();
-    if (registerSection) registerSection.classList.add("hidden");
-    if (recoverSection) recoverSection.classList.add("hidden");
-    loginSection.classList.remove("hidden");
+    
+    const currentSection = !registerSection.classList.contains("hidden") ? registerSection : recoverSection;
+    showSection(loginSection, currentSection, "left");
 };
 
 if (backToLogin) backToLogin.addEventListener("click", returnToLogin);

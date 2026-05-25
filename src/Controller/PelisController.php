@@ -8,8 +8,14 @@ $peliculaService = new PeliculaService();
 $action = $_GET['action'] ?? 'renderGrid';
 
 if ($action === 'renderGrid') {
-    $genero_id = isset($_GET['genero_id']) ? (int)$_GET['genero_id'] : null;
-    $peliculaService->obtenerTablas($genero_id);
+    $genero_id = isset($_GET['genero_id']) && $_GET['genero_id'] !== "" ? (int)$_GET['genero_id'] : null;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $peliculaService->obtenerTablas($genero_id, $page);
+
+} elseif ($action === 'renderPagination') {
+    $genero_id = isset($_GET['genero_id']) && $_GET['genero_id'] !== "" ? (int)$_GET['genero_id'] : null;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $peliculaService->obtenerPaginacion($genero_id, $page);
 
 } elseif ($action === 'tablaPelicula') {
     // Compatibilidad con llamadas antiguas

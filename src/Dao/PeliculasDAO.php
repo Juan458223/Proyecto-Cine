@@ -80,19 +80,35 @@
             }
         }
 
-        public function obtenerPeliculasPaginadas($limit, $offset) {
-            $sql = "SELECT p.id_pelicula, p.titulo, p.director, p.clasificacion, p.url_image, g.nombre_genero as genero 
+        public function obtenerPeliculasPaginadas($limit, $offset, $genero_id = null) {
+            $sql = "SELECT p.*, g.nombre_genero as genero_nombre 
                     FROM pelicula p 
-                    LEFT JOIN genero g ON p.genero_id_genero = g.id_genero 
-                    LIMIT :limit OFFSET :offset";
+                    LEFT JOIN genero g ON p.genero_id_genero = g.id_genero";
+            
+            if ($genero_id) {
+                $sql .= " WHERE p.genero_id_genero = :genero_id";
+            }
+            
+            $sql .= " LIMIT :limit OFFSET :offset";
+            
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            if ($genero_id) {
+                $stmt->bindValue(':genero_id', (int)$genero_id, PDO::PARAM_INT);
+            }
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        public function contarPeliculas() {
-            return $this->db->query("SELECT COUNT(*) FROM pelicula")->fetchColumn();
+        public function contarPeliculas($genero_id = null) {
+            $sql = "SELECT COUNT(*) FROM pelicula";
+            if ($genero_id) {
+                $sql .= " WHERE genero_id_genero = :genero_id";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute(['genero_id' => $genero_id]);
+                return $stmt->fetchColumn();
+            }
+            return $this->db->query($sql)->fetchColumn();
         }
         }?>

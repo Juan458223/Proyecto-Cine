@@ -86,61 +86,56 @@ class PeliculaService {
         return $peliculas;
     }
 
-    public function obtenerPeliculasPaginadas($limit, $offset) {
-        $data = $this->peliculaDAO->obtenerPeliculasPaginadas($limit, $offset);
+    public function obtenerPeliculasPaginadas($limit, $offset, $genero_id = null) {
+        $movieData = $this->peliculaDAO->obtenerPeliculasPaginadas($limit, $offset, $genero_id);
+        $protaData = $this->protagonistaDAO->obtenerTodos();
+        $pelihasprota = $this->pelihasprotaDAO->obtenerTodos();
+
         $peliculas = [];
-        foreach ($data as $row) {
-            $peliculas[] = new Pelicula(
-                $row['id_pelicula'],
-                $row['titulo'],
-                $row['director'],
-                $row['clasificacion'],
-                $row['url_image'],
-                $row['genero']
-            );
+        if($movieData){
+            foreach ($movieData as $pelis) {
+                $id_pelicula = $pelis['id_pelicula'];
+                $titulo = mb_convert_case($pelis['titulo'], MB_CASE_TITLE, "UTF-8");
+                $director = mb_convert_case($pelis['director'], MB_CASE_TITLE, "UTF-8");
+                $clasificacion = ($pelis['clasificacion'] == 0) ? 'Todo público' : '+'.$pelis['clasificacion'];
+                $url_image = $pelis['url_image'];
+                $genero_nombre = mb_convert_case($pelis['genero_nombre'] ?? 'No especificado', MB_CASE_TITLE, "UTF-8");
+
+                $protagonistas = [];
+                foreach($pelihasprota as $php){
+                    if($php['pelicula_id_pelicula'] == $id_pelicula){
+                        foreach($protaData as $protas){
+                            if($protas['id_actor'] == $php['protagonistas_id_protagonista']){
+                                $protagonistas[] = mb_convert_case($protas['nombre'], MB_CASE_TITLE, "UTF-8");
+                            }
+                        }
+                    }
+                }
+                $pelicula = new Pelicula($id_pelicula, $titulo, $director, $clasificacion, $url_image, $genero_nombre, $protagonistas);
+                $peliculas[] = $pelicula;
+            }
         }
         return $peliculas;
     }
 
-    public function actualizarPelicula($pelicula){
-        return $this->peliculaDAO->actualizarPelicula($pelicula);
+    public function contarPeliculas($genero_id = null) {
+        return $this->peliculaDAO->contarPeliculas($genero_id);
     }
 
-    public function contarPeliculas() {
-        return $this->peliculaDAO->contarPeliculas();
-    }
+    public function obtenerTablas($genero_id = null, $page = 1, $limit = 12) {
+        $offset = ($page - 1) * $limit;
+        $peliculas = $this->obtenerPeliculasPaginadas($limit, $offset, $genero_id);
 
-    public function eliminarPelicula($id) {
-        // Eliminamos la relación con protagonistas antes de borrar la película
-        $this->pelihasprotaDAO->eliminarTodosPorPelicula($id);
-        return $this->peliculaDAO->eliminarPelicula($id);
-    }
-
-    public function insertarPelicula($titulo, $director, $clasificacion, $url_image, $genero_id) {
-        $pelicula = new Pelicula(
-            0, //De valor temporal', al insertarlo al SQL no se pasara este atributo.
-            $titulo, 
-            $director, 
-            $clasificacion, 
-            $url_image, 
-            $genero_id
-        );
-        return $this->peliculaDAO->insertarPelicula($pelicula);
-    }
-
-    public function obtenerTablas($genero_id = null) {
-        $peliculas = $this->listarPeliculas($genero_id);
-        $genderData = $this->generoDAO->obtenerTodos();
+        if (empty($peliculas)) {
+            echo "<p class='col-span-full text-center text-zinc-500 py-10'>No se encontraron películas.</p>";
+            return;
+        }
 
         foreach ($peliculas as $peli) {
-            // Formateo para la UI
-            $clasifUI = ($peli->getClasificacion() == 0) ? 'Todo público' : '+'.$peli->getClasificacion();
-            
-
             $json_data = htmlspecialchars(json_encode([
                 'titulo' => $peli->getTitulo(),
                 'director' => $peli->getDirector(),
-                'clasificacion' => $clasifUI,
+                'clasificacion' => $peli->getClasificacion(),
                 'imagen' => $peli->getUrlImage(),
                 'genero' => $peli->getGenero(),
                 'protagonistas' => implode(', ', $peli->getProtagonistas())
@@ -149,10 +144,10 @@ class PeliculaService {
             echo "
             <li class='group flex flex-col cursor-pointer' onclick='window.openMovieAdmin($json_data)'>
                 <div class='relative aspect-[2/3] overflow-hidden rounded-md bg-zinc-900 shadow-lg shadow-black/50 transition-all duration-500 group-hover:shadow-[#E50914]/10 group-hover:shadow-2xl'>
-                    <!-- Badge de Clasificación -->
+                    <!-- Badge de Clasificación Mejorado -->
                     <div class='absolute top-3 left-3 z-20'>
-                        <span class='bg-black/40 backdrop-blur-md text-white text-[8px] font-black px-2 py-1 rounded-sm border border-white/10 uppercase tracking-widest'>
-                            {$clasifUI}
+                        <span class='bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-sm border border-white/10'>
+                            {$peli->getClasificacion()}
                         </span>
                     </div>
 
@@ -164,32 +159,55 @@ class PeliculaService {
                         loading='lazy'
                     >
 
-                    <!-- Overlay Inteligente -->
-                    <div class='absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center p-6'>
-                        <div class='w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out'>
-                            <button class='w-full bg-[#E50914] hover:bg-[#b90710] text-white text-[9px] font-black uppercase tracking-[0.3em] py-3 rounded-sm shadow-2xl transition-all active:scale-95'>
-                                Ver detalles
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Overlay Inteligente (Sutil) -->
+                    <div class='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
                     
                     <!-- Borde de acento inferior en hover -->
                     <div class='absolute bottom-0 left-0 w-0 h-1 bg-[#E50914] transition-all duration-500 group-hover:w-full'></div>
                 </div>
 
-                <!-- Información con jerarquía visual -->
-                <div class='mt-5 space-y-1.5 px-1'>
-                    <h3 class='text-white font-black text-lg md:text-xl leading-none uppercase tracking-tight font-bebas group-hover:text-[#E50914] transition-colors duration-300'>
+                <!-- Información con jerarquía visual y Título en una sola línea -->
+                <div class='mt-4 space-y-1 px-1'>
+                    <h3 class='text-white font-bold text-sm md:text-base leading-tight truncate group-hover:text-[#E50914] transition-colors duration-300' title='{$peli->getTitulo()}'>
                         {$peli->getTitulo()}
                     </h3>
                     <div class='flex items-center gap-2'>
-                        <span class='text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]'>{$peli->getGenero()}</span>
+                        <span class='text-zinc-500 text-[10px] font-medium'>{$peli->getGenero()}</span>
                         <span class='w-1 h-1 rounded-full bg-zinc-800'></span>
-                        <span class='text-zinc-600 text-[9px] font-bold uppercase tracking-widest italic'>{$peli->getDirector()}</span>
+                        <span class='text-zinc-600 text-[10px] font-medium italic truncate'>{$peli->getDirector()}</span>
                     </div>
                 </div>
             </li>";
         }
+    }
+
+    public function obtenerPaginacion($genero_id = null, $page = 1, $limit = 12) {
+        $totalPeliculas = $this->contarPeliculas($genero_id);
+        $totalPages = ceil($totalPeliculas / $limit);
+        
+        if ($totalPages <= 1) return;
+
+        echo "<div class='flex items-center justify-center gap-4 mt-16'>";
+        
+        // Botón Anterior
+        $prevDisabled = ($page <= 1) ? 'opacity-30 pointer-events-none' : '';
+        echo "<button onclick='changePage(".($page - 1).")' class='p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all {$prevDisabled}'>
+                <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7'/></svg>
+              </button>";
+
+        // Números de Página
+        for ($i = 1; $i <= $totalPages; $i++) {
+            $activeClass = ($i == $page) ? 'bg-[#E50914] text-white border-[#E50914]' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white';
+            echo "<button onclick='changePage({$i})' class='w-10 h-10 rounded-xl border font-bold text-xs transition-all {$activeClass}'>{$i}</button>";
+        }
+
+        // Botón Siguiente
+        $nextDisabled = ($page >= $totalPages) ? 'opacity-30 pointer-events-none' : '';
+        echo "<button onclick='changePage(".($page + 1).")' class='p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all {$nextDisabled}'>
+                <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7'/></svg>
+              </button>";
+
+        echo "</div>";
     }
 }
 ?>

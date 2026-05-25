@@ -77,7 +77,7 @@ async function loadCines() {
             grid.innerHTML = '';
             result.data.forEach(cine => {
                 grid.innerHTML += `
-                    <div class="group bg-zinc-950 border border-zinc-900 hover:border-[#E50914] transition-all p-8 rounded-sm">
+                    <div class="group bg-zinc-950 border border-zinc-900 hover:border-[#E50914] transition-all p-8 rounded-sm font-outfit">
                         <div class="flex items-start justify-between mb-6">
                             <div class="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center text-[#E50914] group-hover:bg-[#E50914] group-hover:text-white transition-all">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,16 +85,16 @@ async function loadCines() {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
                             </div>
-                            <span class="text-[9px] font-black text-zinc-800 group-hover:text-zinc-600 uppercase tracking-[0.3em]">Cine First</span>
+                            <span class="text-[10px] font-bold text-zinc-700 group-hover:text-zinc-500 tracking-wider">Cine First</span>
                         </div>
-                        <h4 class="text-2xl font-black font-bebas tracking-wider text-white mb-2 group-hover:text-[#E50914] transition-colors">${cine.Nombre}</h4>
-                        <p class="text-zinc-500 text-xs font-medium mb-6 leading-relaxed">${cine.Direccion}</p>
+                        <h4 class="text-lg font-bold text-white mb-2 group-hover:text-[#E50914] transition-colors tracking-tight capitalize">${cine.Nombre.toLowerCase()}</h4>
+                        <p class="text-zinc-500 text-xs font-medium mb-6 leading-relaxed capitalize">${cine.Direccion.toLowerCase()}</p>
                         <div class="flex items-center gap-4 border-t border-zinc-900 pt-6">
                             <div class="flex flex-col">
-                                <span class="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Teléfono</span>
-                                <span class="text-[10px] font-bold text-zinc-400">${cine.Telefono || 'N/A'}</span>
+                                <span class="text-xs font-bold text-zinc-600">Teléfono</span>
+                                <span class="text-sm font-bold text-zinc-400 tracking-tight">${cine.Telefono || 'No disponible'}</span>
                             </div>
-                            <button class="ml-auto bg-zinc-900 hover:bg-[#E50914] text-white p-3 rounded-sm transition-all">
+                            <button class="ml-auto bg-zinc-900 hover:bg-[#E50914] text-white p-3 rounded-sm transition-all shadow-lg">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7-7 7M5 5l7 7-7 7"/>
                                 </svg>
@@ -104,10 +104,10 @@ async function loadCines() {
                 `;
             });
         } else {
-            grid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-bold uppercase tracking-widest py-20">No hay cines disponibles en este momento</p>';
+            grid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-medium py-20">No hay cines disponibles en este momento</p>';
         }
     } catch (error) {
-        grid.innerHTML = '<p class="col-span-full text-center text-red-500 font-bold uppercase tracking-widest py-20">Error al cargar los cines</p>';
+        grid.innerHTML = '<p class="col-span-full text-center text-red-500/80 font-medium py-20">Error al cargar la lista de cines</p>';
     }
 }
 
@@ -147,16 +147,61 @@ function closeUserSettings() {
     }, 500);
 }
 
+// Reutilizamos el modal de alertas de administrador para las validaciones
+window.showSettingsAlert = function(title, message, isError = false) {
+    const modal = document.getElementById('admin-alert-modal');
+    const content = document.getElementById('admin-alert-content');
+    const titleEl = document.getElementById('admin-alert-title');
+    const messageEl = document.getElementById('admin-alert-message');
+    const iconEl = document.getElementById('admin-alert-icon');
+
+    if (!modal) return;
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    // Icono según tipo
+    if (isError) {
+        iconEl.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        iconEl.className = 'w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500';
+    } else {
+        iconEl.innerHTML = '<svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        iconEl.className = 'w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto text-green-500';
+    }
+
+    modal.classList.remove('hidden', 'pointer-events-none');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
+};
+
+window.closeAdminAlert = function() {
+    const modal = document.getElementById('admin-alert-modal');
+    const content = document.getElementById('admin-alert-content');
+    
+    modal.classList.remove('opacity-100');
+    content.classList.add('scale-95');
+    content.classList.remove('scale-100');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden', 'pointer-events-none');
+    }, 500);
+};
+
 document.getElementById('user-settings-form').onsubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const message = document.getElementById('settings-message');
     
-    if (formData.get('password') !== formData.get('confirm_password')) {
-        message.textContent = 'Las contraseñas no coinciden';
-        message.className = 'text-red-500 bg-red-500/10 py-2 px-4 rounded-sm text-[10px] font-bold uppercase tracking-widest text-center';
-        message.classList.remove('hidden');
-        return;
+    const pass = formData.get('password');
+    const confirm = formData.get('confirm_password');
+
+    if (pass || confirm) {
+        if (pass !== confirm) {
+            window.showSettingsAlert('Error de Validación', 'Las contraseñas no coinciden', true);
+            return;
+        }
     }
 
     try {
@@ -167,21 +212,15 @@ document.getElementById('user-settings-form').onsubmit = async (e) => {
         const result = await response.json();
         
         if (result.success) {
-            message.textContent = 'Perfil actualizado con éxito';
-            message.className = 'text-green-500 bg-green-500/10 py-2 px-4 rounded-sm text-[10px] font-bold uppercase tracking-widest text-center';
-            message.classList.remove('hidden');
+            window.showSettingsAlert('¡Éxito!', 'Perfil actualizado correctamente');
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
         } else {
-            message.textContent = result.error || 'Error al actualizar';
-            message.className = 'text-red-500 bg-red-500/10 py-2 px-4 rounded-sm text-[10px] font-bold uppercase tracking-widest text-center';
-            message.classList.remove('hidden');
+            window.showSettingsAlert('Error', result.error || 'No se pudo actualizar el perfil', true);
         }
     } catch (error) {
-        message.textContent = 'Error de conexión';
-        message.className = 'text-red-500 bg-red-500/10 py-2 px-4 rounded-sm text-[10px] font-bold uppercase tracking-widest text-center';
-        message.classList.remove('hidden');
+        window.showSettingsAlert('Error de Sistema', 'Error de conexión con el servidor', true);
     }
 };
 

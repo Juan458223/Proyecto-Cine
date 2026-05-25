@@ -48,12 +48,14 @@
     }
 
     .auth-label-modern {
-        @apply absolute left-0 top-4 text-zinc-500 text-base md:text-lg font-medium transition-all duration-500 pointer-events-none capitalize;
+        @apply absolute left-0 top-4 text-zinc-500 text-base md:text-lg font-medium transition-all duration-500 pointer-events-none;
         font-family: 'Outfit', sans-serif !important;
     }
 
     .auth-input-modern:focus ~ .auth-label-modern,
-    .auth-input-modern:not(:placeholder-shown) ~ .auth-label-modern {
+    .auth-input-modern:not(:placeholder-shown) ~ .auth-label-modern,
+    .auth-input-token:focus ~ .auth-label-modern,
+    .auth-input-token:not(:placeholder-shown) ~ .auth-label-modern {
         @apply -top-6 text-[11px] md:text-sm text-[#E50914] font-bold;
     }
 
@@ -61,7 +63,7 @@
     .btn-primary {
         background-color: #E50914 !important;
         color: #ffffff !important;
-        @apply font-black text-sm md:text-base px-10 py-5 rounded-xl cursor-pointer transition-all duration-300 shadow-lg shadow-red-900/20 active:scale-95 w-full font-outfit border-0 capitalize;
+        @apply font-black text-sm md:text-base px-10 py-5 rounded-xl cursor-pointer transition-all duration-300 shadow-lg shadow-red-900/20 active:scale-95 w-full font-outfit border-0;
     }
 
     .btn-primary:hover {
@@ -71,7 +73,7 @@
 
     /* Sidebar Navigation */
     .sidebar-btn {
-        @apply flex items-center gap-3 px-6 py-4 text-sm font-semibold transition-all duration-300 border-l-2 border-transparent text-zinc-500 hover:text-white hover:bg-zinc-900/50 w-full text-left capitalize;
+        @apply flex items-center gap-3 px-6 py-4 text-sm font-semibold transition-all duration-300 border-l-2 border-transparent text-zinc-500 hover:text-white hover:bg-zinc-900/50 w-full text-left;
         font-family: 'Outfit', sans-serif !important;
     }
     .sidebar-btn.active {
@@ -148,6 +150,24 @@
     to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes slideInRight {
+    from { transform: translateX(30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
 .animate-fade-scale {
     animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-right {
+    animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-left {
+    animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

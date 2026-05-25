@@ -6,11 +6,11 @@
             </div>
             
             <div class="space-y-2">
-                <h3 id="admin-alert-title" class="text-xl font-black text-white font-bebas tracking-wider uppercase"></h3>
-                <p id="admin-alert-message" class="text-zinc-500 text-xs font-medium font-montserrat"></p>
+                <h3 id="admin-alert-title" class="text-xl font-black text-white font-bebas tracking-widest uppercase"></h3>
+                <p id="admin-alert-message" class="text-zinc-500 text-sm font-medium font-montserrat"></p>
             </div>
 
-            <button onclick="closeAdminAlert()" class="w-full bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.4em] py-4 rounded-xl transition-all font-montserrat">
+            <button onclick="closeAdminAlert()" class="w-full bg-white/5 hover:bg-white/10 text-white text-xs font-bold py-4 rounded-xl transition-all font-montserrat">
                 Entendido
             </button>
         </div>
