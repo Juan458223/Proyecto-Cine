@@ -40,34 +40,13 @@
 
             <!-- Nueva Contraseña -->
             <form id="change-password-form" class="hidden space-y-8 animate-in fade-in duration-700">
-                <div class="auth-input-group">
-                    <input type="password" name="password" id="new-password" class="auth-input-modern" placeholder=" ">
-                    <label class="auth-label-modern">Nueva contraseña</label>
-                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('new-password')">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="auth-input-group">
-                    <input type="password" name="confirm_password" id="confirm-new-password" class="auth-input-modern" placeholder=" ">
-                    <label class="auth-label-modern">Confirmar contraseña</label>
-                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('confirm-new-password')">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
-                        </svg>
-                    </button>
-                </div>
+                <?php echo render_password_input('new-password', 'password', 'Nueva contraseña'); ?>
+                <?php echo render_password_input('confirm-new-password', 'confirm_password', 'Confirmar contraseña'); ?>
                 <button type="submit" class="btn-primary" style="background-color: #E50914 !important; color: white !important;">
                     Actualizar contraseña
                 </button>
             </form>
 
-            <!-- Errores y Soporte (Texto Blanco Nítido) -->
             <div id="modal-error-box" class="hidden animate-in fade-in duration-500">
                 <p id="modal-error" class="text-white text-base md:text-lg font-medium leading-relaxed font-outfit"></p>
                 

@@ -14,14 +14,13 @@ $peliculaService = new PeliculaService();
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bienvenido UD Cinema</title>
+    <title>Cine First</title>
     <link rel="stylesheet" href="http://localhost:5173/public/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="../../public/img/logo.svg">
     <style>
-        /* Modern Button Polish */
         .btn-primary {
             background-color: #E50914 !important;
             color: white !important;
@@ -50,7 +49,6 @@ $peliculaService = new PeliculaService();
 </head>
 <body class="min-h-screen custom-scrollbar">
     
-    <!-- Navbar (Estilo Premium Glassmorphism) -->
     <header class="bg-black/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50 transition-all duration-300">
         <nav class="container mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center gap-12">
@@ -82,7 +80,6 @@ $peliculaService = new PeliculaService();
                     </a>
                 </div>
 
-                <!-- Hamburger Button -->
                 <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden text-white p-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path id="hamburger-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7"/>
@@ -91,7 +88,6 @@ $peliculaService = new PeliculaService();
             </div>
         </nav>
 
-        <!-- Mobile Menu -->
         <div id="mobile-menu" class="lg:hidden hidden bg-zinc-950 border-b border-zinc-800 overflow-hidden transition-all duration-300 max-h-0 opacity-0">
             <div class="container mx-auto px-6 py-4 flex flex-col gap-6">
                 <a href="#" onclick="showSection('cartelera'); toggleMobileMenu()" class="text-white text-sm font-black uppercase tracking-[0.2em]">Cartelera</a>
@@ -115,7 +111,6 @@ $peliculaService = new PeliculaService();
         </div>
     </header>
 
-    <!-- Hero Section (Elegante y Cinematico) -->
     <section class="relative h-[45vh] w-full flex items-center justify-center overflow-hidden border-b border-zinc-900">
         <div class="absolute inset-0 bg-black z-10 opacity-60"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black z-10"></div>
@@ -130,11 +125,8 @@ $peliculaService = new PeliculaService();
         </div>
     </section>
 
-    <!-- Main Content -->
     <main id="main-content" class="container mx-auto px-6 py-20">
-        <!-- Cartelera Section -->
         <div id="section-cartelera">
-            <!-- Filtros Estilo Cine Colombia -->
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-16 border-b border-zinc-900 pb-8">
                 <div class="mb-6 md:mb-0">
                     <h2 class="text-[#E50914] font-bold tracking-widest text-sm mb-1 font-outfit">Selección</h2>
@@ -155,18 +147,43 @@ $peliculaService = new PeliculaService();
                 </div>
             </div>
 
-            <!-- Películas Grid (100% Tailwind) -->
             <ul id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-12 transition-opacity duration-300">
-                <?php $peliculaService->obtenerTablas(); ?>
+                <?php 
+                    $peliculas = $peliculaService->obtenerPeliculasPaginadas(1); 
+                    foreach ($peliculas as $peli): 
+                ?>
+                <li class='group flex flex-col cursor-pointer' onclick='window.openMovieAdmin(<?php echo htmlspecialchars(json_encode([
+                    'titulo' => $peli->getTitulo(),
+                    'director' => $peli->getDirector(),
+                    'clasificacion' => $peli->getClasificacion(),
+                    'imagen' => $peli->getUrlImage(),
+                    'genero' => $peli->getGeneroId(),
+                    'protagonistas' => implode(', ', $peli->getProtagonistas())
+                ])); ?>)'>
+                    <div class='relative aspect-[2/3] overflow-hidden rounded-md bg-zinc-900 shadow-lg shadow-black/50 transition-all duration-500 group-hover:shadow-[#E50914]/10 group-hover:shadow-2xl'>
+                        <div class='absolute top-3 left-3 z-20'>
+                            <span class='bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-sm border border-white/10'>
+                                <?php echo htmlspecialchars($peli->getClasificacion()); ?>
+                            </span>
+                        </div>
+                        <img src='<?php echo htmlspecialchars($peli->getUrlImage()); ?>' alt='<?php echo htmlspecialchars($peli->getTitulo()); ?>' class='w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110' loading='lazy'>
+                        <div class='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
+                        <div class='absolute bottom-0 left-0 w-0 h-1 bg-[#E50914] transition-all duration-500 group-hover:w-full'></div>
+                    </div>
+                    <div class='mt-4 space-y-1 px-1'>
+                        <h3 class='text-white font-bold text-sm md:text-base leading-tight truncate group-hover:text-[#E50914] transition-colors duration-300'>
+                            <?php echo htmlspecialchars($peli->getTitulo()); ?>
+                        </h3>
+                    </div>
+                </li>
+                <?php endforeach; ?>
             </ul>
 
-            <!-- Paginación Dinámica -->
             <div id="movie-pagination">
-                <?php $peliculaService->obtenerPaginacion(); ?>
+                <!-- Paginación gestionada por JS -->
             </div>
         </div>
 
-        <!-- Cines Section (Hidden by default) -->
         <div id="section-cines" class="hidden">
             <div class="mb-16 border-b border-zinc-900 pb-8">
                 <h2 class="text-[#E50914] font-bold tracking-widest text-sm mb-1 font-outfit">Localización</h2>
@@ -174,21 +191,16 @@ $peliculaService = new PeliculaService();
             </div>
 
             <div id="cines-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Inyectado por JS -->
             </div>
 
-            <!-- Paginación de Cines -->
             <div id="cines-pagination" class="flex items-center justify-center gap-4 mt-16">
-                <!-- Inyectado por JS -->
             </div>
         </div>
     </main>
 
-    <!-- Modal Ajustes de Usuario (ESTILO MODERNO UNIFICADO) -->
     <div id="user-settings-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-500 opacity-0 pointer-events-none p-4" onclick="if(event.target === this) closeUserSettings()">
         <div class="relative bg-white/[0.03] backdrop-blur-3xl pt-24 pb-12 px-10 md:px-14 rounded-[3.5rem] border border-white/10 shadow-2xl max-w-md w-full transform transition-all duration-500 scale-95" id="settings-modal-content">
             
-            <!-- Botón Cerrar Absoluto -->
             <button onclick="closeUserSettings()" class="absolute top-10 right-10 btn-close-rot z-20">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -196,16 +208,15 @@ $peliculaService = new PeliculaService();
             </button>
 
             <form id="user-settings-form" class="space-y-10">
-                <!-- Sin título visible, solo espaciado para el botón de cerrar -->
                 <div class="pt-4"></div>
 
                 <div class="auth-input-group">
-                    <input type="text" name="nombre" value="<?php echo $_SESSION['usuario_nombre']; ?>" class="auth-input-modern" placeholder=" ">
+                    <input type="text" name="nombre" id="settings-nombre" class="auth-input-modern" placeholder=" ">
                     <label class="auth-label-modern">Nombre completo</label>
                 </div>
                 
                 <div class="auth-input-group">
-                    <input type="email" value="<?php echo $_SESSION['usuario_correo']; ?>" disabled class="auth-input-modern !text-zinc-600 opacity-50 cursor-not-allowed" placeholder=" ">
+                    <input type="email" name="email" id="settings-email" disabled class="auth-input-modern !text-zinc-600 opacity-50 cursor-not-allowed" placeholder=" ">
                     <label class="auth-label-modern !text-zinc-700">Correo electrónico (no editable)</label>
                 </div>
 
@@ -242,7 +253,6 @@ $peliculaService = new PeliculaService();
         </div>
     </div>
 
-    <!-- Footer Cine First Simplificado -->
     <footer class="bg-[#050505] border-t border-zinc-900 py-12">
         <div class="container mx-auto px-6 text-center">
             <p class="text-zinc-700 text-xs font-bold font-outfit">
@@ -251,15 +261,13 @@ $peliculaService = new PeliculaService();
         </div>
     </footer>
 
-    <!-- Modales -->
     <?php include './Modales/movie_admin_modal.php'; ?>
     <?php include './Modales/cine_detail_modal.php'; ?>
     <?php include './Modales/admin_dashboard_modal.php'; ?>
     <?php include './Modales/admin_insert_modal.php'; ?>
     <?php include './Modales/admin_alert_modal.php'; ?>
 
-    <!-- Scripts -->
-    <script src="../../public/js/movie_admin.js"></script>
+    <script src="../../public/js/peliculas.js"></script>
     <script src="../../public/js/admin_panel.js"></script>
     <script src="../../public/js/home.js"></script>
 </body>

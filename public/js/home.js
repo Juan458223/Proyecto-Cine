@@ -43,12 +43,12 @@ window.openCineDetail = function(cine) {
 
     modal.classList.remove('hidden', 'pointer-events-none');
     modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
     setTimeout(() => {
         modal.classList.add('opacity-100');
-        content.classList.remove('scale-95');
-        content.classList.add('scale-100');
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
     }, 10);
-    document.body.style.overflow = 'hidden';
 };
 
 window.renderCineTarifas = async function(page = 1) {
@@ -56,30 +56,30 @@ window.renderCineTarifas = async function(page = 1) {
     const pagination = document.getElementById('cine-tarifa-pagination');
     if (!body) return;
 
-    try {
-        const response = await fetch(`../Controller/AdminController.php?action=list&type=tarifas_cine&cine_id=${currentCineData.id_cine}&page=${page}&limit=5`);
-        const result = await response.json();
-        
-        body.innerHTML = '';
-        if (result.data && result.data.length > 0) {
-            result.data.forEach(t => {
-                body.innerHTML += `
-                    <tr class="hover:bg-white/5 transition-colors text-xs">
-                        <td class="px-6 py-4 font-bold text-white">${capitalize(t.tipo_publico)}</td>
-                        <td class="px-6 py-4 text-zinc-500 font-medium">${capitalize(t.tipo_dia)}</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="bg-[#E50914]/10 text-[#E50914] px-3 py-1 rounded-md font-black">$${parseFloat(t.precio).toLocaleString()}</span>
-                        </td>
-                    </tr>
-                `;
-            });
-            renderInternalPagination(pagination, result.pages, page, 'renderCineTarifas');
-        } else {
-            body.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-zinc-600 italic">No hay tarifas definidas</td></tr>';
-            if (pagination) pagination.innerHTML = '';
-        }
-    } catch (e) {
-        body.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-red-500/50">Error cargando tarifas</td></tr>';
+    // Usamos los datos inyectados, paginación con límite de 6
+    const allTarifas = currentCineData.tarifas || [];
+    const limit = 6; 
+    const totalPages = Math.ceil(allTarifas.length / limit);
+    const start = (page - 1) * limit;
+    const paginated = allTarifas.slice(start, start + limit);
+    
+    body.innerHTML = '';
+    if (paginated.length > 0) {
+        paginated.forEach(t => {
+            body.innerHTML += `
+                <tr class="hover:bg-white/5 transition-colors text-xs">
+                    <td class="px-6 py-4 font-bold text-white">${capitalize(t.Publico || t.tipo_publico || '')}</td>
+                    <td class="px-6 py-4 text-zinc-500 font-medium">${capitalize(t.Dia || t.tipo_dia || '')}</td>
+                    <td class="px-6 py-4 text-right">
+                        <span class="text-white px-3 py-1 rounded-md font-black">$${parseFloat(t.Precio || t.precio).toLocaleString()}</span>
+                    </td>
+                </tr>
+            `;
+        });
+        renderInternalPagination(pagination, totalPages, page, 'renderCineTarifas');
+    } else {
+        body.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-zinc-600 italic">No hay tarifas definidas</td></tr>';
+        if (pagination) pagination.innerHTML = '';
     }
 };
 
@@ -92,7 +92,7 @@ window.renderCineFunctions = function(page = 1) {
         ? currentCineData.funciones || []
         : (currentCineData.funciones || []).filter(f => f.sala_id_sala.toString() === currentCineFilterSala);
 
-    const limit = 5;
+    const limit = 6; // Límite solicitado
     const totalPages = Math.ceil(filtered.length / limit);
     const start = (page - 1) * limit;
     const paginated = filtered.slice(start, start + limit);
@@ -144,7 +144,7 @@ function renderInternalPagination(container, total, current, callbackName) {
     container.appendChild(next);
 }
 
-function toggleMobileMenu() {
+window.toggleMobileMenu = function() {
     const menu = document.getElementById('mobile-menu');
     const icon = document.getElementById('hamburger-icon');
     
@@ -165,7 +165,7 @@ function toggleMobileMenu() {
     }
 }
 
-function showSection(sectionId) {
+window.showSection = function(sectionId) {
     const sections = ['cartelera', 'cines'];
     const navItems = {
         'cartelera': document.getElementById('nav-cartelera'),
@@ -210,7 +210,95 @@ function showSection(sectionId) {
 
 let currentCinePage = 1;
 
-async function loadCines(page = 1) {
+window.changePage = async function(page) {
+    const grid = document.getElementById('movie-grid');
+    const pagination = document.getElementById('movie-pagination');
+    const filterGenre = document.getElementById('filter-genre');
+    const generoId = filterGenre ? filterGenre.value : "";
+    
+    if (!grid) return;
+
+    grid.style.opacity = '0';
+    
+    try {
+        // Aseguramos que la URL sea construida correctamente
+        let url = `../Controller/PeliculaController.php?action=list&page=${page}`;
+        if (generoId && generoId !== "") {
+            url += `&genero_id=${generoId}`;
+        }
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.data) {
+            grid.innerHTML = '';
+            result.data.forEach(peli => {
+                const json_data = JSON.stringify(peli).replace(/'/g, "\\'");
+                grid.innerHTML += `
+                    <li class='group flex flex-col cursor-pointer' onclick='window.openMovieAdmin(${json_data})'>
+                        <div class='relative aspect-[2/3] overflow-hidden rounded-md bg-zinc-900 shadow-lg shadow-black/50 transition-all duration-500 group-hover:shadow-[#E50914]/10 group-hover:shadow-2xl'>
+                            <div class='absolute top-3 left-3 z-20'>
+                                <span class='bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-sm border border-white/10'>
+                                    ${peli.clasificacion}
+                                </span>
+                            </div>
+                            <img src='${peli.url_image}' alt='${peli.titulo}' class='w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110' loading='lazy'>
+                            <div class='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
+                            <div class='absolute bottom-0 left-0 w-0 h-1 bg-[#E50914] transition-all duration-500 group-hover:w-full'></div>
+                        </div>
+                        <div class='mt-4 space-y-1 px-1'>
+                            <h3 class='text-white font-bold text-sm md:text-base leading-tight truncate group-hover:text-[#E50914] transition-colors duration-300' title='${peli.titulo}'>${peli.titulo}</h3>
+                            <div class='flex items-center gap-2'>
+                                <span class='text-zinc-500 text-[10px] font-medium'>${peli.genero}</span>
+                                <span class='w-1 h-1 rounded-full bg-zinc-800'></span>
+                                <span class='text-zinc-600 text-[10px] font-medium italic truncate'>${peli.director}</span>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            });
+            grid.style.opacity = '1';
+            
+            // Re-render pagination
+            if (pagination) {
+                renderMoviePagination(result.pages, page);
+            }
+        }
+    } catch (error) {
+        console.error('Error changing movie page:', error);
+        grid.style.opacity = '1';
+    }
+};
+
+function renderMoviePagination(totalPages, currentPage) {
+    const container = document.getElementById('movie-pagination');
+    if (!container) return;
+    
+    let html = "<div class='flex items-center justify-center gap-4 mt-16'>";
+    
+    // Previous
+    const prevDisabled = (currentPage <= 1) ? 'opacity-30 pointer-events-none' : '';
+    html += `<button onclick='changePage(${currentPage - 1})' class='p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${prevDisabled}'>
+                <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7'/></svg>
+             </button>`;
+
+    // Pages
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = (i == currentPage) ? 'bg-[#E50914] text-white border-[#E50914]' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white';
+        html += `<button onclick='changePage(${i})' class='w-10 h-10 rounded-xl border font-bold text-xs transition-all ${activeClass}'>${i}</button>`;
+    }
+    
+    // Next
+    const nextDisabled = (currentPage >= totalPages) ? 'opacity-30 pointer-events-none' : '';
+    html += `<button onclick='changePage(${currentPage + 1})' class='p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${nextDisabled}'>
+                <svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5l7 7-7 7'/></svg>
+             </button>`;
+
+    html += "</div>";
+    container.innerHTML = html;
+}
+
+window.loadCines = async function(page = 1) {
     const grid = document.getElementById('cines-grid');
     const pagination = document.getElementById('cines-pagination');
     if (!grid) return;
@@ -218,7 +306,9 @@ async function loadCines(page = 1) {
     grid.innerHTML = '<div class="col-span-full py-20 text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#E50914]"></div></div>';
     
     try {
-        const response = await fetch(`../Controller/AdminController.php?action=list&type=cines&page=${page}`);
+        // Usamos una ruta absoluta desde la raíz para evitar errores de navegación relativa
+        const url = `/Proyecto-Cine/src/Controller/PeliculaController.php?action=list&page=${page}${generoId ? '&genero_id=' + generoId : ''}`;
+        const response = await fetch(url);
         const result = await response.json();
         
         if (result.data && result.data.length > 0) {
@@ -319,18 +409,45 @@ window.openModal = function(title_ignored, message, email, type) {
     document.body.style.overflow = "hidden";
 };
 
-window.openUserSettings = function() {
+window.openUserSettings = async function() {
     const modal = document.getElementById('user-settings-modal');
     const content = document.getElementById('settings-modal-content');
-    if (!modal || !content) return;
+    const form = document.getElementById('user-settings-form');
+    if (!modal || !content || !form) return;
+
+    // Limpiar campos antes de cargar
+    form.nombre.value = 'Cargando...';
+    form.email.value = 'Cargando...';
+
+    // Abrir modal primero para dar feedback visual de carga
     modal.classList.remove('hidden', 'pointer-events-none');
     modal.classList.add('flex');
-    setTimeout(() => {
+    requestAnimationFrame(() => {
         modal.classList.add('opacity-100');
         content.classList.remove('scale-95');
         content.classList.add('scale-100');
-    }, 10);
+    });
     document.body.style.overflow = 'hidden';
+    
+    // Cargar datos actuales desde servidor
+    try {
+        const response = await fetch(`../Controller/UsuarioController.php?action=get_profile`);
+        if (!response.ok) throw new Error('Error en red');
+        const data = await response.json();
+        
+        if (data) {
+            form.nombre.value = data.nombre || '';
+            form.email.value = data.correo || '';
+        } else {
+            form.nombre.value = '';
+            form.email.value = '';
+        }
+    } catch(e) {
+        console.error("Error cargando perfil:", e);
+        form.nombre.value = '';
+        form.email.value = '';
+        window.showSettingsAlert('Error', 'No se pudieron cargar los datos del perfil.', true);
+    }
 };
 
 window.closeUserSettings = function() {
@@ -349,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterGenre = document.getElementById('filter-genre');
     if (filterGenre) {
         filterGenre.addEventListener('change', (e) => {
-            showSection('cartelera');
+            window.changePage(1);
         });
     }
 

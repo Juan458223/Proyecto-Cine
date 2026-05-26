@@ -50,12 +50,26 @@ class PeliculaProtagonistaDAO {
         }
     }
 
+    public function obtenerProtagonistasPorPelicula($id_pelicula) {
+        try {
+            $sql = "SELECT pr.nombre 
+                    FROM pelicula_has_protagonistas php
+                    JOIN protagonista pr ON php.protagonistas_id_protagonista = pr.id_actor
+                    WHERE php.pelicula_id_pelicula = :id_pelicula";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_pelicula' => $id_pelicula]);
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (PDOException $e) {
+            error_log("Error en PeliculaProtagonistaDAO::obtenerProtagonistasPorPelicula: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function obtenerTodos() {
         try {
             $sql = "SELECT * FROM pelicula_has_protagonistas";
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
-            // Retorna un array asociativo (como el código viejo)
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error en PeliculaProtagonistaDAO::obtenerTodos: " . $e->getMessage());

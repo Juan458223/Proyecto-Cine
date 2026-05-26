@@ -4,17 +4,16 @@ class Usuario{
         private $nombre;
         private $correo;
         private $password;
-        private $permisos;
-        private $estado_id;
+        private $permisos; 
+        private $estado;
 
-        public function __construct( $nombre, $correo, $password, $permisos = 0, $id = null) {
+        public function __construct( $nombre, $correo, $password, $permisos = 'Usuario', $id = null, $estado = 'Activado') {
             $this->nombre = $nombre;
             $this->correo = $correo;
-            // Solo hasheamos si no parece ser ya un hash de BCRYPT ($2y$)
             $this->password = (strpos($password, '$2y$') === 0) ? $password : password_hash($password, PASSWORD_DEFAULT);
             $this->permisos = $permisos;
             $this->id = $id;
-            $this->estado_id = 1; // Default active
+            $this->estado = $estado;
         }
         
         public function getId() {
@@ -25,12 +24,20 @@ class Usuario{
             $this->id = $id;
         }
 
-        public function getEstadoId() {
-            return $this->estado_id;
+        public function getEstado() {
+            return $this->estado;
         }
 
-        public function setEstadoId($estado_id) {
-            $this->estado_id = $estado_id;
+        public function setEstado($estado) {
+            $this->estado = $estado;
+        }
+
+        public function getPermisos() {
+            return $this->permisos;
+        }
+
+        public function setPermisos($permisos) {
+            $this->permisos = $permisos;
         }
 
          public function getIdUsuario() {
@@ -45,9 +52,6 @@ class Usuario{
         public function getPassword() {
                 return $this->password;
         }
-        public function getPermisos() {
-            return $this->permisos;
-        }
         public function setNombre($nombre) {
                 $this->nombre = $nombre;
         }
@@ -55,11 +59,7 @@ class Usuario{
                 $this->correo = $correo;
         }
         public function setPassword($password) {
-                // Solo hasheamos si no parece ser ya un hash de BCRYPT ($2y$)
                 $this->password = (strpos($password, '$2y$') === 0) ? $password : password_hash($password, PASSWORD_DEFAULT);
-        }
-        public function setPermisos($permisos) {
-            $this->permisos = $permisos;
         }
 
     }

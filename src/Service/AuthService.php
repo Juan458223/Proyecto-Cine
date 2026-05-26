@@ -20,21 +20,36 @@ class AuthService {
         $this->smtp = SmtpConfig::getInstance();
     }
 
+    public function obtenerUsuarioPorCorreo($correo) {
+        $userData = $this->usuarioDAO->obtenerUsuarioPorCorreo($correo);
+        if ($userData) {
+            return new UsuarioDTO(
+                $userData['id'],
+                $userData['nombre'],
+                $userData['correo'],
+                $userData['permiso_nombre'],
+                $userData['estado_nombre']
+            );
+        }
+        return null;
+    }
+
     public function validar($correo, $password) {
         $userData = $this->usuarioDAO->obtenerUsuarioPorCorreo($correo);
 
         if ($userData && password_verify($password, $userData['password'])) {
-            if ($userData['estado'] === 'bloqueado') {
+            if ($userData['estado_nombre'] === 'Desactivado') {
                 return 'bloqueado';
             }
-            if ($userData['estado'] !== 'activo') {
+            if ($userData['estado_nombre'] !== 'Activado') {
                 return 'pendiente';
             }
             return new UsuarioDTO(
                 $userData['id'],
                 $userData['nombre'],
                 $userData['correo'],
-                $userData['permisos']
+                $userData['permiso_nombre'],
+                $userData['estado_nombre']
             );
         }
 
@@ -42,7 +57,6 @@ class AuthService {
     }
 
     public function validarPassword($password) {
-        // Mínimo 6 caracteres, al menos una mayúscula y al menos un número
         return strlen($password) >= 6 && 
                preg_match('/[A-Z]/', $password) && 
                preg_match('/[0-9]/', $password);
@@ -73,7 +87,6 @@ class AuthService {
     }
 
     public function registrarUsuario($nombre, $correo, $password) {
-        // Verificar si el usuario ya existe
         $userData = $this->usuarioDAO->obtenerUsuarioPorCorreo($correo);
         
         if ($userData) {

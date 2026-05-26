@@ -9,13 +9,8 @@ class ProtagonistaService {
         $this->protagonistaDAO = new ProtagonistaDAO();
     }
 
-    public function listarProtagonistasPaginados($limit, $offset) {
-        $data = $this->protagonistaDAO->obtenerProtagonistasPaginados($limit, $offset);
-        $protagonistas = [];
-        foreach ($data as $row) {
-            $protagonistas[] = new Protagonista($row['id_actor'], $row['nombre']);
-        }
-        return $protagonistas;
+    public function listarProtagonistasPaginados($page = 1) {
+        return $this->protagonistaDAO->obtenerProtagonistasPaginados($page);
     }
 
     public function contarProtagonistas() {
@@ -23,11 +18,13 @@ class ProtagonistaService {
     }
 
     public function insertarProtagonista($nombre) {
-        return $this->protagonistaDAO->insertarProtagonista($nombre);
+        $prota = new Protagonista(null, $nombre);
+        return $this->protagonistaDAO->insertarProtagonista($prota);
     }
 
     public function actualizarProtagonista($id, $nombre) {
-        return $this->protagonistaDAO->actualizarProtagonista($id, $nombre);
+        $prota = new Protagonista($id, $nombre);
+        return $this->protagonistaDAO->actualizarProtagonista($prota);
     }
 
     public function eliminarProtagonista($id) {

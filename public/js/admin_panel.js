@@ -93,29 +93,39 @@ function switchAdminTab(tab) {
 
 // --- Data Loading & Rendering ---
 
-async function loadAdminData() {
-    const tableBody = document.getElementById('token-table-body'); // Reutilizamos el body del layout
+async function loadAdminData(containerId = 'admin-pagination', type = currentTab) {
+    const tableBody = document.getElementById('token-table-body');
     const loading = document.getElementById('admin-loading');
     
-    if (tableBody) tableBody.style.opacity = '0.3';
+    if (tableBody && type === currentTab) tableBody.style.opacity = '0.3';
     if (loading) loading.classList.remove('hidden');
 
+    let url = `../Controller/AdminController.php?action=list&type=${type}&page=${currentPage}`;
+    if (type === 'movies') {
+        const filterGenre = document.getElementById('filter-genre');
+        if (filterGenre && filterGenre.value) {
+            url += `&genero_id=${filterGenre.value}`;
+        }
+    }
+
     try {
-        const response = await fetch(`../Controller/AdminController.php?action=list&type=${currentTab}&page=${currentPage}`);
+        const response = await fetch(url);
         const result = await response.json();
         
-        renderTable(result.data);
-        updatePagination(result);
+        if (type === currentTab) {
+            renderTable(result.data);
+        }
+        updatePagination(result, containerId);
     } catch (e) {
         console.error("Error cargando datos:", e);
     } finally {
-        if (tableBody) tableBody.style.opacity = '1';
+        if (tableBody && type === currentTab) tableBody.style.opacity = '1';
         if (loading) loading.classList.add('hidden');
     }
 }
 
 function renderTable(data) {
-    const head = document.querySelector('#admin-dashboard-modal thead tr');
+    const head = document.querySelector('#admin-table-head');
     const body = document.getElementById('token-table-body');
     if (!head || !body) return;
 
@@ -127,35 +137,37 @@ function renderTable(data) {
         return;
     }
 
-    // Headers dinámicos
-    const keys = Object.keys(data[0]);
-    keys.forEach(key => {
-        if (key === 'id') return;
-        head.innerHTML += `<th class="px-8 py-6 font-black text-[10px] tracking-widest text-zinc-500 uppercase font-montserrat">${key.replace(/_/g, ' ')}</th>`;
-    });
-    head.innerHTML += `<th class="px-8 py-6 font-black text-center text-[10px] tracking-widest text-zinc-500 uppercase font-montserrat">Acciones</th>`;
+    // Definir columnas esenciales según la pestaña
+    const essentialKeys = {
+        'movies': ['titulo', 'director', 'clasificacion', 'genero'],
+        'users': ['nombre', 'correo', 'permisos'],
+        'cines': ['Nombre', 'Calle', 'Teléfono'],
+        'salas': ['Capacidad', 'Cine'],
+        'funciones': ['Fecha', 'Pelicula', 'Sala'],
+        'generos': ['Nombre'],
+        'tarifas': ['Cine', 'Dia', 'Precio'],
+        'protagonists': ['nombre']
+    };
 
-    // Filas animadas
+    const keys = essentialKeys[currentTab] || Object.keys(data[0]).filter(k => k !== 'id');
+    
+    keys.forEach(key => {
+        head.innerHTML += `<th class="px-8 py-6 font-black text-[10px] tracking-widest text-zinc-500 uppercase">${key.replace(/_/g, ' ')}</th>`;
+    });
+    head.innerHTML += `<th class="px-8 py-6 font-black text-center text-[10px] tracking-widest text-zinc-500 uppercase">Acciones</th>`;
+
     data.forEach((item, index) => {
-        let row = `<tr class="hover:bg-white/5 transition-all group border-b border-zinc-900/50 animate-in fade-in slide-in-from-bottom-2" style="animation-delay: ${index * 30}ms">`;
+        let row = `<tr class="hover:bg-white/5 transition-all group border-b border-white/5 animate-in fade-in slide-in-from-bottom-2" style="animation-delay: ${index * 30}ms">`;
         keys.forEach(key => {
-            if (key === 'id') return;
             let val = item[key] ?? '-';
-            row += `<td class="px-8 py-5 text-zinc-400 group-hover:text-zinc-200 transition-colors font-outfit text-sm">${val}</td>`;
+            row += `<td class="px-8 py-5 text-zinc-300 transition-colors font-outfit text-[11px]">${val}</td>`;
         });
         
-        const id = item.id;
         row += `
-            <td class="px-8 py-5">
+            <td class="px-8 py-5 text-center">
                 <div class="flex items-center justify-center gap-4">
-                    <button onclick="openEditModal('${id}')" class="text-zinc-600 hover:text-blue-500 transition-colors text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2.5"/></svg>
-                        Editar
-                    </button>
-                    <button onclick="openDeleteConfirm('${id}')" class="text-zinc-600 hover:text-[#E50914] transition-colors text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5"/></svg>
-                        Borrar
-                    </button>
+                    <button onclick="openEditModal('${item.id}')" class="text-zinc-500 hover:text-white transition-colors text-[9px] font-black uppercase tracking-widest">EDITAR</button>
+                    <button onclick="openDeleteConfirm('${item.id}')" class="text-zinc-500 hover:text-[#E50914] transition-colors text-[9px] font-black uppercase tracking-widest">BORRAR</button>
                 </div>
             </td>
         </tr>`;
@@ -163,12 +175,37 @@ function renderTable(data) {
     });
 }
 
-function updatePagination(result) {
-    const info = document.getElementById('pagination-info');
-    if (info) info.innerHTML = `Página <span class="text-white mx-1">${result.currentPage}</span> de <span class="text-zinc-600 mx-1">${result.pages}</span>`;
-    document.getElementById('prev-page').disabled = result.currentPage <= 1;
-    document.getElementById('next-page').disabled = result.currentPage >= result.pages;
+function updatePagination(result, containerId = 'admin-pagination') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const currentPage = result.currentPage;
+    const totalPages = result.pages;
+    
+    let html = `
+        <button onclick="changePage(${currentPage - 1}, '${containerId}')" class="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${currentPage <= 1 ? 'opacity-30 pointer-events-none' : ''}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+    `;
+
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = (i === currentPage) ? 'bg-[#E50914] text-white border-[#E50914]' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white';
+        html += `<button onclick="changePage(${i}, '${containerId}')" class="w-10 h-10 rounded-xl border font-bold text-xs transition-all ${activeClass}">${i}</button>`;
+    }
+
+    html += `
+        <button onclick="changePage(${currentPage + 1}, '${containerId}')" class="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${currentPage >= totalPages ? 'opacity-30 pointer-events-none' : ''}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+    `;
+
+    container.innerHTML = html;
 }
+
+window.changePage = function(page, containerId = 'admin-pagination') {
+    currentPage = page;
+    loadAdminData();
+};
 
 // --- CRUD Modals (Insert/Edit/Delete) ---
 
@@ -357,6 +394,16 @@ if (insertForm) {
     };
 }
 
-// Paginación Listeners
-document.getElementById('next-page').onclick = () => { currentPage++; loadAdminData(); };
-document.getElementById('prev-page').onclick = () => { if (currentPage > 1) { currentPage--; loadAdminData(); } };
+// Paginación Listeners (Uso de selectores de clase para contexto local)
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.admin-next-page')) {
+        currentPage++;
+        loadAdminData();
+    }
+    if (e.target.closest('.admin-prev-page')) {
+        if (currentPage > 1) {
+            currentPage--;
+            loadAdminData();
+        }
+    }
+});

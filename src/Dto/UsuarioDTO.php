@@ -3,26 +3,22 @@ class UsuarioDTO {
     public $id;
     public $nombre;
     public $correo;
-    public $permisos;
+    public $permisos; 
+    public $estado;   
 
-    public function __construct( $id,$nombre, $correo, $permisos = 0) {
+    public function __construct($id, $nombre, $correo, $permisos = 'Usuario', $estado = 'Activado') {
+        $this->id = $id;
         $this->nombre = $nombre;
-         $this->id = $id;
         $this->correo = $correo;
         $this->permisos = $permisos;
+        $this->estado = $estado;
     }
-    public function getNombre() {
-        return $this->nombre;
-    }
-    public function getCorreo() {
-        return $this->correo;
-    }
-    public function getId() {
-        return $this->id;
-    }
-    public function getPermisos() {
-        return $this->permisos;
-    }
+    
+    public function getId() { return $this->id; }
+    public function getNombre() { return $this->nombre; }
+    public function getCorreo() { return $this->correo; }
+    public function getPermisos() { return $this->permisos; }
+    public function getEstado() { return $this->estado; }
 }
 
 ?>

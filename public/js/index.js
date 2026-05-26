@@ -35,7 +35,6 @@ window.togglePasswordVisibility = function(inputId) {
     const type = input.getAttribute("type") === "password" ? "text" : "password";
     input.setAttribute("type", type);
     
-    // Cambiar icono (Añadir/Quitar tachado)
     if (btn) {
         const slashPath = btn.querySelector(".eye-slash");
         if (type === "text") {
@@ -101,7 +100,6 @@ window.openModal = function(title_ignored, message, email, type) {
     currentEmail = email;
     currentAuthType = type;
     
-    // Título eliminado por UX
     if (message) {
         modalMessage.textContent = message;
         modalMessageContainer.classList.remove("hidden");
@@ -145,13 +143,15 @@ window.closeModal = function() {
     }
     setTimeout(() => {
         authModal.classList.add("hidden", "pointer-events-none");
-        // Los inputs de las secciones NO se borran aquí por petición del usuario
+      if(modalCodeInput){
+        modalCodeInput.value=""
+      }
+
     }, 500);
 };
 
 if (closeModalBtn) closeModalBtn.addEventListener("click", window.closeModal);
 
-// Cierre por fondo
 authModal.addEventListener("click", (e) => {
     if (e.target === authModal) window.closeModal();
 });
@@ -163,12 +163,21 @@ document.addEventListener("keydown", (e) => {
 if (modalCodeInput) {
     modalCodeInput.addEventListener("input", (e) => {
         e.target.value = e.target.value.replace(/\D/g, "");
-        // Limpiar error al escribir
         modalErrorBox.classList.add("hidden");
         modalCodeInput.classList.remove("border-red-500");
     });
 }
+if (newPasswordInput) {
+    newPasswordInput.addEventListener("input", (e) => {
+        modalErrorBox.classList.add("hidden");
+    });
+}
 
+if (confirmNewPasswordInput) {
+    confirmNewPasswordInput.addEventListener("input", (e) => {
+        modalErrorBox.classList.add("hidden");
+    });
+}
 /**
  * Envío de formularios (CON TUS VALIDACIONES ORIGINALES)
  */
@@ -284,7 +293,7 @@ if (modalForm) {
                     modalMessage.textContent = "Escriba su nueva contraseña";
                     changePasswordForm.classList.remove("hidden");
                 } else {
-                    modalMessage.innerHTML = "¡Éxito!<br><span class='text-sm opacity-60 font-medium'>Redireccionando...</span>";
+                    modalMessage.innerHTML = "Token Validado con exito!<br><span class='text-sm opacity-60 font-medium'>Redireccionando...</span>";
                     setTimeout(() => window.location.href = "../src/View/home.php", 1500);
                 }
             } else {

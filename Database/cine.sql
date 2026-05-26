@@ -18,6 +18,32 @@ CREATE TABLE IF NOT EXISTS `cine`.`estados` (
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `cine`.`tipos_tokens`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `cine`.`tipos_tokens` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `nombre_UNIQUE` (`nombre`)
+) ENGINE = InnoDB;
+
+INSERT INTO `tipos_tokens` (`id`, `nombre`) VALUES (1, 'register_user'), (2, 'validate_user'), (3, 'reset_password');
+
+INSERT INTO `estados` (`id`, `nombre`) VALUES (1, 'Activado'), (2, 'Pendiente'), (3, 'Desactivado');
+
+-- -----------------------------------------------------
+-- Table `cine`.`permisos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `cine`.`permisos` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `nombre_UNIQUE` (`nombre`)
+) ENGINE = InnoDB;
+
+INSERT INTO `permisos` (`id`, `nombre`) VALUES (1, 'Administrador'), (2, 'Usuario');
+
+-- -----------------------------------------------------
 -- Table `cine`.`usuarios`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `cine`.`usuarios` (
@@ -26,24 +52,18 @@ CREATE TABLE IF NOT EXISTS `cine`.`usuarios` (
   `password` VARCHAR(255) NOT NULL,
   `correo` VARCHAR(255) NOT NULL,
   `estado_id` INT NOT NULL,
-  `permisos` INT(1) NOT NULL default 0,
+  `permisos_id` INT NOT NULL DEFAULT 2,
   `fecha_registro` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `correo_UNIQUE` (`correo`),
   INDEX `fk_usuarios_estados_idx` (`estado_id`),
+  INDEX `fk_usuarios_permisos_idx` (`permisos_id`),
   CONSTRAINT `fk_usuarios_estados`
     FOREIGN KEY (`estado_id`)
-    REFERENCES `cine`.`estados` (`id`)
-) ENGINE = InnoDB;
-
--- -----------------------------------------------------
--- Table `cine`.`tipos_tokens`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `cine`.`tipos_tokens` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `nombre_UNIQUE` (`nombre`)
+    REFERENCES `cine`.`estados` (`id`),
+  CONSTRAINT `fk_usuarios_permisos`
+    FOREIGN KEY (`permisos_id`)
+    REFERENCES `cine`.`permisos` (`id`)
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -82,6 +102,15 @@ CREATE TABLE IF NOT EXISTS `cine`.`genero` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `cine`.`protagonista`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `cine`.`protagonista` (
+  `id_actor` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_actor`))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Table `cine`.`pelicula`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `cine`.`pelicula` (
@@ -89,10 +118,27 @@ CREATE TABLE IF NOT EXISTS `cine`.`pelicula` (
   `titulo` VARCHAR(45) NOT NULL,
   `director` VARCHAR(45) NOT NULL,
   `clasificacion` VARCHAR(45) NOT NULL,
-  `url_image` VARCHAR(200) NULL DEFAULT NULL,
+  `url_image` VARCHAR(255) NULL DEFAULT NULL,
   `genero_id_genero` INT NOT NULL,
   PRIMARY KEY (`id_pelicula`),
   CONSTRAINT `fk_pelicula_genero1` FOREIGN KEY (`genero_id_genero`) REFERENCES `cine`.`genero` (`id_genero`))
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Table `cine`.`pelicula_has_protagonistas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `cine`.`pelicula_has_protagonistas` (
+  `pelicula_id_pelicula` INT NOT NULL,
+  `protagonistas_id_protagonista` INT NOT NULL,
+  PRIMARY KEY (`pelicula_id_pelicula`, `protagonistas_id_protagonista`),
+  CONSTRAINT `fk_pelicula_has_protagonistas_pelicula1`
+    FOREIGN KEY (`pelicula_id_pelicula`)
+    REFERENCES `cine`.`pelicula` (`id_pelicula`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_pelicula_has_protagonistas_protagonista1`
+    FOREIGN KEY (`protagonistas_id_protagonista`)
+    REFERENCES `cine`.`protagonista` (`id_actor`)
+    ON DELETE CASCADE)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -151,12 +197,9 @@ CREATE TABLE IF NOT EXISTS `cine`.`funcion` (
   `fecha_hora` DATETIME NOT NULL,
   `pelicula_id_pelicula` INT NOT NULL,
   `sala_id_sala` INT NOT NULL,
-  `boletas_vendidas` INT NOT NULL default 0,
-  `tipo_dia_id` INT NOT NULL,
   PRIMARY KEY (`id_funcion`),
   CONSTRAINT `fk_funcion_pelicula` FOREIGN KEY (`pelicula_id_pelicula`) REFERENCES `cine`.`pelicula` (`id_pelicula`),
-  CONSTRAINT `fk_funcion_sala` FOREIGN KEY (`sala_id_sala`) REFERENCES `cine`.`sala` (`id_sala`),
-  CONSTRAINT `fk_funcion_tipo_dia` FOREIGN KEY (`tipo_dia_id`) REFERENCES `cine`.`tarifas_tipos_dia` (`id`)
+  CONSTRAINT `fk_funcion_sala` FOREIGN KEY (`sala_id_sala`) REFERENCES `cine`.`sala` (`id_sala`)
 ) ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -166,38 +209,59 @@ INSERT INTO `tarifas_tipos_dia` (`id`, `nombre_dia`) VALUES (1, 'Normal'), (2, '
 INSERT INTO `tarifas_categorias_publico` (`id`, `nombre_categoria`) VALUES (1, 'General'), (2, 'Estudiante'), (3, 'Jubilado'), (4, 'Niño');
 
 INSERT INTO `cine` (`id_cine`, `nombre`, `calle`, `numero`, `telefono`) VALUES
-(1, 'ABC El Saler', 'Centro Comercial El Saler', 'S/N', '3950592'),
-(2, 'Acteon', 'G.v. Marques del Turia', '26', '3954084'),
-(3, 'Artis', 'Russafa', '20', '3940178');
+(1, 'CinePlanet Norte', 'Av. Siempre Viva', '123', '5550101'),
+(2, 'CineCity Centro', 'Calle Falsa', '456', '5550202'),
+(3, 'Luxor Cinema', 'Avenida del Sol', '789', '5550303'),
+(4, 'Star Cine', 'Camino Real', '101', '5550404');
 
--- Tarifas extendidas (Ejemplo Cine 1)
-INSERT INTO `tarifa` (`cine_id_cine`, `tipo_dia_id`, `categoria_publico_id`, `precio`) VALUES
-(1, 1, 1, 550.00), (1, 1, 2, 450.00), (1, 1, 3, 400.00), (1, 1, 4, 350.00),
-(1, 2, 1, 350.00), (1, 2, 2, 350.00), (1, 2, 3, 300.00), (1, 2, 4, 300.00),
-(1, 3, 1, 650.00), (1, 3, 2, 600.00), (1, 3, 3, 550.00), (1, 3, 4, 500.00),
-(1, 4, 1, 600.00), (1, 4, 2, 500.00), (1, 4, 3, 450.00), (1, 4, 4, 400.00);
+INSERT INTO `genero` (`id_genero`, `nombre_genero`) VALUES 
+(1, 'Acción'), (2, 'Drama'), (3, 'Comedia'), (4, 'Ciencia Ficción'), (5, 'Terror'), (6, 'Aventura');
 
--- Géneros y Películas (Todo público corregido)
-INSERT INTO `genero` (`id_genero`, `nombre_genero`) VALUES (1, 'Dibujos'), (2, 'Comedia'), (3, 'Drama'), (4, 'Acción');
 INSERT INTO `pelicula` (`id_pelicula`, `titulo`, `director`, `clasificacion`, `url_image`, `genero_id_genero`) VALUES
-(1, 'Pocahontas', 'Mike Gabriel', 'Todo público', 'https://m.media-amazon.com/images/I/515MY8H3FDL._AC_UF1000,1000_QL80_.jpg', 1),
-(2, 'Two much', 'Fernando Trueba', 'Todo público', 'https://pics.filmaffinity.com/Two_Much-750844534-large.jpg', 2),
-(3, 'Los puentes de Madison', 'Clint Eastwood', '+13', 'https://wmagazin.com/wp-content/uploads/2025/11/cine-club-literario-lospuentesdemadison-cartel-WMagazin-scaled-e1763019346105.jpg', 3),
-(4, 'The Dark Knight', 'Christopher Nolan', '+13', 'https://m.media-amazon.com/images/S/pv-target-images/5732ef430839ef69ef339397686566838a1658b549302636254707f15456f966.jpg', 4),
-(5, 'Inception', 'Christopher Nolan', '+13', 'https://m.media-amazon.com/images/I/912AErFSBHL._AC_UF1000,1000_QL80_.jpg', 4),
-(6, 'The Conjuring', 'James Wan', '+18', 'https://m.media-amazon.com/images/S/pv-target-images/44477d9c614529ec97b2649a5b3a3d5f57a3e75e92556a3e6f987f17666f7f32.jpg', 5);
+(1, 'Inception', 'Christopher Nolan', '13', 'https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkcsI9b2i2N069a3.jpg', 4),
+(2, 'The Dark Knight', 'Christopher Nolan', '13', 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haTaboPH.jpg', 1),
+(3, 'Interstellar', 'Christopher Nolan', '13', 'https://image.tmdb.org/t/p/w500/rAiYTfPXWdZXQn2V976RkHlS00q.jpg', 4),
+(4, 'Joker', 'Todd Phillips', '18', 'https://image.tmdb.org/t/p/w500/udDclJoHjmabe8EkF7W4Vez85V2.jpg', 2),
+(5, 'The Conjuring', 'James Wan', '18', 'https://image.tmdb.org/t/p/w500/wou2pG6D8cR7Hk3L1Z4K5m1f9a0.jpg', 5),
+(6, 'Gladiator', 'Ridley Scott', '13', 'https://image.tmdb.org/t/p/w500/ty8xC3v12dYfJg2L2uGv842rX2n.jpg', 1),
+(7, 'Pulp Fiction', 'Quentin Tarantino', '18', 'https://image.tmdb.org/t/p/w500/d5iilQnNnLh2tHk9wS7ZJ9k8.jpg', 2),
+(8, 'The Matrix', 'Wachowski', '13', 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9Gkd4EbXUKj7d.jpg', 4),
+(9, 'Avengers: Endgame', 'Russo Brothers', '13', 'https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg', 1),
+(10, 'Parasite', 'Bong Joon-ho', '18', 'https://image.tmdb.org/t/p/w500/7Ii3yqX9oYf3W2Sg47t8lF1f4.jpg', 2);
 
--- Salas
-INSERT INTO `sala` (`capacidad`, `cine_id_cine`) VALUES (150, 1), (120, 1), (100, 1), (90, 2), (80, 2), (110, 3);
+INSERT INTO `protagonista` (`id_actor`, `nombre`) VALUES 
+(1, 'Leonardo DiCaprio'), (2, 'Christian Bale'), (3, 'Heath Ledger'), (4, 'Matthew McConaughey'), 
+(5, 'Joaquin Phoenix'), (6, 'Vera Farmiga'), (7, 'Russell Crowe'), (8, 'John Travolta'), (9, 'Keanu Reeves'), (10, 'Robert Downey Jr.');
 
--- Funciones (Múltiples para paginación)
-INSERT INTO `funcion` (`fecha_hora`, `pelicula_id_pelicula`, `sala_id_sala`, `tipo_dia_id`) VALUES
-('2026-05-25 16:00:00', 1, 1, 1), ('2026-05-25 18:00:00', 1, 1, 1), ('2026-05-25 20:00:00', 1, 1, 1),
-('2026-05-25 16:30:00', 2, 2, 1), ('2026-05-25 19:00:00', 2, 2, 1), ('2026-05-25 21:30:00', 2, 2, 1),
-('2026-05-26 17:00:00', 3, 3, 1), ('2026-05-26 19:30:00', 3, 3, 1), ('2026-05-26 22:00:00', 3, 3, 1),
-('2026-05-27 15:00:00', 4, 4, 2), ('2026-05-27 18:00:00', 4, 4, 2), ('2026-05-27 21:00:00', 4, 4, 2),
-('2026-05-28 16:00:00', 5, 5, 1), ('2026-05-28 19:00:00', 5, 5, 1), ('2026-05-28 22:00:00', 5, 5, 1);
+INSERT INTO `pelicula_has_protagonistas` (`pelicula_id_pelicula`, `protagonistas_id_protagonista`) VALUES 
+(1, 1), (2, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10);
 
--- Usuarios
-INSERT INTO `estados` (`id`, `nombre`) VALUES (1, 'activo'), (2, 'pendiente'), (3, 'bloqueado');
-INSERT INTO `usuarios` (`nombre`, `password`, `correo`, `estado_id`, `permisos`) VALUES ('Admin', '$2y$10$7v/f6M3w3qI.G5p1v5H/u.3mJ5uVfXz/xS7vQZ.pYv8yX7M6x9Y3S', '2305juanda@gmail.com', 1, 1);
+INSERT INTO `sala` (`capacidad`, `cine_id_cine`) VALUES (150, 1), (120, 1), (90, 2), (110, 3), (200, 4);
+
+INSERT INTO `funcion` (`fecha_hora`, `pelicula_id_pelicula`, `sala_id_sala`) VALUES
+('2026-05-26 16:00:00', 3, 1), ('2026-05-26 18:00:00', 3, 1), ('2026-05-26 20:00:00', 3, 1),
+('2026-05-26 22:00:00', 3, 1), ('2026-05-27 16:00:00', 3, 1), ('2026-05-27 18:00:00', 3, 1),
+('2026-05-26 17:00:00', 4, 2), ('2026-05-26 19:30:00', 4, 2), ('2026-05-26 22:00:00', 4, 2),
+('2026-05-27 17:00:00', 5, 3), ('2026-05-27 20:00:00', 5, 3), ('2026-05-27 22:30:00', 5, 3);
+
+INSERT INTO `usuarios` (`nombre`, `password`, `correo`, `estado_id`, `permisos_id`) VALUES ('Admin', '$2y$10$tZk5nZ5O8.w1zP3rD1Z5l.t3v2n5l1U/r1yX7M6x9Y3S', '2305juanda@gmail.com', 1, 1);
+
+DELIMITER $$
+CREATE PROCEDURE `sp_validar_token`(IN p_correo VARCHAR(255), IN p_token_valor VARCHAR(255), IN p_tipo_nombre VARCHAR(45), OUT p_resultado VARCHAR(20))
+BEGIN
+  DECLARE v_fecha_c DATETIME;
+  DECLARE v_u_id INT;
+  DECLARE v_tipo_id INT;
+  SELECT id INTO v_tipo_id FROM tipos_tokens WHERE nombre = p_tipo_nombre;
+  SELECT t.fecha_c, t.usuario_id INTO v_fecha_c, v_u_id FROM tokens t INNER JOIN usuarios u ON u.id = t.usuario_id WHERE u.correo = p_correo AND t.token_valor = p_token_valor AND t.tipo_id = v_tipo_id LIMIT 1;
+  IF v_fecha_c IS NULL THEN SET p_resultado = 'token no valido';
+  ELSEIF NOW() > DATE_ADD(v_fecha_c, INTERVAL 2 MINUTE) THEN SET p_resultado = 'token expirado';
+  ELSE SET p_resultado = 'token valido';
+    IF p_tipo_nombre = 'register_user' THEN UPDATE usuarios SET estado_id = 1 WHERE id = v_u_id; END IF;
+  END IF;
+END$$
+DELIMITER ;
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

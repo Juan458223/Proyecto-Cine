@@ -1,6 +1,6 @@
 <!-- Modal de Detalles de Cine - Estilo Premium Minimalista -->
-<div id="cine-detail-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all duration-500 opacity-0 pointer-events-none" onclick="if(event.target === this) closeCineDetail()">
-    <div class="bg-zinc-950/40 backdrop-blur-2xl w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] border border-white/5 shadow-2xl overflow-y-auto custom-scrollbar transform transition-all duration-500 scale-95" id="cine-detail-content">
+<div id="cine-detail-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/10 backdrop-blur-md p-4 transition-all duration-500 opacity-0 pointer-events-none" onclick="if(event.target === this) closeCineDetail()">
+    <div class="bg-zinc-950/60 backdrop-blur-3xl w-full max-w-4xl rounded-[2.5rem] border border-white/10 shadow-2xl custom-scrollbar transform transition-all duration-500 scale-95 opacity-0 flex flex-col" id="cine-detail-content">
         
         <!-- Header: Cine Info -->
         <div class="relative p-12 pb-8 border-b border-white/5 bg-zinc-950/20">
@@ -37,9 +37,9 @@
                         <h4 class="text-white font-bold text-sm tracking-widest">Tabla de tarifas</h4>
                     </div>
 
-                    <div class="overflow-hidden rounded-xl border border-white/5 bg-zinc-900/20">
+                    <div class="rounded-xl border border-white/5 bg-zinc-900/20">
                         <table class="w-full text-left text-[11px]">
-                            <thead class="bg-white/5 text-zinc-500 font-bold tracking-wider">
+                            <thead class="bg-white/5 text-zinc-500 font-bold tracking-wider sticky top-0">
                                 <tr>
                                     <th class="px-6 py-4">Público</th>
                                     <th class="px-6 py-4">Día</th>
@@ -51,6 +51,8 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Paginación de Tarifas -->
+                    <div id="cine-tarifa-pagination" class="flex justify-center gap-2 pt-4"></div>
                     <div id="cine-tarifa-pagination" class="flex justify-center gap-2 pt-2"></div>
                 </div>
 

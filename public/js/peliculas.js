@@ -82,7 +82,7 @@ function renderModalFunctions(page) {
     const pagContainer = document.getElementById('movie-functions-pagination');
     if (!container) return;
 
-    const limit = 8;
+    const limit = 6; // Cambiado a 6 como solicitaste
     const start = (page - 1) * limit;
     const paginated = currentModalFunctions.slice(start, start + limit);
     const totalPages = Math.ceil(currentModalFunctions.length / limit);
@@ -110,9 +110,9 @@ function renderModalFunctions(page) {
                     <span class="text-white font-black text-lg">${time}</span>
                 </div>
                 <div class="space-y-1">
-                    <p class="text-white text-xs font-bold tracking-tight">${cap(f.cine_nombre)}</p>
-                    <p class="text-zinc-500 text-[10px] font-medium">${cap(f.cine_direccion)}</p>
-                    <p class="text-zinc-600 text-[9px] font-bold">Sala ${f.numero_sala || f.sala_id_sala}</p>
+                    <p class="text-white text-xs font-bold tracking-tight">${cap(f.cine_nombre || '')}</p>
+                    <p class="text-zinc-500 text-[10px] font-medium">${cap(f.cine_calle || '')} ${f.cine_numero || ''}</p>
+                    <p class="text-zinc-600 text-[9px] font-bold">Sala ${f.numero_sala || f.sala_id_sala || ''}</p>
                 </div>
             `;
             container.appendChild(div);

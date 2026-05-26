@@ -1,8 +1,10 @@
 <?php
 session_start();
 require_once __DIR__ . '/../Service/AuthService.php';
+require_once __DIR__ . '/../Service/UsuarioService.php';
 
 $authService = new AuthService();
+$usuarioService = new UsuarioService();
 $action = $_GET['action'] ?? 'login';
 
 if ($action === 'login') {
@@ -19,9 +21,8 @@ if ($action === 'login') {
     if ($usuario === 'bloqueado') {
         echo "Su cuenta está desactivada. Si cree que esto ha sido un error, por favor contacte al administrador.";
     } elseif ($usuario === 'pendiente') {
-        $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
-        $usuarioDto = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
-        $authService->generarToken($usuarioDto, 'register_user');
+        $userData = $authService->obtenerUsuarioPorCorreo($correo); 
+        $authService->generarToken($userData, 'register_user');
         echo "Estado de usuario: pendiente. Se ha enviado un nuevo token de activación.";
     } elseif ($usuario != null) {
         $authService->generarToken($usuario, 'validate_user');
@@ -90,10 +91,9 @@ if ($action === 'login') {
         exit;
     }
 
-    $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
+    $userData = $authService->obtenerUsuarioPorCorreo($correo);
     if ($userData) {
-        $usuario = new UsuarioDTO($userData['id'], $userData['nombre'], $userData['correo'], $userData['permisos']);
-        $authService->generarToken($usuario, 'reset_password');
+        $authService->generarToken($userData, 'reset_password');
         echo "Token de recuperación generado con éxito.";
     } else {
         echo "Correo no encontrado.  Si cree que esto ha sido un error, por favor contacte al administrador.";
@@ -112,13 +112,12 @@ if ($action === 'login') {
     $resultado = $authService->validarToken($correo, $token, $type);
     
     if (isset($resultado['resultado']) && $resultado['resultado'] === 'token valido') {
-
-        $userData = (new UsuarioDAO())->obtenerUsuarioPorCorreo($correo);
+        $userData = $authService->obtenerUsuarioPorCorreo($correo);
         if ($userData) {
-            $_SESSION['usuario_id'] = $userData['id'];
-            $_SESSION['usuario_nombre'] = $userData['nombre'];
-            $_SESSION['usuario_correo'] = $userData['correo'];
-            $_SESSION['permisos'] = $userData['permisos'];
+            $_SESSION['usuario_id'] = $userData->getId();
+            $_SESSION['usuario_nombre'] = $userData->getNombre();
+            $_SESSION['usuario_correo'] = $userData->getCorreo();
+            $_SESSION['permisos'] = $userData->getPermisos();
         }
         echo "token valido";
     } elseif (isset($resultado['resultado'])) {
@@ -135,7 +134,6 @@ if ($action === 'login') {
 
     $nombre = $_POST['nombre'] ?? '';
     $password = $_POST['password'] ?? '';
-    $confirm_password = $_POST['confirm_password'] ?? '';
 
     if (empty($nombre)) {
         echo json_encode(['success' => false, 'error' => 'El nombre es obligatorio']);
