@@ -10,7 +10,7 @@ class FuncionDAO {
 
     public function obtenerTodas($limit = null, $offset = null) {
         try {
-            $sql = "SELECT f.*, p.titulo as pelicula_titulo, s.id_sala as sala_nombre, c.nombre as cine_nombre 
+            $sql = "SELECT f.*, p.titulo as pelicula_titulo, s.numero_sala as sala_nombre, c.nombre as cine_nombre 
                     FROM funcion f 
                     JOIN pelicula p ON f.pelicula_id_pelicula = p.id_pelicula 
                     JOIN sala s ON f.sala_id_sala = s.id_sala
@@ -86,7 +86,7 @@ class FuncionDAO {
 
     public function obtenerPorPelicula($id_pelicula) {
         try {
-            $sql = "SELECT f.*, s.id_sala as sala_nombre, c.nombre as cine_nombre, c.direccion as cine_direccion, c.telefono as cine_telefono
+            $sql = "SELECT f.*, s.numero_sala as sala_nombre, c.nombre as cine_nombre, c.direccion as cine_direccion, c.telefono as cine_telefono
                     FROM funcion f 
                     JOIN sala s ON f.sala_id_sala = s.id_sala
                     JOIN cine c ON s.cine_id_cine = c.id_cine
@@ -102,11 +102,10 @@ class FuncionDAO {
 
     public function obtenerPorCine($id_cine) {
         try {
-            $sql = "SELECT f.*, p.titulo as pelicula_titulo, p.url_image as pelicula_imagen, s.id_sala as sala_nombre, t.precio as tarifa_valor
+            $sql = "SELECT f.*, p.titulo as pelicula_titulo, p.url_image as pelicula_imagen, s.numero_sala as sala_nombre
                     FROM funcion f 
                     JOIN pelicula p ON f.pelicula_id_pelicula = p.id_pelicula
                     JOIN sala s ON f.sala_id_sala = s.id_sala
-                    JOIN tarifa t ON f.tarifa_id_dia = t.id_dia
                     WHERE s.cine_id_cine = :id_cine
                     ORDER BY f.fecha_hora ASC";
             $stmt = $this->db->prepare($sql);
@@ -119,7 +118,7 @@ class FuncionDAO {
 
     public function obtenerSalasPorCine($id_cine) {
         try {
-            $sql = "SELECT id_sala FROM sala WHERE cine_id_cine = :id_cine";
+            $sql = "SELECT id_sala, numero_sala FROM sala WHERE cine_id_cine = :id_cine";
             $stmt = $this->db->prepare($sql);
             $stmt->execute(['id_cine' => $id_cine]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);

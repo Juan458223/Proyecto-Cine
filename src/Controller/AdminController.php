@@ -40,9 +40,10 @@ if ($action === 'list' && $type === 'cines' && !isset($_GET['admin_view'])) {
     
     $data = array_map(function($c) use ($funcionDAO) {
         return [
-            'id' => $c['id_cine'],
+            'id_cine' => $c['id_cine'],
             'Nombre' => $c['nombre'],
-            'Direccion' => $c['direccion'],
+            'Calle' => $c['calle'],
+            'Numero' => $c['numero'],
             'Telefono' => $c['telefono'],
             'funciones' => $funcionDAO->obtenerPorCine($c['id_cine']),
             'salas' => $funcionDAO->obtenerSalasPorCine($c['id_cine'])
@@ -117,8 +118,9 @@ if ($action === 'list') {
             $data = array_map(fn($c) => [
                 'id' => $c['id_cine'],
                 'Nombre' => $c['nombre'],
-                'Direccion' => $c['direccion'],
-                'Telefono' => $c['telefono']
+                'Calle' => $c['calle'],
+                'Número' => $c['numero'],
+                'Teléfono' => $c['telefono']
             ], $res);
             break;
         case 'salas':
@@ -153,7 +155,13 @@ if ($action === 'list') {
             $res = $tarifaDAO->obtenerTodas();
             $total = count($res);
             $data = array_slice($res, $offset, $limit);
-            $data = array_map(fn($t) => ['id' => $t['id_dia'], 'Precio' => $t['precio']], $data);
+            $data = array_map(fn($t) => [
+                'id' => $t['id_tarifa'],
+                'Cine' => $t['cine_id_cine'],
+                'Día' => $t['tipo_dia'],
+                'Público' => $t['tipo_publico'],
+                'Precio' => $t['precio']
+            ], $data);
             break;
         case 'estados':
             $db = DatabaseConnection::getInstance()->getConnection();

@@ -3,15 +3,17 @@
     <div class="bg-zinc-950/40 backdrop-blur-2xl w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] border border-white/5 shadow-2xl overflow-y-auto custom-scrollbar transform transition-all duration-500 scale-95" id="cine-detail-content">
         
         <!-- Header: Cine Info -->
-        <div class="relative p-12 pb-8">
-            <button onclick="closeCineDetail()" class="absolute top-8 right-8 btn-close-rot z-20">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+        <div class="relative p-12 pb-8 border-b border-white/5 bg-zinc-950/20">
+            <!-- Botón Cerrar: Estilo Rotativo Premium -->
+            <button onclick="closeCineDetail()" class="btn-close-rot z-30">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
 
             <div class="space-y-4">
                 <h2 id="cine-detail-name" class="text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-tight"></h2>
+
                 <div class="flex flex-col md:flex-row md:items-center gap-6 text-zinc-400">
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-[#E50914]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2"/></svg>
@@ -25,22 +27,59 @@
             </div>
         </div>
 
-        <!-- Body: Filters & Content -->
-        <div class="p-12 pt-0 bg-[#09090b]/50">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b border-white/5 pb-6">
-                <h4 class="text-white font-bold text-xs tracking-widest font-montserrat mb-4 md:mb-0">Películas en cartelera</h4>
-                
-                <div class="flex items-center gap-4">
-                    <span class="text-[10px] font-bold text-zinc-500 tracking-widest">Filtrar por sala:</span>
-                    <select id="cine-filter-sala" class="bg-zinc-900 border border-white/5 text-white text-[10px] font-bold px-4 py-2 rounded-lg focus:border-[#E50914] outline-none transition-all cursor-pointer">
-                        <option value="">Todas las salas</option>
-                    </select>
-                </div>
-            </div>
+        <!-- Body: Two Columns Table Layout -->
+        <div class="p-12 bg-[#09090b]/50">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
 
-            <!-- Listado de Peliculas/Funciones -->
-            <div id="cine-functions-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                <!-- Inyectado por JS -->
+                <!-- Left Column: Tarifas -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <h4 class="text-white font-bold text-sm tracking-widest">Tabla de tarifas</h4>
+                    </div>
+
+                    <div class="overflow-hidden rounded-xl border border-white/5 bg-zinc-900/20">
+                        <table class="w-full text-left text-[11px]">
+                            <thead class="bg-white/5 text-zinc-500 font-bold tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4">Público</th>
+                                    <th class="px-6 py-4">Día</th>
+                                    <th class="px-6 py-4 text-right">Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cine-tarifa-table-body" class="divide-y divide-white/5 text-zinc-300">
+                                <!-- Inyectado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="cine-tarifa-pagination" class="flex justify-center gap-2 pt-2"></div>
+                </div>
+
+                <!-- Right Column: Funciones -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <h4 class="text-white font-bold text-sm tracking-widest">Cartelera del cine</h4>
+                        <select id="cine-filter-sala" class="bg-zinc-900/50 border border-white/5 text-white text-[10px] px-4 py-1.5 rounded-lg focus:border-[#E50914] outline-none transition-all cursor-pointer">
+                            <option value="">Todas las salas</option>
+                        </select>
+                    </div>
+
+                    <div class="overflow-hidden rounded-xl border border-white/5 bg-zinc-900/20">
+                        <table class="w-full text-left text-[11px]">
+                            <thead class="bg-white/5 text-zinc-500 font-bold tracking-wider">
+                                <tr>
+                                    <th class="px-6 py-4">Película</th>
+                                    <th class="px-6 py-4">Horario</th>
+                                    <th class="px-6 py-4 text-right">Sala</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cine-funcion-table-body" class="divide-y divide-white/5 text-zinc-300">
+                                <!-- Inyectado por JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="cine-functions-pagination" class="flex justify-center gap-2 pt-2"></div>
+                </div>
+
             </div>
         </div>
     </div>

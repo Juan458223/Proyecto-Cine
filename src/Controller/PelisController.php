@@ -10,12 +10,12 @@ $action = $_GET['action'] ?? 'renderGrid';
 if ($action === 'renderGrid') {
     $genero_id = isset($_GET['genero_id']) && $_GET['genero_id'] !== "" ? (int)$_GET['genero_id'] : null;
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $peliculaService->obtenerTablas($genero_id, $page);
+    $peliculaService->obtenerTablas($genero_id, $page, 6);
 
 } elseif ($action === 'renderPagination') {
     $genero_id = isset($_GET['genero_id']) && $_GET['genero_id'] !== "" ? (int)$_GET['genero_id'] : null;
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $peliculaService->obtenerPaginacion($genero_id, $page);
+    $peliculaService->obtenerPaginacion($genero_id, $page, 6);
 
 } elseif ($action === 'tablaPelicula') {
     // Compatibilidad con llamadas antiguas

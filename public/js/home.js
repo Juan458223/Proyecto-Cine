@@ -1,11 +1,147 @@
-/**
- * Lógica de la página de inicio (Home)
- * Maneja el menú móvil, cambio de secciones y ajustes de usuario
- */
+// --- Cine Detail Modal Dashboard Logic ---
 
-function capitalize(str) {
+let currentCineData = null;
+let currentCineFilterSala = "";
+let cineTarifaPage = 1;
+let cineFuncionPage = 1;
+
+window.capitalize = function(str) {
     if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    // Mapeo especial para Clasificación
+    if (str.toUpperCase() === 'TP') return 'Todo público';
+    const s = str.toString().trim();
+    return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+};
+
+window.openCineDetail = function(cine) {
+    currentCineData = cine;
+    currentCineFilterSala = "";
+    cineTarifaPage = 1;
+    cineFuncionPage = 1;
+
+    const modal = document.getElementById('cine-detail-modal');
+    const content = document.getElementById('cine-detail-content');
+    
+    // Header Info
+    document.getElementById('cine-detail-name').textContent = capitalize(cine.Nombre);
+    document.getElementById('cine-detail-address').textContent = `${capitalize(cine.Calle || '')} ${cine.Numero || ''}`;
+    document.getElementById('cine-detail-phone').textContent = cine.Telefono ? `Tel: ${cine.Telefono}` : 'Sin teléfono';
+
+    // Populate Sala Filter
+    const select = document.getElementById('cine-filter-sala');
+    if (select) {
+        select.innerHTML = '<option value="">Todas las salas</option>';
+        if (cine.salas) {
+            cine.salas.forEach(s => {
+                select.innerHTML += `<option value="${s.id_sala}">Sala ${s.numero_sala || s.id_sala}</option>`;
+            });
+        }
+    }
+
+    window.renderCineTarifas(1);
+    window.renderCineFunctions(1);
+
+    modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.add('flex');
+    setTimeout(() => {
+        modal.classList.add('opacity-100');
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+};
+
+window.renderCineTarifas = async function(page = 1) {
+    const body = document.getElementById('cine-tarifa-table-body');
+    const pagination = document.getElementById('cine-tarifa-pagination');
+    if (!body) return;
+
+    try {
+        const response = await fetch(`../Controller/AdminController.php?action=list&type=tarifas_cine&cine_id=${currentCineData.id_cine}&page=${page}&limit=5`);
+        const result = await response.json();
+        
+        body.innerHTML = '';
+        if (result.data && result.data.length > 0) {
+            result.data.forEach(t => {
+                body.innerHTML += `
+                    <tr class="hover:bg-white/5 transition-colors text-xs">
+                        <td class="px-6 py-4 font-bold text-white">${capitalize(t.tipo_publico)}</td>
+                        <td class="px-6 py-4 text-zinc-500 font-medium">${capitalize(t.tipo_dia)}</td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="bg-[#E50914]/10 text-[#E50914] px-3 py-1 rounded-md font-black">$${parseFloat(t.precio).toLocaleString()}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            renderInternalPagination(pagination, result.pages, page, 'renderCineTarifas');
+        } else {
+            body.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-zinc-600 italic">No hay tarifas definidas</td></tr>';
+            if (pagination) pagination.innerHTML = '';
+        }
+    } catch (e) {
+        body.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-red-500/50">Error cargando tarifas</td></tr>';
+    }
+};
+
+window.renderCineFunctions = function(page = 1) {
+    const body = document.getElementById('cine-funcion-table-body');
+    const pagination = document.getElementById('cine-functions-pagination');
+    if (!body) return;
+
+    const filtered = currentCineFilterSala === "" 
+        ? currentCineData.funciones || []
+        : (currentCineData.funciones || []).filter(f => f.sala_id_sala.toString() === currentCineFilterSala);
+
+    const limit = 5;
+    const totalPages = Math.ceil(filtered.length / limit);
+    const start = (page - 1) * limit;
+    const paginated = filtered.slice(start, start + limit);
+
+    body.innerHTML = '';
+    if (paginated.length > 0) {
+        paginated.forEach(f => {
+            const date = new Date(f.fecha_hora.replace(' ', 'T'));
+            const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            body.innerHTML += `
+                <tr class="hover:bg-white/5 transition-colors text-xs">
+                    <td class="px-6 py-4 font-bold text-white">${capitalize(f.pelicula_titulo)}</td>
+                    <td class="px-6 py-4 text-zinc-500 font-medium">${time}</td>
+                    <td class="px-6 py-4 text-right font-black text-[#E50914]">S${f.numero_sala || f.sala_id_sala}</td>
+                </tr>
+            `;
+        });
+        renderInternalPagination(pagination, totalPages, page, 'renderCineFunctions');
+    } else {
+        body.innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-zinc-600 italic">No hay funciones disponibles</td></tr>';
+        if (pagination) pagination.innerHTML = '';
+    }
+};
+
+function renderInternalPagination(container, total, current, callbackName) {
+    if (!container) return;
+    container.innerHTML = '';
+    if (total <= 1) return;
+
+    // Arrow Prev
+    const prev = document.createElement('button');
+    prev.className = `w-7 h-7 rounded-lg flex items-center justify-center transition-all ${current <= 1 ? 'opacity-20 pointer-events-none' : 'bg-zinc-900 text-zinc-500 hover:text-white'}`;
+    prev.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>';
+    prev.onclick = () => window[callbackName](current - 1);
+    container.appendChild(prev);
+
+    // Number
+    const pageNum = document.createElement('span');
+    pageNum.className = "text-[10px] font-black text-zinc-500 px-2 flex items-center";
+    pageNum.textContent = `${current} / ${total}`;
+    container.appendChild(pageNum);
+
+    // Arrow Next
+    const next = document.createElement('button');
+    next.className = `w-7 h-7 rounded-lg flex items-center justify-center transition-all ${current >= total ? 'opacity-20 pointer-events-none' : 'bg-zinc-900 text-zinc-500 hover:text-white'}`;
+    next.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>';
+    next.onclick = () => window[callbackName](current + 1);
+    container.appendChild(next);
 }
 
 function toggleMobileMenu() {
@@ -73,7 +209,6 @@ function showSection(sectionId) {
 }
 
 let currentCinePage = 1;
-let currentCineData = null;
 
 async function loadCines(page = 1) {
     const grid = document.getElementById('cines-grid');
@@ -90,7 +225,7 @@ async function loadCines(page = 1) {
             grid.innerHTML = '';
             result.data.forEach(cine => {
                 const nombre = capitalize(cine.Nombre);
-                const direccion = capitalize(cine.Direccion);
+                const direccion = `${capitalize(cine.Calle || '')} ${cine.Numero || ''}`;
                 
                 grid.innerHTML += `
                     <div onclick='openCineDetail(${JSON.stringify(cine)})' class="group bg-zinc-950 border border-zinc-900 hover:border-[#E50914] transition-all p-8 rounded-sm font-outfit cursor-pointer">
@@ -120,17 +255,14 @@ async function loadCines(page = 1) {
                 `;
             });
 
-            // Render Pagination
             if (pagination) {
                 renderCinePagination(result.pages, result.currentPage);
             }
             currentCinePage = page;
-
         } else {
             grid.innerHTML = '<p class="col-span-full text-center text-zinc-600 font-medium py-20">No hay cines disponibles en este momento</p>';
         }
     } catch (error) {
-        console.error("Error cargando cines:", error);
         grid.innerHTML = '<p class="col-span-full text-center text-red-500/80 font-medium py-20">Error al cargar la lista de cines</p>';
     }
 }
@@ -141,103 +273,21 @@ function renderCinePagination(totalPages, currentPage) {
         if (container) container.innerHTML = '';
         return;
     }
-
     let html = `
         <button onclick="loadCines(${currentPage - 1})" class="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${currentPage <= 1 ? 'opacity-30 pointer-events-none' : ''}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
         </button>
     `;
-
     for (let i = 1; i <= totalPages; i++) {
         const active = i === currentPage ? 'bg-[#E50914] text-white border-[#E50914]' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white';
         html += `<button onclick="loadCines(${i})" class="w-10 h-10 rounded-xl border font-bold text-xs transition-all ${active}">${i}</button>`;
     }
-
     html += `
         <button onclick="loadCines(${currentPage + 1})" class="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-[#E50914] transition-all ${currentPage >= totalPages ? 'opacity-30 pointer-events-none' : ''}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         </button>
     `;
-
     container.innerHTML = html;
-}
-
-// --- Cine Detail Modal ---
-
-window.openCineDetail = function(cine) {
-    currentCineData = cine;
-    const modal = document.getElementById('cine-detail-modal');
-    const content = document.getElementById('cine-detail-content');
-    
-    document.getElementById('cine-detail-name').textContent = capitalize(cine.Nombre);
-    document.getElementById('cine-detail-address').textContent = capitalize(cine.Direccion);
-    document.getElementById('cine-detail-phone').textContent = cine.Telefono ? `TEL: ${cine.Telefono}` : 'SIN TELÉFONO';
-
-    // Poblar Filtro de Salas
-    const select = document.getElementById('cine-filter-sala');
-    select.innerHTML = '<option value="">Todas las salas</option>';
-    if (cine.salas) {
-        cine.salas.forEach(s => {
-            select.innerHTML += `<option value="${s.id_sala}">Sala ${s.id_sala}</option>`;
-        });
-    }
-
-    renderCineFunctions();
-
-    modal.classList.remove('hidden', 'pointer-events-none');
-    modal.classList.add('flex');
-    setTimeout(() => {
-        modal.classList.add('opacity-100');
-        content.classList.remove('scale-95');
-        content.classList.add('scale-100');
-    }, 10);
-    document.body.style.overflow = 'hidden';
-};
-
-function renderCineFunctions(salaId = "") {
-    const container = document.getElementById('cine-functions-list');
-    container.innerHTML = '';
-
-    if (!currentCineData.funciones || currentCineData.funciones.length === 0) {
-        container.innerHTML = '<p class="col-span-full text-zinc-600 text-[10px] font-bold uppercase tracking-widest italic opacity-50 py-10">No hay funciones programadas para este cine.</p>';
-        return;
-    }
-
-    const filtered = salaId === "" 
-        ? currentCineData.funciones 
-        : currentCineData.funciones.filter(f => f.sala_id_sala.toString() === salaId);
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<p class="col-span-full text-zinc-600 text-[10px] font-bold uppercase tracking-widest italic opacity-50 py-10">No hay funciones en esta sala.</p>';
-        return;
-    }
-
-    filtered.forEach(f => {
-        const dateStr = f.fecha_hora.replace(' ', 'T');
-        const date = new Date(dateStr);
-        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dayRaw = date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
-        const day = capitalize(dayRaw);
-        
-        const div = document.createElement('div');
-        div.className = "bg-zinc-900/50 border border-white/5 p-5 rounded-2xl flex items-center gap-4 hover:border-[#E50914] transition-all group";
-        div.innerHTML = `
-            <img src="${f.pelicula_imagen}" class="w-16 h-20 object-cover rounded-lg shadow-lg group-hover:scale-105 transition-transform">
-            <div class="flex-1 min-w-0">
-                <h5 class="text-white font-bold text-sm truncate">${capitalize(f.pelicula_titulo)}</h5>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="text-[#E50914] text-[9px] font-black tracking-tighter">${day}</span>
-                    <span class="w-1 h-1 rounded-full bg-zinc-800"></span>
-                    <span class="text-zinc-400 text-xs font-black">${time}</span>
-                </div>
-                <div class="flex items-center justify-between mt-3">
-                    <span class="text-zinc-600 text-[9px] font-bold">Sala ${f.sala_id_sala}</span>
-                    <span class="text-white text-[10px] font-black bg-zinc-800 px-2 py-1 rounded-md">$${parseFloat(f.tarifa_valor).toLocaleString()}</span>
-                </div>
-            </div>
-        `;
-        container.appendChild(div);
-    });
 }
 
 window.closeCineDetail = function() {
@@ -245,25 +295,18 @@ window.closeCineDetail = function() {
     const content = document.getElementById('cine-detail-content');
     modal.classList.remove('opacity-100');
     content.classList.add('scale-95');
-    content.classList.remove('scale-100');
     setTimeout(() => {
         modal.classList.add('hidden', 'pointer-events-none');
         document.body.style.overflow = 'auto';
     }, 500);
 };
 
-// --- Auth Modal Global Handler ---
 window.openModal = function(title_ignored, message, email, type) {
     const authModal = document.getElementById('auth-modal');
     const modalContainerInner = document.getElementById('auth-modal-content');
     const modalMessage = document.getElementById('auth-modal-message');
-
     if (!authModal) return;
-    
-    if (modalMessage) {
-        modalMessage.textContent = message;
-    }
-    
+    if (modalMessage) modalMessage.textContent = message;
     authModal.classList.remove("hidden", "pointer-events-none");
     authModal.classList.add("flex");
     requestAnimationFrame(() => {
@@ -276,14 +319,10 @@ window.openModal = function(title_ignored, message, email, type) {
     document.body.style.overflow = "hidden";
 };
 
-
-// User Settings Logic
 window.openUserSettings = function() {
     const modal = document.getElementById('user-settings-modal');
     const content = document.getElementById('settings-modal-content');
-    
     if (!modal || !content) return;
-
     modal.classList.remove('hidden', 'pointer-events-none');
     modal.classList.add('flex');
     setTimeout(() => {
@@ -297,12 +336,9 @@ window.openUserSettings = function() {
 window.closeUserSettings = function() {
     const modal = document.getElementById('user-settings-modal');
     const content = document.getElementById('settings-modal-content');
-    
     if (!modal || !content) return;
-
     modal.classList.remove('opacity-100');
     content.classList.add('scale-95');
-    content.classList.remove('scale-100');
     setTimeout(() => {
         modal.classList.add('hidden', 'pointer-events-none');
         document.body.style.overflow = 'auto';
@@ -310,14 +346,9 @@ window.closeUserSettings = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Escuchar cambios en el filtro de géneros
     const filterGenre = document.getElementById('filter-genre');
     if (filterGenre) {
         filterGenre.addEventListener('change', (e) => {
-            const genreId = e.target.value;
-            // Podrías implementar filtrado dinámico aquí si fuera necesario
-            // Por ahora, recargamos la página con el filtro si PeliculaService lo soporta
-            // O simplemente mostramos la sección cartelera
             showSection('cartelera');
         });
     }
@@ -325,30 +356,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterSala = document.getElementById('cine-filter-sala');
     if (filterSala) {
         filterSala.addEventListener('change', (e) => {
-            renderCineFunctions(e.target.value);
+            currentCineFilterSala = e.target.value;
+            window.renderCineFunctions(1);
         });
     }
 });
 
-// Reutilizamos el modal de alertas de administrador para las validaciones
 window.showSettingsAlert = function(title, message, isError = false) {
     const modal = document.getElementById('admin-alert-modal');
     const content = document.getElementById('admin-alert-content');
     const messageEl = document.getElementById('admin-alert-message');
-
-    if (!modal) {
-        console.error("No se encontró el modal de alertas (admin-alert-modal)");
-        return;
-    }
-
-    // Solo mostramos el mensaje principal, igual que en el index
-    if (messageEl) {
-        messageEl.textContent = message;
-    }
-
+    if (!modal) return;
+    if (messageEl) messageEl.textContent = message;
     modal.classList.remove('hidden', 'pointer-events-none');
     modal.classList.add('flex');
-    
     setTimeout(() => {
         modal.classList.add('opacity-100');
         if (content) {
@@ -361,72 +382,50 @@ window.showSettingsAlert = function(title, message, isError = false) {
 window.closeAdminAlert = function() {
     const modal = document.getElementById('admin-alert-modal');
     const content = document.getElementById('admin-alert-content');
-    
     modal.classList.remove('opacity-100');
     content.classList.add('scale-95');
-    content.classList.remove('scale-100');
-    
     setTimeout(() => {
         modal.classList.add('hidden', 'pointer-events-none');
     }, 500);
 };
 
-document.getElementById('user-settings-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    
-    const nombre = formData.get('nombre');
-    const pass = formData.get('password');
-    const confirm = formData.get('confirm_password');
-
-    // Validación Manual: Nombre Vacío
-    if (!nombre || nombre.trim().length === 0) {
-        window.showSettingsAlert('Campo Requerido', 'Por favor, ingresa tu nombre completo', true);
-        return;
-    }
-
-    if (pass || confirm) {
-        if (pass !== confirm) {
-            window.showSettingsAlert('Error de Validación', 'Las contraseñas no coinciden', true);
+const settingsForm = document.getElementById('user-settings-form');
+if (settingsForm) {
+    settingsForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const nombre = formData.get('nombre');
+        if (!nombre || nombre.trim().length === 0) {
+            window.showSettingsAlert('Campo Requerido', 'Por favor, ingresa tu nombre completo', true);
             return;
         }
-    }
-
-    try {
-        const response = await fetch('../Controller/AuthController.php?action=update_profile', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
-        
-        if (result.success) {
-            window.showSettingsAlert('¡Éxito!', 'Perfil actualizado correctamente');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            window.showSettingsAlert('Error', result.error || 'No se pudo actualizar el perfil', true);
+        try {
+            const response = await fetch('../Controller/AuthController.php?action=update_profile', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.success) {
+                window.showSettingsAlert('¡Éxito!', 'Perfil actualizado correctamente');
+                setTimeout(() => { window.location.reload(); }, 1500);
+            } else {
+                window.showSettingsAlert('Error', result.error || 'No se pudo actualizar el perfil', true);
+            }
+        } catch (error) {
+            window.showSettingsAlert('Error de Sistema', 'Error de conexión con el servidor', true);
         }
-    } catch (error) {
-        window.showSettingsAlert('Error de Sistema', 'Error de conexión con el servidor', true);
-    }
-};
+    };
+}
 
 window.togglePasswordVisibility = function(inputId) {
     const input = document.getElementById(inputId);
     if (!input) return;
-    
     const btn = input.parentElement.querySelector(".password-toggle-btn");
     const type = input.getAttribute("type") === "password" ? "text" : "password";
     input.setAttribute("type", type);
-    
-    // Cambiar icono (Añadir/Quitar tachado)
     if (btn) {
         const slashPath = btn.querySelector(".eye-slash");
-        if (type === "text") {
-            slashPath.classList.remove("hidden");
-        } else {
-            slashPath.classList.add("hidden");
-        }
+        if (type === "text") slashPath.classList.remove("hidden");
+        else slashPath.classList.add("hidden");
     }
 };

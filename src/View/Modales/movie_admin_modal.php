@@ -5,9 +5,10 @@
             <img id="movie-admin-banner" src="" class="w-full h-full object-cover opacity-40">
             <div class="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent"></div>
             
-            <button onclick="closeMovieAdmin()" class="absolute top-8 right-8 btn-close-rot z-20">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            <!-- Botón Cerrar: Estilo Rotativo Premium -->
+            <button onclick="closeMovieAdmin()" class="btn-close-rot z-30">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
 
@@ -28,6 +29,11 @@
                     <h4 class="text-white font-bold text-xs tracking-widest font-montserrat">Funciones disponibles</h4>
                     <div id="movie-admin-functions" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <!-- Injected by JS -->
+                    </div>
+                    
+                    <!-- Paginación de Funciones Centrada -->
+                    <div id="movie-functions-pagination" class="flex items-center justify-center gap-2 mt-8">
+                        <!-- Inyectado por JS -->
                     </div>
                 </div>
             </div>

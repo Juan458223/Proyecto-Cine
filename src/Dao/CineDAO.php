@@ -45,13 +45,14 @@ class CineDAO {
         }
     }
 
-    public function insertar($nombre, $direccion, $telefono) {
+    public function insertar($nombre, $calle, $numero, $telefono) {
         try {
-            $sql = "INSERT INTO cine (nombre, direccion, telefono) VALUES (:nombre, :direccion, :telefono)";
+            $sql = "INSERT INTO cine (nombre, calle, numero, telefono) VALUES (:nombre, :calle, :numero, :telefono)";
             $stmt = $this->db->prepare($sql);
             return $stmt->execute([
                 'nombre' => $nombre,
-                'direccion' => $direccion,
+                'calle' => $calle,
+                'numero' => $numero,
                 'telefono' => $telefono
             ]);
         } catch (PDOException $e) {
@@ -59,14 +60,15 @@ class CineDAO {
         }
     }
 
-    public function actualizar($id, $nombre, $direccion, $telefono) {
+    public function actualizar($id, $nombre, $calle, $numero, $telefono) {
         try {
-            $sql = "UPDATE cine SET nombre = :nombre, direccion = :direccion, telefono = :telefono WHERE id_cine = :id";
+            $sql = "UPDATE cine SET nombre = :nombre, calle = :calle, numero = :numero, telefono = :telefono WHERE id_cine = :id";
             $stmt = $this->db->prepare($sql);
             return $stmt->execute([
                 'id' => $id,
                 'nombre' => $nombre,
-                'direccion' => $direccion,
+                'calle' => $calle,
+                'numero' => $numero,
                 'telefono' => $telefono
             ]);
         } catch (PDOException $e) {
