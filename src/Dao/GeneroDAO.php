@@ -30,8 +30,38 @@ class GeneroDAO {
         }
     }
 
+    public function obtenerListaCompleta() {
+        try {
+            $sql = "SELECT * FROM genero ORDER BY nombre_genero ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            
+            $generos = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $generos[] = new Genero($row['id_genero'], $row['nombre_genero']);
+            }
+            return $generos;
+        } catch (PDOException $e) {
+            error_log("Error en GeneroDAO::obtenerListaCompleta: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function contarTodos() {
         return (int)$this->db->query("SELECT COUNT(*) FROM genero")->fetchColumn();
+    }
+
+    public function obtenerPorId($id) {
+        try {
+            $sql = "SELECT * FROM genero WHERE id_genero = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) return null;
+            return new Genero($row['id_genero'], $row['nombre_genero']);
+        } catch (PDOException $e) {
+            return null;
+        }
     }
 
     public function insertarGenero(Genero $genero) {
@@ -55,17 +85,6 @@ class GeneroDAO {
             ]);
         } catch (PDOException $e) {
             error_log("Error en GeneroDAO::actualizarGenero: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function eliminarGenero($id) {
-        try {
-            $sql = "DELETE FROM genero WHERE id_genero = :id";
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute(['id' => $id]);
-        } catch (PDOException $e) {
-            error_log("Error en GeneroDAO::eliminarGenero: " . $e->getMessage());
             return false;
         }
     }

@@ -59,6 +59,26 @@ class PeliculaDAO {
         return (int)$this->db->query($sql)->fetchColumn();
     }
 
+    public function obtenerPorId($id) {
+        try {
+            $sql = "SELECT * FROM pelicula WHERE id_pelicula = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row) return null;
+            return new Pelicula(
+                $row['id_pelicula'], 
+                $row['titulo'], 
+                $row['director'], 
+                $row['clasificacion'], 
+                $row['url_image'], 
+                $row['genero_id_genero']
+            );
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
     public function insertarPelicula(Pelicula $pelicula) {
         try {
             $sql = "INSERT INTO pelicula (titulo, director, clasificacion, url_image, genero_id_genero)
@@ -95,16 +115,6 @@ class PeliculaDAO {
             ]);
         } catch (PDOException $e) {
             error_log("Error al actualizar pelicula: ".$e->getMessage());
-            return false;
-        }
-    }
-
-    public function eliminarPelicula($id) {
-        try {
-            $sql = "DELETE FROM pelicula WHERE id_pelicula = :id";
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute(['id' => $id]);
-        } catch (PDOException $e) {
             return false;
         }
     }

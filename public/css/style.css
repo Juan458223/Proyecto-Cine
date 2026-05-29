@@ -170,8 +170,7 @@ html {
 
 /* Ensure modals don't show scrollbar overflow on rounded corners */
 [id$="-content"].custom-scrollbar {
-    scrollbar-gutter: stable;
-    padding-right: 8px; /* Offset to keep the ultra-thin bar away from the edge */
+    scrollbar-gutter: auto;
 }
 
 /* Custom Animations */

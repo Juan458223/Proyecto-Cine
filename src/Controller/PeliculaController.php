@@ -25,7 +25,9 @@ switch ($action) {
             'director' => $p->getDirector(),
             'clasificacion' => $p->getClasificacion(),
             'url_image' => $p->getUrlImage(),
-            'genero' => $p->getGeneroId() // Se puede expandir a nombre
+            'genero' => $p->getGeneroId(), // Se puede expandir a nombre si el DAO lo trae
+            'protagonistas' => $p->getProtagonistas(),
+            'funciones' => $p->getFunciones()
         ], $peliculas);
         
         echo json_encode(['data' => $data, 'pages' => $pages, 'currentPage' => $page]);
@@ -41,19 +43,10 @@ switch ($action) {
         $success = false;
         
         if ($action === 'insert') {
-            $success = $peliculaService->insertarPelicula($_POST['titulo'], $_POST['director'], (int)$_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
+            $success = $peliculaService->insertarPelicula($_POST['titulo'], $_POST['director'], $_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
         } else {
-            $success = $peliculaService->actualizarPelicula($id, $_POST['titulo'], $_POST['director'], (int)$_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
+            $success = $peliculaService->actualizarPelicula($id, $_POST['titulo'], $_POST['director'], $_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
         }
-        echo json_encode(['success' => (bool)$success]);
-        break;
-
-    case 'delete':
-        if (!$is_admin) {
-            echo json_encode(['success' => false, 'error' => 'No autorizado']);
-            exit;
-        }
-        $success = $peliculaService->eliminarPelicula($_POST['id'] ?? null);
         echo json_encode(['success' => (bool)$success]);
         break;
 

@@ -9,18 +9,17 @@ $action = $_GET['action'] ?? 'list';
 header('Content-Type: application/json');
 
 switch ($action) {
-    case 'list':
+    case 'list_by_cine':
         $cine_id = $_GET['cine_id'] ?? 0;
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $tarifas = $tarifaService->obtenerTarifasPorCine($cine_id, $page);
         $total = $tarifaService->contarTarifasPorCine($cine_id);
-        $pages = ceil($total / 6);
+        $pages = ceil($total / 5); // Límite de 5 para el modal
         
         $data = array_map(fn($t) => [
             'id' => $t->getIdTarifa(),
-            'cine' => $t->getCine()->getNombre(),
-            'dia' => $t->getNombreDia(),
             'categoria' => $t->getCategoria(),
+            'tipo_dia' => $t->getNombreDia(),
             'precio' => $t->getPrecio()
         ], $tarifas);
         

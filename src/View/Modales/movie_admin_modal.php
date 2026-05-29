@@ -6,7 +6,7 @@
             <div class="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent"></div>
             
             <!-- Botón Cerrar: Estilo Rotativo Premium -->
-            <button onclick="closeMovieAdmin()" class="btn-close-rot z-30">
+            <button onclick="closeMovieAdmin()" class="btn-close-rot z-30 !right-12">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>

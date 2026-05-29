@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../Dao/SalaDAO.php';
 require_once __DIR__ . '/../Model/Sala.php';
+require_once __DIR__ . '/../Model/Cine.php';
 require_once __DIR__ . '/CineService.php';
 
 class SalaService {
@@ -17,7 +18,7 @@ class SalaService {
     }
 
     public function contarSalas() {
-        return $this->salaDAO->contarTodas();
+        return $this->salaDAO->contarTodos();
     }
 
     public function obtenerSalaPorId($id) {
@@ -26,7 +27,6 @@ class SalaService {
 
     public function insertarSala($capacidad, $cine_id) {
         $cine = $this->cineService->obtenerCinePorId($cine_id);
-        if (!$cine) return false;
         $sala = new Sala(null, 0, $capacidad, $cine);
         return $this->salaDAO->insertar($sala);
     }
@@ -38,8 +38,8 @@ class SalaService {
         return $this->salaDAO->actualizar($sala);
     }
 
-    public function eliminarSala($id) {
-        return $this->salaDAO->eliminar($id);
+    public function obtenerSalasPorCine($cine_id) {
+        return $this->salaDAO->obtenerPorCine($cine_id);
     }
 }
 ?>

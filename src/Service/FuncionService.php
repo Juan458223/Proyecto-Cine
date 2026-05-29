@@ -23,6 +23,10 @@ class FuncionService {
         return $this->funcionDAO->contarTodas();
     }
 
+    public function obtenerFuncionPorId($id) {
+        return $this->funcionDAO->obtenerPorId($id);
+    }
+
     public function insertarFuncion($fecha_hora, $pelicula_id, $sala_id) {
         $pelicula = $this->peliculaService->obtenerPeliculaPorId($pelicula_id);
         $sala = $this->salaService->obtenerSalaPorId($sala_id);
@@ -41,8 +45,12 @@ class FuncionService {
         return $this->funcionDAO->actualizar($funcion);
     }
 
-    public function eliminarFuncion($id) {
-        return $this->funcionDAO->eliminar($id);
+    public function obtenerPorCine($cine_id, $page = 1, $sala_id = null) {
+        return $this->funcionDAO->obtenerPorCinePaginado($cine_id, $page, $sala_id);
+    }
+
+    public function contarPorCine($cine_id, $sala_id = null) {
+        return $this->funcionDAO->contarPorCine($cine_id, $sala_id);
     }
 }
 ?>

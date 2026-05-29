@@ -39,14 +39,5 @@ switch ($action) {
             : $cineService->insertarCine($_POST['nombre'], $_POST['calle'], $_POST['numero'], $_POST['telefono']);
         echo json_encode(['success' => (bool)$success]);
         break;
-
-    case 'delete':
-        if (!$is_admin) {
-            echo json_encode(['success' => false, 'error' => 'No autorizado']);
-            exit;
-        }
-        $success = $cineService->eliminarCine($_POST['id'] ?? null);
-        echo json_encode(['success' => (bool)$success]);
-        break;
 }
 ?>

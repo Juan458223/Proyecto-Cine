@@ -5,13 +5,15 @@ class UsuarioDTO {
     public $correo;
     public $permisos; 
     public $estado;   
+    public $registro;
 
-    public function __construct($id, $nombre, $correo, $permisos = 'Usuario', $estado = 'Activado') {
+    public function __construct($id, $nombre, $correo, $permisos = 'Usuario', $estado = 'Activado', $registro = '') {
         $this->id = $id;
         $this->nombre = $nombre;
         $this->correo = $correo;
         $this->permisos = $permisos;
         $this->estado = $estado;
+        $this->registro = $registro;
     }
     
     public function getId() { return $this->id; }

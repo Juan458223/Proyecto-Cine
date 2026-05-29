@@ -72,33 +72,37 @@ class UsuarioDAO {
         }
     }
 
-    public function eliminarUsuario($id) {
-        try {
-            $sql = "DELETE FROM usuarios WHERE id = :id";
-            $statement = $this->db->prepare($sql);
-            $statement->execute(['id' => $id]);
-            return $statement->rowCount() > 0;  
-        } catch (PDOException $e) {
-            error_log("Error al eliminar usuario: ".$e->getMessage());
-            return false;
-        }
-    }
-
-    public function obtenerUsuariosPaginados($limit, $offset) {
-        $sql = "SELECT u.id, u.nombre, u.correo, e.nombre as estado, p.nombre as permiso
+    public function obtenerUsuariosPaginados($limit, $offset, $excluded_id = null) {
+        $sql = "SELECT u.id, u.nombre, u.correo, e.nombre as estado, p.nombre as permiso, '28/05/2026' as registro
                 FROM usuarios u 
                 INNER JOIN estados e ON u.estado_id = e.id 
-                INNER JOIN permisos p ON u.permisos_id = p.id
-                LIMIT :limit OFFSET :offset";
+                INNER JOIN permisos p ON u.permisos_id = p.id";
+        
+        if ($excluded_id) {
+            $sql .= " WHERE u.id != :excluded_id";
+        }
+        
+        $sql .= " LIMIT :limit OFFSET :offset";
+        
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        if ($excluded_id) {
+            $stmt->bindValue(':excluded_id', (int)$excluded_id, PDO::PARAM_INT);
+        }
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function contarUsuarios() {
-        return $this->db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
+    public function contarUsuarios($excluded_id = null) {
+        $sql = "SELECT COUNT(*) FROM usuarios";
+        if ($excluded_id) {
+            $sql .= " WHERE id != :excluded_id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['excluded_id' => $excluded_id]);
+            return (int)$stmt->fetchColumn();
+        }
+        return (int)$this->db->query($sql)->fetchColumn();
     }
 }
 ?>

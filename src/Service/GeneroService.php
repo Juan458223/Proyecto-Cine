@@ -13,8 +13,16 @@ class GeneroService {
         return $this->generoDAO->obtenerTodos($page);
     }
 
+    public function listarTodosSinPaginar() {
+        return $this->generoDAO->obtenerListaCompleta();
+    }
+
     public function contarGeneros() {
         return $this->generoDAO->contarTodos();
+    }
+
+    public function obtenerGeneroPorId($id) {
+        return $this->generoDAO->obtenerPorId($id);
     }
 
     public function insertarGenero($nombre) {
@@ -25,10 +33,6 @@ class GeneroService {
     public function actualizarGenero($id, $nombre) {
         $genero = new Genero($id, $nombre);
         return $this->generoDAO->actualizarGenero($genero);
-    }
-
-    public function eliminarGenero($id) {
-        return $this->generoDAO->eliminarGenero($id);
     }
 }
 ?>

@@ -8,11 +8,14 @@ class PeliculaService {
     private $peliculaDAO;
     private $protagonistaDAO;
     private $pelihasprotaDAO;
+    private $funcionDAO;
 
     public function __construct(){
         $this->peliculaDAO = new PeliculaDAO();
         $this->protagonistaDAO = new ProtagonistaDAO();
         $this->pelihasprotaDAO = new PeliculaProtagonistaDAO();
+        require_once __DIR__ . '/../Dao/FuncionDAO.php';
+        $this->funcionDAO = new FuncionDAO();
     }
 
     public function listarGeneros() {
@@ -24,11 +27,17 @@ class PeliculaService {
     public function obtenerPeliculasPaginadas($page = 1, $genero_id = null) {
         $peliculas = $this->peliculaDAO->obtenerPeliculasPaginadas($page, $genero_id);
         
-        // Hidratar con protagonistas
+        // Hidratar con protagonistas y funciones
         foreach ($peliculas as $peli) {
             $id = $peli->getIdPelicula();
+            
+            // Protagonistas
             $protagonistas = $this->pelihasprotaDAO->obtenerProtagonistasPorPelicula($id);
             $peli->setProtagonistas($protagonistas);
+            
+            // Funciones (NUEVO)
+            $funciones = $this->funcionDAO->obtenerFuncionesPorPelicula($id);
+            $peli->setFunciones($funciones);
         }
         
         return $peliculas;
@@ -39,8 +48,12 @@ class PeliculaService {
     }
 
     public function obtenerPeliculaPorId($id) {
-        // Implementar lógica de búsqueda si es necesario
-        return null;
+        $peli = $this->peliculaDAO->obtenerPorId($id);
+        if ($peli) {
+            $protagonistas = $this->pelihasprotaDAO->obtenerProtagonistasFullPorPelicula($id);
+            $peli->setProtagonistas($protagonistas);
+        }
+        return $peli;
     }
 
     public function insertarPelicula($titulo, $director, $clasificacion, $url_image, $genero_id) {
@@ -53,8 +66,18 @@ class PeliculaService {
         return $this->peliculaDAO->actualizarPelicula($peli);
     }
 
-    public function eliminarPelicula($id) {
-        return $this->peliculaDAO->eliminarPelicula($id);
+    public function actualizarReparto($id_pelicula, $id_protagonistas) {
+        // Primero limpiar reparto actual
+        $this->pelihasprotaDAO->desvincularPorPelicula($id_pelicula);
+        
+        // Vincular los nuevos
+        $success = true;
+        foreach ($id_protagonistas as $id_prota) {
+            if (!$this->pelihasprotaDAO->vincular($id_pelicula, $id_prota)) {
+                $success = false;
+            }
+        }
+        return $success;
     }
 }
 ?>

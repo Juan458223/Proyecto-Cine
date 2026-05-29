@@ -39,6 +39,10 @@ class SalaDAO {
         return (int)$this->db->query("SELECT COUNT(*) FROM sala")->fetchColumn();
     }
 
+    public function contarTodos() {
+        return $this->contarTodas();
+    }
+
     public function obtenerPorId($id) {
         try {
             $sql = "SELECT s.*, c.nombre, c.calle, c.numero, c.telefono 
@@ -72,25 +76,31 @@ class SalaDAO {
 
     public function actualizar(Sala $sala) {
         try {
-            $sql = "UPDATE sala SET capacidad = :capacidad, cine_id_cine = :cine_id WHERE id_sala = :id";
+            // Solo permitimos actualizar la capacidad por integridad de las funciones vinculadas
+            $sql = "UPDATE sala SET capacidad = :capacidad WHERE id_sala = :id";
             $stmt = $this->db->prepare($sql);
             return $stmt->execute([
                 'id' => $sala->getIdSala(),
-                'capacidad' => $sala->getCapacidad(),
-                'cine_id' => $sala->getCine()->getIdCine()
+                'capacidad' => $sala->getCapacidad()
             ]);
         } catch (PDOException $e) {
             return false;
         }
     }
 
-    public function eliminar($id) {
+    public function obtenerPorCine($cine_id) {
         try {
-            $sql = "DELETE FROM sala WHERE id_sala = :id";
+            $sql = "SELECT * FROM sala WHERE cine_id_cine = :cine_id ORDER BY numero_sala ASC";
             $stmt = $this->db->prepare($sql);
-            return $stmt->execute(['id' => $id]);
+            $stmt->execute(['cine_id' => $cine_id]);
+            
+            $salas = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $salas[] = new Sala($row['id_sala'], $row['numero_sala'], $row['capacidad'], null);
+            }
+            return $salas;
         } catch (PDOException $e) {
-            return false;
+            return [];
         }
     }
 }

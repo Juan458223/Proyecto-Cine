@@ -77,15 +77,5 @@ class CineDAO {
             return false;
         }
     }
-
-    public function eliminar($id) {
-        try {
-            $sql = "DELETE FROM cine WHERE id_cine = :id";
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute(['id' => $id]);
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
 }
 ?>

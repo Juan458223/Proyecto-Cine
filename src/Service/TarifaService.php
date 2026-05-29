@@ -19,5 +19,21 @@ class TarifaService {
     public function contarTarifasPorCine($cine_id) {
         return $this->tarifaDAO->contarTarifasPorCine($cine_id);
     }
+
+    public function obtenerTarifaPorId($id) {
+        return $this->tarifaDAO->obtenerPorId($id);
+    }
+
+    public function insertarTarifa($cine_id, $dia_id, $categoria, $precio) {
+        $cine = $this->cineService->obtenerCinePorId($cine_id);
+        $tarifa = new Tarifa(null, $cine, $dia_id, $categoria, $precio);
+        return $this->tarifaDAO->insertar($tarifa);
+    }
+
+    public function actualizarTarifa($id, $cine_id, $dia_id, $categoria, $precio) {
+        $cine = $this->cineService->obtenerCinePorId($cine_id);
+        $tarifa = new Tarifa($id, $cine, $dia_id, $categoria, $precio);
+        return $this->tarifaDAO->actualizar($tarifa);
+    }
 }
 ?>

@@ -6,9 +6,9 @@ class Sala {
     private $id_sala;
     private $numero_sala;
     private $capacidad;
-    private $cine; 
+    private $cine;
 
-    public function __construct($id_sala, $numero_sala, $capacidad, Cine $cine) {
+    public function __construct($id_sala, $numero_sala, $capacidad, ?Cine $cine = null) {
         $this->id_sala = $id_sala;
         $this->numero_sala = $numero_sala;
         $this->capacidad = $capacidad;

@@ -23,29 +23,13 @@ class PeliculaProtagonistaDAO {
         }
     }
 
-    public function desvincular($id_pelicula, $id_protagonista) {
-        try {
-            $sql = "DELETE FROM pelicula_has_protagonistas 
-                    WHERE pelicula_id_pelicula = :id_peli 
-                    AND protagonistas_id_protagonista = :id_prota";
-            $stmt = $this->db->prepare($sql);
-            return $stmt->execute([
-                'id_peli' => $id_pelicula,
-                'id_prota' => $id_protagonista
-            ]);
-        } catch (PDOException $e) {
-            error_log("Error en PeliculaProtagonistaDAO::desvincular: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function eliminarTodosPorPelicula($id_pelicula) {
+    public function desvincularPorPelicula($id_pelicula) {
         try {
             $sql = "DELETE FROM pelicula_has_protagonistas WHERE pelicula_id_pelicula = :id_peli";
             $stmt = $this->db->prepare($sql);
             return $stmt->execute(['id_peli' => $id_pelicula]);
         } catch (PDOException $e) {
-            error_log("Error en PeliculaProtagonistaDAO::eliminarTodosPorPelicula: " . $e->getMessage());
+            error_log("Error en PeliculaProtagonistaDAO::desvincularPorPelicula: " . $e->getMessage());
             return false;
         }
     }
@@ -61,6 +45,21 @@ class PeliculaProtagonistaDAO {
             return $stmt->fetchAll(PDO::FETCH_COLUMN);
         } catch (PDOException $e) {
             error_log("Error en PeliculaProtagonistaDAO::obtenerProtagonistasPorPelicula: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function obtenerProtagonistasFullPorPelicula($id_pelicula) {
+        try {
+            $sql = "SELECT pr.id_actor as id, pr.nombre 
+                    FROM pelicula_has_protagonistas php
+                    JOIN protagonista pr ON php.protagonistas_id_protagonista = pr.id_actor
+                    WHERE php.pelicula_id_pelicula = :id_pelicula";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id_pelicula' => $id_pelicula]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en PeliculaProtagonistaDAO::obtenerProtagonistasFullPorPelicula: " . $e->getMessage());
             return [];
         }
     }

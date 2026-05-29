@@ -1,13 +1,11 @@
 <?php
 session_start();
-require_once __DIR__ . '/../Service/PeliculaService.php';
+require_once __DIR__ . '/Components/password_input.php';
 
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: ../../public/index.php");
     exit();
 }
-
-$peliculaService = new PeliculaService();
 ?>
 <!doctype html>
 <html lang="es">
@@ -45,6 +43,25 @@ $peliculaService = new PeliculaService();
             padding-top: 1rem;
             padding-bottom: 2rem;
         }
+
+        /* Ajustes específicos para el botón del modal de acción */
+        #form-submit-btn.btn-primary {
+            width: auto !important;
+            padding-left: 3rem !important;
+            padding-right: 3rem !important;
+            min-width: 220px !important;
+        }
+
+        /* Color rojo para el icono del calendario nativo */
+        .calendar-input::-webkit-calendar-picker-indicator {
+            filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(354deg) brightness(92%) contrast(92%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .calendar-input::-webkit-calendar-picker-indicator:hover {
+            transform: scale(1.1);
+            filter: invert(20%) sepia(95%) saturate(7000%) hue-rotate(354deg) brightness(100%) contrast(100%);
+        }
     </style>
 </head>
 <body class="min-h-screen custom-scrollbar">
@@ -52,15 +69,17 @@ $peliculaService = new PeliculaService();
     <header class="bg-black/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-50 transition-all duration-300">
         <nav class="container mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center gap-12">
-                <h2 onclick="window.location.reload()" class="text-4xl font-black text-[#E50914] uppercase tracking-[0.15em] leading-none font-bebas cursor-pointer">
-                    CINE FIRST
-                </h2>
+                <div class="flex items-center gap-4">
+                    <h2 onclick="window.location.reload()" class="text-4xl font-black text-[#E50914] uppercase tracking-[0.15em] leading-none font-bebas cursor-pointer">
+                        CINE FIRST
+                    </h2>
+                </div>
                 <ul class="hidden lg:flex items-center gap-10 text-xs font-bold text-zinc-400">
                     <li onclick="showSection('cartelera')" id="nav-cartelera" class="text-white relative after:absolute after:-bottom-2 after:left-0 after:w-full after:h-0.5 after:bg-[#E50914] cursor-pointer">Cartelera</li>
                     <li onclick="showSection('cines')" id="nav-cines" class="hover:text-white cursor-pointer transition-all">Cines</li>
-                    <?php if($_SESSION['permisos'] == 1): ?>
-                        <li onclick="openAdminDashboard()" class="hover:text-[#E50914] cursor-pointer transition-all flex items-center gap-2 group">
-                            <span class="w-1.5 h-1.5 rounded-full bg-zinc-600 group-hover:bg-[#E50914] transition-colors"></span>
+                    <?php if($_SESSION['permisos'] === 'Administrador'): ?>
+                        <li onclick="openAdminDashboard()" class="hover:text-white cursor-pointer transition-all flex items-center gap-2">
+                            <span class="w-1 h-1 rounded-full bg-[#E50914]"></span>
                             Administrar
                         </li>
                     <?php endif; ?>
@@ -92,8 +111,11 @@ $peliculaService = new PeliculaService();
             <div class="container mx-auto px-6 py-4 flex flex-col gap-6">
                 <a href="#" onclick="showSection('cartelera'); toggleMobileMenu()" class="text-white text-sm font-black uppercase tracking-[0.2em]">Cartelera</a>
                 <a href="#" onclick="showSection('cines'); toggleMobileMenu()" class="text-zinc-400 text-sm font-black uppercase tracking-[0.2em]">Cines</a>
-                <?php if($_SESSION['permisos'] == 1): ?>
-                    <a href="#" onclick="openAdminDashboard(); toggleMobileMenu()" class="text-[#E50914] text-sm font-black uppercase tracking-[0.2em]">Administrar</a>
+                <?php if($_SESSION['permisos'] === 'Administrador'): ?>
+                    <a href="#" onclick="openAdminDashboard(); toggleMobileMenu()" class="text-zinc-400 hover:text-white text-sm font-bold flex items-center gap-2">
+                        <span class="w-1 h-1 rounded-full bg-[#E50914]"></span>
+                        Administrar
+                    </a>
                 <?php endif; ?>
                 <div class="h-px bg-zinc-900 my-2"></div>
                 <div class="flex items-center justify-between">
@@ -137,46 +159,11 @@ $peliculaService = new PeliculaService();
                     <span class="text-xs font-bold text-zinc-600">Filtrar por:</span>
                     <select id="filter-genre" class="bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-sm focus:border-[#E50914] outline-none transition-all cursor-pointer">
                         <option value="">Todos los géneros</option>
-                        <?php 
-                            $generos = $peliculaService->listarGeneros();
-                            foreach ($generos as $g): 
-                        ?>
-                            <option value="<?php echo $g->getIdGenero(); ?>"><?php echo $g->getNombreGenero(); ?></option>
-                        <?php endforeach; ?>
                     </select>
                 </div>
             </div>
 
             <ul id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-12 transition-opacity duration-300">
-                <?php 
-                    $peliculas = $peliculaService->obtenerPeliculasPaginadas(1); 
-                    foreach ($peliculas as $peli): 
-                ?>
-                <li class='group flex flex-col cursor-pointer' onclick='window.openMovieAdmin(<?php echo htmlspecialchars(json_encode([
-                    'titulo' => $peli->getTitulo(),
-                    'director' => $peli->getDirector(),
-                    'clasificacion' => $peli->getClasificacion(),
-                    'imagen' => $peli->getUrlImage(),
-                    'genero' => $peli->getGeneroId(),
-                    'protagonistas' => implode(', ', $peli->getProtagonistas())
-                ])); ?>)'>
-                    <div class='relative aspect-[2/3] overflow-hidden rounded-md bg-zinc-900 shadow-lg shadow-black/50 transition-all duration-500 group-hover:shadow-[#E50914]/10 group-hover:shadow-2xl'>
-                        <div class='absolute top-3 left-3 z-20'>
-                            <span class='bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-sm border border-white/10'>
-                                <?php echo htmlspecialchars($peli->getClasificacion()); ?>
-                            </span>
-                        </div>
-                        <img src='<?php echo htmlspecialchars($peli->getUrlImage()); ?>' alt='<?php echo htmlspecialchars($peli->getTitulo()); ?>' class='w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110' loading='lazy'>
-                        <div class='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
-                        <div class='absolute bottom-0 left-0 w-0 h-1 bg-[#E50914] transition-all duration-500 group-hover:w-full'></div>
-                    </div>
-                    <div class='mt-4 space-y-1 px-1'>
-                        <h3 class='text-white font-bold text-sm md:text-base leading-tight truncate group-hover:text-[#E50914] transition-colors duration-300'>
-                            <?php echo htmlspecialchars($peli->getTitulo()); ?>
-                        </h3>
-                    </div>
-                </li>
-                <?php endforeach; ?>
             </ul>
 
             <div id="movie-pagination">
@@ -198,60 +185,7 @@ $peliculaService = new PeliculaService();
         </div>
     </main>
 
-    <div id="user-settings-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-500 opacity-0 pointer-events-none p-4" onclick="if(event.target === this) closeUserSettings()">
-        <div class="relative bg-white/[0.03] backdrop-blur-3xl pt-24 pb-12 px-10 md:px-14 rounded-[3.5rem] border border-white/10 shadow-2xl max-w-md w-full transform transition-all duration-500 scale-95" id="settings-modal-content">
-            
-            <button onclick="closeUserSettings()" class="absolute top-10 right-10 btn-close-rot z-20">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-
-            <form id="user-settings-form" class="space-y-10">
-                <div class="pt-4"></div>
-
-                <div class="auth-input-group">
-                    <input type="text" name="nombre" id="settings-nombre" class="auth-input-modern" placeholder=" ">
-                    <label class="auth-label-modern">Nombre completo</label>
-                </div>
-                
-                <div class="auth-input-group">
-                    <input type="email" name="email" id="settings-email" disabled class="auth-input-modern !text-zinc-600 opacity-50 cursor-not-allowed" placeholder=" ">
-                    <label class="auth-label-modern !text-zinc-700">Correo electrónico (no editable)</label>
-                </div>
-
-                <div class="auth-input-group">
-                    <input type="password" name="password" id="password_settings" class="auth-input-modern" placeholder=" ">
-                    <label class="auth-label-modern">Nueva contraseña</label>
-                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password_settings')">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="auth-input-group">
-                    <input type="password" name="confirm_password" id="confirm_settings" class="auth-input-modern" placeholder=" ">
-                    <label class="auth-label-modern">Confirmar contraseña</label>
-                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('confirm_settings')">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            <path class="eye-slash hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div id="settings-message" class="hidden text-sm font-bold text-center py-4 text-white"></div>
-
-                <button type="submit" class="btn-primary">
-                    Guardar cambios
-                </button>
-            </form>
-        </div>
-    </div>
+    <?php include './Modales/user_settings_modal.php'; ?>
 
     <footer class="bg-[#050505] border-t border-zinc-900 py-12">
         <div class="container mx-auto px-6 text-center">
@@ -264,10 +198,11 @@ $peliculaService = new PeliculaService();
     <?php include './Modales/movie_admin_modal.php'; ?>
     <?php include './Modales/cine_detail_modal.php'; ?>
     <?php include './Modales/admin_dashboard_modal.php'; ?>
-    <?php include './Modales/admin_insert_modal.php'; ?>
+    <?php include './Modales/admin_action_modal.php'; ?>
     <?php include './Modales/admin_alert_modal.php'; ?>
 
-    <script src="../../public/js/peliculas.js"></script>
+    <script src="../../public/js/pelicula.js"></script>
+    <script src="../../public/js/cine.js"></script>
     <script src="../../public/js/admin_panel.js"></script>
     <script src="../../public/js/home.js"></script>
 </body>

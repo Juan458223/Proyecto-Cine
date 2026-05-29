@@ -30,9 +30,5 @@ class CineService {
         $cine = new Cine($id, $nombre, $calle, $numero, $telefono);
         return $this->cineDAO->actualizar($cine);
     }
-
-    public function eliminarCine($id) {
-        return $this->cineDAO->eliminar($id);
-    }
 }
 ?>

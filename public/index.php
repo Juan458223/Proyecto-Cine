@@ -14,7 +14,6 @@ require_once __DIR__ . '/../src/View/Components/password_input.php';
     <link rel="icon" type="image/svg+xml" href="img/logo.svg">
     <title>CINE FIRST</title>
     <style>
-        /* Modern Button Polish */
         .btn-primary {
             background-color: #E50914 !important;
             color: white !important;
@@ -70,7 +69,6 @@ require_once __DIR__ . '/../src/View/Components/password_input.php';
             </div>
         </div>
 
-        <!-- Recuperar -->
         <div class="hidden space-y-10 animate-in fade-in slide-in-from-left duration-500" id="recover-section">
             <a id="back-to-login-recover" href="#" class="inline-flex items-center text-zinc-400 hover:text-white transition-colors group font-outfit">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 mr-2 group-hover:-translate-x-1 transition-transform">
@@ -93,7 +91,6 @@ require_once __DIR__ . '/../src/View/Components/password_input.php';
             </form>
         </div>
 
-        <!-- Registro -->
         <div class="hidden space-y-8 animate-in fade-in slide-in-from-left duration-500" id="register-section">
             <a id="back-to-login" href="#" class="inline-flex items-center text-zinc-400 hover:text-white transition-colors group mb-6 font-outfit">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 mr-2 group-hover:-translate-x-1 transition-transform">
@@ -122,7 +119,6 @@ require_once __DIR__ . '/../src/View/Components/password_input.php';
         </div>
     </div>
 
-    <!-- Sección de Imagen -->
     <div class="hidden md:block flex-1 relative bg-black">
         <div class="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent z-10"></div>
         <img class="w-full h-full object-cover opacity-100 transition-all duration-1000" src="https://i.pinimg.com/originals/8c/4e/c5/8c4ec5138991592cca31db6b2ed46e5e.gif" alt="cine">
@@ -131,5 +127,5 @@ require_once __DIR__ . '/../src/View/Components/password_input.php';
     <?php include '../src/View/Modales/auth_modal.php'; ?>
 
 </body>
-<script src="/js/index.js"></script>
+<script src="js/index.js"></script>
 </html>

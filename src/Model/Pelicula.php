@@ -8,8 +8,9 @@ class Pelicula {
     private $url_image;
     private $genero_id;
     private $protagonistas;
+    private $funciones;
 
-    public function __construct($id_pelicula, $titulo, $director, $clasificacion, $url_image, $genero_id, $protagonistas = []) {
+    public function __construct($id_pelicula, $titulo, $director, $clasificacion, $url_image, $genero_id, $protagonistas = [], $funciones = []) {
         $this->id_pelicula = $id_pelicula;
         $this->titulo = $titulo;
         $this->director = $director;
@@ -17,6 +18,7 @@ class Pelicula {
         $this->url_image = $url_image;
         $this->genero_id = $genero_id;
         $this->protagonistas = $protagonistas;
+        $this->funciones = $funciones;
     }
 
     public function getIdPelicula() { return $this->id_pelicula; }
@@ -26,6 +28,7 @@ class Pelicula {
     public function getUrlImage() { return $this->url_image; }
     public function getGeneroId() { return $this->genero_id; }
     public function getProtagonistas() { return $this->protagonistas; }
+    public function getFunciones() { return $this->funciones; }
 
     public function setIdPelicula($id) { $this->id_pelicula = $id; }
     public function setTitulo($t) { $this->titulo = $t; }
@@ -34,5 +37,6 @@ class Pelicula {
     public function setUrlImage($u) { $this->url_image = $u; }
     public function setGeneroId($g) { $this->genero_id = $g; }
     public function setProtagonistas($p) { $this->protagonistas = $p; }
+    public function setFunciones($f) { $this->funciones = $f; }
 }
 ?>

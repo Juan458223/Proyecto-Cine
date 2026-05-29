@@ -36,9 +36,16 @@ switch ($action) {
         echo json_encode(['success' => (bool)$success]);
         break;
 
-    case 'delete':
-        if (!$is_admin) { echo json_encode(['success' => false, 'error' => 'No autorizado']); exit; }
-        echo json_encode(['success' => $funcionService->eliminarFuncion($_POST['id'] ?? null)]);
+    case 'list_by_cine':
+        $cine_id = $_GET['cine_id'] ?? 0;
+        $sala_id = $_GET['sala_id'] ?? null;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        
+        $funciones = $funcionService->obtenerPorCine($cine_id, $page, $sala_id);
+        $total = $funcionService->contarPorCine($cine_id, $sala_id);
+        $pages = ceil($total / 5); // Límite de 5 para el modal
+        
+        echo json_encode(['data' => $funciones, 'pages' => $pages, 'currentPage' => $page]);
         break;
 }
 ?>
