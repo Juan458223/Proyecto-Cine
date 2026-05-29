@@ -10,6 +10,28 @@ class PeliculaDAO {
         $this->db = DatabaseConnection::getInstance()->getConnection();
     }
 
+    public function obtenerTodas() {
+        try {
+            $sql = "SELECT * FROM pelicula ORDER BY titulo ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $peliculas = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $peliculas[] = new Pelicula(
+                    $row['id_pelicula'], 
+                    $row['titulo'], 
+                    $row['director'], 
+                    $row['clasificacion'], 
+                    $row['url_image'], 
+                    $row['genero_id_genero']
+                );
+            }
+            return $peliculas;
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
     public function obtenerPeliculasPaginadas($page = 1, $genero_id = null) {
         try {
             $offset = ($page - 1) * $this->limit;

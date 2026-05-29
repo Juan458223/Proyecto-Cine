@@ -1,9 +1,14 @@
 <?php
+ob_start();
 session_start();
-ob_clean();
+
+while (ob_get_level() > 1) {
+    ob_end_clean();
+}
+if (ob_get_length()) ob_clean();
+
 header('Content-Type: application/json');
 
-// Verificación de seguridad básica
 $is_admin = isset($_SESSION['usuario_id']) && $_SESSION['permisos'] === 'Administrador';
 if (!$is_admin) {
     echo json_encode(['success' => false, 'error' => 'Acceso denegado']);
@@ -149,7 +154,7 @@ switch ($action) {
                 break;
             case 'users': 
                 $u = (new UsuarioService())->obtenerUsuarioDTO($id); 
-                if ($u) $result = ['nombre' => $u->nombre, 'correo' => $u->correo, 'estado_id' => $u->estado, 'permisos_id' => $u->permisos];
+                if ($u) $result = ['nombre' => $u->nombre, 'correo' => $u->correo, 'estado_id' => $u->getEstadoId(), 'permisos_id' => $u->getPermisosId()];
                 break;
             case 'cines': 
                 $c = (new CineService())->obtenerCinePorId($id); 
@@ -195,12 +200,19 @@ switch ($action) {
         $success = false;
         $id = $_POST['id'] ?? null;
         $action_type = $_GET['action'];
+        $errorMessage = "";
 
         switch ($type) {
             case 'movies':
                 $service = new PeliculaService();
+                $titulo = $_POST['titulo'] ?? '';
+                $director = $_POST['director'] ?? '';
+                $clasificacion = $_POST['clasificacion'] ?? '';
+                $url_image = $_POST['url_image'] ?? '';
+                $genero_id = (int)($_POST['genero_id'] ?? 0);
+
                 if ($action_type === 'insert') {
-                    $id_new = $service->insertarPelicula($_POST['titulo'], $_POST['director'], $_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
+                    $id_new = $service->insertarPelicula($titulo, $director, $clasificacion, $url_image, $genero_id);
                     if ($id_new) {
                         $success = true;
                         if (isset($_POST['protagonistas'])) {
@@ -208,7 +220,7 @@ switch ($action) {
                         }
                     }
                 } else {
-                    $success = $service->actualizarPelicula($id, $_POST['titulo'], $_POST['director'], $_POST['clasificacion'], $_POST['url_image'], (int)$_POST['genero_id']);
+                    $success = $service->actualizarPelicula($id, $titulo, $director, $clasificacion, $url_image, $genero_id);
                     if ($success && isset($_POST['protagonistas'])) {
                         $service->actualizarReparto($id, $_POST['protagonistas']);
                     }
@@ -218,55 +230,79 @@ switch ($action) {
             case 'cines':
                 $service = new CineService();
                 $success = ($action_type === 'insert') 
-                    ? $service->insertarCine($_POST['nombre'], $_POST['calle'], $_POST['numero'], $_POST['telefono'])
-                    : $service->actualizarCine($id, $_POST['nombre'], $_POST['calle'], $_POST['numero'], $_POST['telefono']);
+                    ? $service->insertarCine($_POST['nombre'] ?? '', $_POST['calle'] ?? '', $_POST['numero'] ?? '', $_POST['telefono'] ?? '')
+                    : $service->actualizarCine($id, $_POST['nombre'] ?? '', $_POST['calle'] ?? '', $_POST['numero'] ?? '', $_POST['telefono'] ?? '');
                 break;
 
             case 'salas':
                 $service = new SalaService();
-                $success = ($action_type === 'insert')
-                    ? $service->insertarSala((int)$_POST['capacidad'], (int)$_POST['cine_id'])
-                    : $service->actualizarSala($id, (int)$_POST['capacidad'], (int)$_POST['cine_id']);
+                $capacidad = (int)($_POST['capacidad'] ?? 0);
+                $cine_id = (int)($_POST['cine_id'] ?? 0);
+                
+                if ($capacidad <= 0) {
+                    $errorMessage = "La capacidad debe ser mayor a 0";
+                    $success = false;
+                } elseif ($cine_id <= 0) {
+                    $errorMessage = "ID de cine no válido o no seleccionado";
+                    $success = false;
+                } else {
+                    $success = ($action_type === 'insert')
+                        ? $service->insertarSala($capacidad, $cine_id)
+                        : $service->actualizarSala($id, $capacidad, $cine_id);
+                    
+                    if (!$success) $errorMessage = "Error en base de datos al " . ($action_type === 'insert' ? "crear" : "actualizar") . " la sala.";
+                }
                 break;
 
             case 'funciones':
                 $service = new FuncionService();
+                $fecha_hora = $_POST['fecha_hora'] ?? '';
+                $peli_id = (int)($_POST['pelicula_id'] ?? 0);
+                $sala_id = (int)($_POST['sala_id'] ?? 0);
+                
                 $success = ($action_type === 'insert')
-                    ? $service->insertarFuncion((int)$_POST['pelicula_id'], (int)$_POST['sala_id'], $_POST['fecha_hora'])
-                    : $service->actualizarFuncion($id, (int)$_POST['pelicula_id'], (int)$_POST['sala_id'], $_POST['fecha_hora']);
+                    ? $service->insertarFuncion($fecha_hora, $peli_id, $sala_id)
+                    : $service->actualizarFuncion($id, $fecha_hora, $peli_id, $sala_id);
                 break;
 
             case 'generos':
                 $service = new GeneroService();
                 $success = ($action_type === 'insert')
-                    ? $service->insertarGenero($_POST['nombre'])
-                    : $service->actualizarGenero($id, $_POST['nombre']);
+                    ? $service->insertarGenero($_POST['nombre'] ?? '')
+                    : $service->actualizarGenero($id, $_POST['nombre'] ?? '');
                 break;
 
             case 'protagonists':
                 $service = new ProtagonistaService();
                 $success = ($action_type === 'insert')
-                    ? $service->insertarProtagonista($_POST['nombre'])
-                    : $service->actualizarProtagonista($id, $_POST['nombre']);
+                    ? $service->insertarProtagonista($_POST['nombre'] ?? '')
+                    : $service->actualizarProtagonista($id, $_POST['nombre'] ?? '');
                 break;
 
             case 'tarifas':
                 $service = new TarifaService();
+                $cine_id = (int)($_POST['cine_id'] ?? 0);
+                $precio = (float)($_POST['precio'] ?? 0);
                 $success = ($action_type === 'insert')
-                    ? $service->insertarTarifa((int)$_POST['cine_id'], $_POST['dia_id'], $_POST['categoria'], (float)$_POST['precio'])
-                    : $service->actualizarTarifa($id, (int)$_POST['cine_id'], $_POST['dia_id'], $_POST['categoria'], (float)$_POST['precio']);
+                    ? $service->insertarTarifa($cine_id, $_POST['dia_id'] ?? '', $_POST['categoria'] ?? '', $precio)
+                    : $service->actualizarTarifa($id, $cine_id, $_POST['dia_id'] ?? '', $_POST['categoria'] ?? '', $precio);
                 break;
 
             case 'users':
                 $service = new UsuarioService();
-                $u = $service->obtenerUsuarioDTO($id);
-                if ($u) {
-                    $userObj = new Usuario($id, $u->nombre, null, $u->correo, $_POST['estado_id'], $_POST['permisos_id']);
-                    $success = $service->actualizarUsuario($userObj);
+                $estado = $_POST['estado_id'] ?? '';
+                $permisos = $_POST['permisos_id'] ?? '';
+                
+                if (empty($estado) || empty($permisos)) {
+                    $errorMessage = "Estado y Permisos son obligatorios";
+                    $success = false;
+                } else {
+                    $success = $service->actualizarUsuarioAdmin($id, $estado, $permisos);
+                    if (!$success) $errorMessage = "No se pudieron resolver los nombres de Estado o Permisos en la base de datos.";
                 }
                 break;
         }
 
-        echo json_encode(['success' => (bool)$success]);
+        echo json_encode(['success' => (bool)$success, 'error' => $errorMessage]);
         break;
 }

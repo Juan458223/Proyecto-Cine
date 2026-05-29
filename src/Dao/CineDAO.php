@@ -10,6 +10,21 @@ class CineDAO {
         $this->db = DatabaseConnection::getInstance()->getConnection();
     }
 
+    public function obtenerTodosSinPaginar() {
+        try {
+            $sql = "SELECT * FROM cine ORDER BY nombre ASC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            $cines = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $cines[] = new Cine($row['id_cine'], $row['nombre'], $row['calle'], $row['numero'], $row['telefono']);
+            }
+            return $cines;
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
     public function obtenerTodos($page = 1) {
         try {
             $offset = ($page - 1) * $this->limit;

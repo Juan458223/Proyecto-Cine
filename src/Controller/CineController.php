@@ -10,6 +10,15 @@ $action = $_GET['action'] ?? 'list';
 header('Content-Type: application/json');
 
 switch ($action) {
+    case 'list_all':
+        $cines = $cineService->obtenerTodosSinPaginar();
+        $data = array_map(fn($c) => [
+            'id' => $c->getIdCine(),
+            'nombre' => $c->getNombre()
+        ], $cines);
+        echo json_encode(['data' => $data]);
+        break;
+
     case 'list':
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $cines = $cineService->obtenerCinesPaginados($page);

@@ -1,6 +1,7 @@
 <?php
-ob_clean();
+ob_start();
 session_start();
+if (ob_get_length()) ob_clean();
 require_once __DIR__ . '/../Service/SalaService.php';
 
 $is_admin = isset($_SESSION['usuario_id']) && $_SESSION['permisos'] == 1;

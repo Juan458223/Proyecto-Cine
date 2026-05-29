@@ -9,6 +9,10 @@ class CineService {
         $this->cineDAO = new CineDAO();
     }
 
+    public function obtenerTodosSinPaginar() {
+        return $this->cineDAO->obtenerTodosSinPaginar();
+    }
+
     public function obtenerCinesPaginados($page = 1) {
         return $this->cineDAO->obtenerTodos($page);
     }

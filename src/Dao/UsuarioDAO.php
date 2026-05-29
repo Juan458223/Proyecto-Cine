@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../Core/DatabaseConnection.php';
 require_once __DIR__ . '/../Model/Usuario.php';
+require_once __DIR__ . '/../Dto/UsuarioDTO.php';
+
+
 
 class UsuarioDAO {
     private $db;
@@ -72,8 +75,36 @@ class UsuarioDAO {
         }
     }
 
+    public function actualizarUsuarioAdmin(UsuarioDTO $usuario) {
+        try {
+            $sqlIds = "SELECT (SELECT id FROM estados WHERE nombre = :estado) as estado_id, 
+                              (SELECT id FROM permisos WHERE nombre = :permisos) as permisos_id";
+            $stmtIds = $this->db->prepare($sqlIds);
+            $stmtIds->execute(['estado' => $usuario->getEstado(), 'permisos' => $usuario->getPermisos()]);
+            $ids = $stmtIds->fetch(PDO::FETCH_ASSOC);
+
+            if (!$ids['estado_id'] || !$ids['permisos_id']) {
+                error_log("Error en UsuarioDAO: resolución de ID fallida. Estado: {$usuario->getEstado()}, Permiso: {$usuario->getPermisos()}");
+                return false;
+            }
+
+            $sql = "UPDATE usuarios 
+                    SET estado_id = :estado_id, permisos_id = :permisos_id 
+                    WHERE id = :id";
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute([
+                'estado_id'   => $ids['estado_id'],
+                'permisos_id' => $ids['permisos_id'],
+                'id'          => (int)$usuario->getId()
+            ]);
+        } catch (PDOException $e) {
+            error_log("Error en UsuarioDAO::actualizarUsuarioAdmin: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function obtenerUsuariosPaginados($limit, $offset, $excluded_id = null) {
-        $sql = "SELECT u.id, u.nombre, u.correo, e.nombre as estado, p.nombre as permiso, '28/05/2026' as registro
+        $sql = "SELECT u.id, u.nombre, u.correo, u.estado_id, u.permisos_id, e.nombre as estado, p.nombre as permiso, DATE_FORMAT(u.fecha_registro, '%Y-%m-%d') as registro
                 FROM usuarios u 
                 INNER JOIN estados e ON u.estado_id = e.id 
                 INNER JOIN permisos p ON u.permisos_id = p.id";

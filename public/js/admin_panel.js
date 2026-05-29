@@ -1,11 +1,6 @@
-/**
- * Lógica del Panel Administrativo Premium (v3.0 Ultra-Enhanced)
- * Maneja navegación, tablas dinámicas, validaciones Pro y lógica de relaciones.
- */
-
 let currentTab = 'movies';
 let currentPage = 1;
-let selectedProtagonists = []; // Estado para el reparto dinámico
+let selectedProtagonists = []; 
 
 const TAB_LABELS = {
     'movies': 'Película',
@@ -22,8 +17,6 @@ const TAB_LABELS = {
 const VALID_CLASSIFICATIONS = ['TP', '7', '12', '13', '15', '16', '18'];
 const PUBLIC_CATEGORIES = ['General', 'Estudiante', 'Jubilado', 'Niño'];
 const DAY_TYPES = ['Normal', 'Espectador', 'Festivo', 'Víspera'];
-
-// --- Core UI & Navigation ---
 
 function openAdminDashboard() {
     const modal = document.getElementById('admin-dashboard-modal');
@@ -70,8 +63,6 @@ function switchAdminTab(tab) {
     else loadAdminData();
 }
 
-// --- Reportes Module ---
-
 function renderReportsView() {
     const mainView = document.getElementById('admin-main-view');
     mainView.innerHTML = `
@@ -84,7 +75,7 @@ function renderReportsView() {
 
             <div class="w-full bg-white/[0.03] backdrop-blur-3xl p-10 rounded-[2.5rem] border border-white/10 space-y-10">
                 <div class="flex items-center gap-6">
-                    <label class="text-[11px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">Tipo de informe:</label>
+                    <label class="text-[11px] font-bold text-zinc-400  tracking-widest whitespace-nowrap">Tipo de informe:</label>
                     <select id="report-type-select" class="w-full bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-4 rounded-xl focus:border-[#E50914] outline-none transition-all cursor-pointer appearance-none">
                         <option value="" hidden disabled selected>Seleccione un informe</option>
                         <option value="semanal">Informe semanal</option>
@@ -96,7 +87,7 @@ function renderReportsView() {
                 <button onclick="generateReport()" class="btn-primary w-full !py-5 tracking-[0.2em]">
                     Generar informe
                 </button>
-                <div id="report-error" class="mt-4 text-[10px] font-black uppercase tracking-widest text-[#E50914] text-center hidden h-4"></div>
+                <div id="report-error" class="mt-4 text-[10px] font-black tracking-widest text-white text-center hidden h-4"></div>
             </div>
         </div>
     `;
@@ -114,8 +105,6 @@ window.generateReport = () => {
     alert(`Generando informe ${select.value}... (Lógica en construcción)`);
 };
 
-// --- Data & Table Rendering ---
-
 async function loadAdminData() {
     const tableBody = document.getElementById('token-table-body');
     if (tableBody) tableBody.style.opacity = '0.3';
@@ -128,9 +117,8 @@ async function loadAdminData() {
             renderTable(result.data);
             renderPagination(result.pages, result.currentPage);
         } catch (parseError) {
-            console.error("Error parseando JSON del servidor. Respuesta recibida:", text);
         }
-    } catch (e) { console.error("Error en la petición:", e); }
+    } catch (e) { }
     finally { if (tableBody) tableBody.style.opacity = '1'; }
 }
 
@@ -163,11 +151,11 @@ function renderTable(data) {
     };
 
     const cols = config[currentTab];
-    cols.forEach(c => head.innerHTML += `<th class="px-8 py-6 font-black text-[10px] tracking-widest">${c}</th>`);
-    head.innerHTML += `<th class="px-8 py-6 font-black text-center text-[10px] tracking-widest">Acciones</th>`;
+    cols.forEach(c => head.innerHTML += `<th class="px-8 py-6 font-black text-[10px] tracking-widest uppercase">${c}</th>`);
+    head.innerHTML += `<th class="px-8 py-6 font-black text-center text-[10px] tracking-widest uppercase">Acciones</th>`;
 
     if (!data || data.length === 0) {
-        body.innerHTML = `<tr><td colspan="10" class="py-32 text-center text-zinc-700 tracking-[0.3em] font-black text-[10px]">Sin registros</td></tr>`;
+        body.innerHTML = `<tr><td colspan="10" class="py-32 text-center text-zinc-700 tracking-[0.3em] font-black text-[10px] uppercase">Sin registros</td></tr>`;
         return;
     }
 
@@ -178,7 +166,7 @@ function renderTable(data) {
         });
         row += `
             <td class="px-8 py-5 text-center">
-                <button onclick="openEditModal('${item.id}')" class="text-zinc-500 hover:text-white transition-colors text-[9px] font-black uppercase tracking-widest">Editar</button>
+                <button onclick="openEditModal('${item.id}')" class="text-zinc-500 hover:text-white transition-colors text-[11px] font-medium font-outfit">Editar</button>
             </td>
         </tr>`;
         body.innerHTML += row;
@@ -201,8 +189,6 @@ function renderPagination(total, current) {
 }
 
 window.adminChangePage = (p) => { currentPage = p; loadAdminData(); };
-
-// --- Forms & Validation ---
 
 async function getFieldsForTab(tab) {
     let html = '';
@@ -244,12 +230,12 @@ async function getFieldsForTab(tab) {
             html += renderInput('telefono', 'Teléfono');
             break;
         case 'salas':
-            html += await renderSelect('cine_id', 'Cine', '../Controller/CineController.php?action=list', '', 'Seleccione un cine');
+            html += await renderSelect('cine_id', 'Cine', '../Controller/CineController.php?action=list_all', '', 'Seleccione un cine');
             html += renderInput('capacidad', 'Capacidad', 'number');
             break;
         case 'funciones':
-            html += await renderSelect('pelicula_id', 'Película', '../Controller/PeliculaController.php?action=list', '', 'Seleccione película');
-            html += await renderSelect('cine_id', 'Cine', '../Controller/CineController.php?action=list', 'onCineChange(this)', 'Seleccione cine');
+            html += await renderSelect('pelicula_id', 'Película', '../Controller/PeliculaController.php?action=list_all', '', 'Seleccione película');
+            html += await renderSelect('cine_id', 'Cine', '../Controller/CineController.php?action=list_all', 'onCineChange(this)', 'Seleccione cine');
             html += `<div id="sala-select-container">${renderStaticSelect('sala_id', 'Sala', [], 'Seleccione un cine primero')}</div>`;
             html += renderInput('fecha_hora', 'Fecha y hora', 'datetime-local');
             break;
@@ -257,7 +243,7 @@ async function getFieldsForTab(tab) {
             html += renderInput('nombre', 'Nombre del género');
             break;
         case 'tarifas':
-            html += await renderSelect('cine_id', 'Cine', '../Controller/CineController.php?action=list', '', 'Seleccione un cine');
+            html += await renderSelect('cine_id', 'Cine', '../Controller/CineController.php?action=list_all', '', 'Seleccione un cine');
             html += renderStaticSelect('categoria', 'Categoría', PUBLIC_CATEGORIES, 'Seleccione categoría');
             html += renderStaticSelect('dia_id', 'Día', DAY_TYPES, 'Seleccione tipo de día');
             html += renderInput('precio', 'Precio', 'number');
@@ -266,8 +252,29 @@ async function getFieldsForTab(tab) {
             html += renderInput('nombre', 'Nombre completo');
             break;
         case 'users':
-            html += renderStaticSelect('estado_id', 'Estado', ['Activado', 'Desactivado'], 'Seleccione estado');
-            html += renderStaticSelect('permisos_id', 'Permisos', ['Administrador', 'Usuario'], 'Seleccione permisos');
+            html += `
+                <div class="flex flex-col space-y-2 font-outfit">
+                    <div class="flex items-center gap-4">
+                        <label class="text-[10px] font-bold text-zinc-500 tracking-widest whitespace-nowrap min-w-[100px]">Estado:</label>
+                        <select name="estado_id" class="w-full bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-3 rounded-xl focus:border-[#E50914] outline-none transition-all cursor-pointer appearance-none">
+                            <option value="" disabled selected>Seleccione estado</option>
+                            <option value="Activado">Activado</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Desactivado">Desactivado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex flex-col space-y-2 font-outfit">
+                    <div class="flex items-center gap-4">
+                        <label class="text-[10px] font-bold text-zinc-500 tracking-widest whitespace-nowrap min-w-[100px]">Permisos:</label>
+                        <select name="permisos_id" class="w-full bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-3 rounded-xl focus:border-[#E50914] outline-none transition-all cursor-pointer appearance-none">
+                            <option value="" disabled selected>Seleccione permisos</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Usuario">Usuario</option>
+                        </select>
+                    </div>
+                </div>
+            `;
             break;
     }
     return html;
@@ -292,11 +299,10 @@ window.onCineChange = async (el) => {
                 </div>
             </div>
         `;
-    } catch(e) { console.error("Error cargando salas:", text); }
+    } catch(e) { }
 };
 
 function renderInput(name, label, type = 'text') {
-    // Si es datetime-local, forzamos un estilo que permita ver el icono del calendario
     const extraClass = type === 'datetime-local' ? 'calendar-input' : '';
     return `<div class="auth-input-group font-outfit"><input type="${type}" name="${name}" oninput="clearError()" class="auth-input-modern ${extraClass}" placeholder=" " required><label class="auth-label-modern font-outfit">${label}</label></div>`;
 }
@@ -325,7 +331,6 @@ async function renderSelect(name, label, url, onchange = '', placeholder = 'Sele
             const result = JSON.parse(text);
             items = result.data || result;
         } catch(e) { 
-            console.error("Error parseando JSON de selector:", text); 
             return `<div class="text-red-500 text-[10px]">Error cargando ${label}</div>`;
         }
         
@@ -344,23 +349,25 @@ async function renderSelect(name, label, url, onchange = '', placeholder = 'Sele
     } catch (e) { return ''; }
 }
 
-// --- CRUD Operations ---
-
 window.openCreateTokenModal = async () => {
-    clearError(); // Limpiar errores al abrir
+    clearError();
     const modal = document.getElementById('admin-action-modal');
     const content = document.getElementById('admin-action-content');
+    const form = document.getElementById('admin-action-form');
     
-    // Ajustar tamaño del modal para películas
+    form.querySelectorAll('input[type="hidden"]').forEach(input => {
+        if (input.id !== 'form-id') input.remove();
+    });
+
     if (currentTab === 'movies') {
         content.classList.remove('max-w-2xl');
-        content.classList.add('max-w-5xl'); // Más ancho para las dos columnas
+        content.classList.add('max-w-5xl');
     } else {
         content.classList.remove('max-w-5xl');
         content.classList.add('max-w-2xl');
     }
 
-    selectedProtagonists = []; // Resetear reparto
+    selectedProtagonists = [];
     const fields = document.getElementById('action-form-fields');
     document.getElementById('form-id').value = '';
     document.getElementById('form-submit-btn').textContent = 'Insertar';
@@ -375,8 +382,6 @@ window.openCreateTokenModal = async () => {
         document.getElementById('admin-action-content').classList.add('scale-100', 'opacity-100');
     });
 };
-
-// --- Protagonists Management ---
 
 function renderProtagonistList() {
     const container = document.getElementById('selected-protagonists-list');
@@ -410,7 +415,6 @@ window.addProtagonistToList = (select) => {
     
     if (!id || id === "") return;
     
-    // Evitar duplicados
     if (selectedProtagonists.some(p => p.id == id)) {
         select.value = '';
         return;
@@ -418,7 +422,7 @@ window.addProtagonistToList = (select) => {
 
     selectedProtagonists.push({ id, nombre });
     renderProtagonistList();
-    select.value = ''; // Reset selector
+    select.value = ''; 
 };
 
 window.removeProtagonistFromList = (id) => {
@@ -436,43 +440,56 @@ window.openEditModal = async (id) => {
         const result = await res.json();
         const form = document.getElementById('admin-action-form');
         
-        // Poblar campos básicos
-        for (const key of Object.keys(result.data)) {
-            const input = form.querySelector(`[name="${key}"]`);
-            if (input) {
-                input.value = result.data[key];
-                
-                // Manejo especial para dependencias (Cine -> Sala)
-                if (key === 'cine_id' && currentTab === 'funciones') {
-                    // Disparar carga de salas y esperar
-                    await window.onCineChange(input);
-                    // Una vez cargadas, poner el valor de la sala
-                    if (result.data['sala_id']) {
-                        const salaSelect = form.querySelector('[name="sala_id"]');
-                        if (salaSelect) salaSelect.value = result.data['sala_id'];
+        setTimeout(async () => {
+            for (const key of Object.keys(result.data)) {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    let value = result.data[key];
+
+                    if (key === 'estado_id') {
+                        const map = {1: 'Activado', 2: 'Pendiente', 3: 'Desactivado'};
+                        value = map[value] || value;
+                    } else if (key === 'permisos_id') {
+                        const map = {1: 'Administrador', 2: 'Usuario'};
+                        value = map[value] || value;
+                    }
+
+                    input.value = value;
+                    
+                    if (key === 'cine_id' && currentTab === 'funciones') {
+                        await window.onCineChange(input);
+                        if (result.data['sala_id']) {
+                            const salaSelect = form.querySelector('[name="sala_id"]');
+                            if (salaSelect) salaSelect.value = result.data['sala_id'];
+                        }
                     }
                 }
             }
-        }
 
-        // Poblar reparto si es película
-        if (currentTab === 'movies' && result.data.protagonistas) {
-            selectedProtagonists = result.data.protagonistas.map(p => ({
-                id: p.id || p.id_actor,
-                nombre: p.nombre
-            }));
-            renderProtagonistList();
-        }
-
-        // Bloquear cambio de cine en salas al editar (Integridad de datos)
-        if (currentTab === 'salas') {
-            const cineSelect = form.querySelector('[name="cine_id"]');
-            if (cineSelect) {
-                cineSelect.disabled = true;
-                cineSelect.classList.add('opacity-50', 'cursor-not-allowed');
+            if (currentTab === 'movies' && result.data.protagonistas) {
+                selectedProtagonists = result.data.protagonistas.map(p => ({
+                    id: p.id || p.id_actor,
+                    nombre: p.nombre
+                }));
+                renderProtagonistList();
             }
-        }
-    } catch (e) { console.error(e); }
+
+            if (currentTab === 'salas') {
+                const cineSelect = form.querySelector('[name="cine_id"]');
+                if (cineSelect && cineSelect.value) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'cine_id';
+                    hiddenInput.id = 'hidden-cine-id';
+                    hiddenInput.value = cineSelect.value;
+                    form.appendChild(hiddenInput);
+                    
+                    cineSelect.disabled = true;
+                    cineSelect.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
+        }, 180); 
+    } catch (e) { }
 };
 
 window.closeInsertModal = () => {
@@ -494,14 +511,13 @@ function showError(msg) {
     const err = document.getElementById('action-error-container');
     if (!err) return;
     
-    // Formatear mensaje: Primera letra Mayúscula, resto minúscula, color blanco
     const formattedMsg = msg.charAt(0).toUpperCase() + msg.slice(1).toLowerCase();
     
     err.textContent = formattedMsg;
     err.classList.remove('hidden');
-    err.classList.remove('text-[#E50914]'); // Quitar rojo si lo tenía
-    err.classList.add('text-white'); // Poner blanco
-    err.style.textTransform = 'none'; // Desactivar mayúsculas forzadas por CSS
+    err.classList.remove('text-[#E50914]'); 
+    err.classList.add('text-white'); 
+    err.style.textTransform = 'none'; 
 }
 
 const actionForm = document.getElementById('admin-action-form');
@@ -510,38 +526,34 @@ if (actionForm) {
         e.preventDefault();
         const formData = new FormData(actionForm);
         
-        // Añadir protagonistas seleccionados manualmente al FormData
         if (currentTab === 'movies') {
             selectedProtagonists.forEach(p => {
                 formData.append('protagonistas[]', p.id);
             });
         }
 
-        let isValid = true;
         const data = Object.fromEntries(formData);
-
-        for (let [key, val] of formData.entries()) {
-            if (!val && key !== 'protagonistas[]' && key !== 'id') {
-                showError(`El campo ${key.replace('_', ' ')} es obligatorio`);
-                isValid = false; break;
-            }
-        }
-        if (!isValid) return;
-
-        if (currentTab === 'movies' && !VALID_CLASSIFICATIONS.includes(data.clasificacion)) {
-            showError("Clasificación inválida (Use TP, +12, +15, +18)"); return;
-        }
-
-        if (currentTab === 'tarifas' && parseFloat(data.precio) < 1) {
-            showError("El precio debe ser mayor a 0"); return;
-        }
-
         const action = data.id ? 'update' : 'insert';
+        const url = `../Controller/AdminController.php?action=${action}&type=${currentTab}`;
+
         try {
-            const res = await fetch(`../Controller/AdminController.php?action=${action}&type=${currentTab}`, { method: 'POST', body: formData });
-            const result = await res.json();
-            if (result.success) { closeInsertModal(); loadAdminData(); }
-            else showError(result.error || "Error al procesar");
-        } catch (e) { showError("Error de servidor"); }
+            const res = await fetch(url, { method: 'POST', body: formData });
+            const text = await res.text(); 
+            
+            try {
+                const result = JSON.parse(text);
+
+                if (result.success) { 
+                    closeInsertModal(); 
+                    loadAdminData(); 
+                } else {
+                    showError(result.error || "Error desconocido en el servidor");
+                }
+            } catch (parseError) {
+                showError("Respuesta corrupta del servidor. Revisa la consola.");
+            }
+        } catch (e) { 
+            showError("No se pudo conectar con el servidor."); 
+        }
     };
 }

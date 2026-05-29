@@ -14,7 +14,7 @@ class TarifaDAO {
     public function obtenerTarifasPorCinePaginadas($cine_id, $page = 1) {
         try {
             $offset = ($page - 1) * $this->limit;
-            $sql = "SELECT t.*, c.nombre, c.calle, c.numero, c.telefono, 
+            $sql = "SELECT t.*, c.id_cine, c.nombre, c.calle, c.numero, c.telefono, 
                            d.nombre_dia, p.nombre_categoria
                     FROM tarifa t
                     JOIN cine c ON t.cine_id_cine = c.id_cine
@@ -103,7 +103,7 @@ class TarifaDAO {
 
     public function obtenerPorId($id) {
         try {
-            $sql = "SELECT t.*, c.nombre, c.calle, c.numero, c.telefono, d.nombre_dia, p.nombre_categoria
+            $sql = "SELECT t.*, c.id_cine, c.nombre, c.calle, c.numero, c.telefono, d.nombre_dia, p.nombre_categoria
                     FROM tarifa t
                     JOIN cine c ON t.cine_id_cine = c.id_cine
                     JOIN tarifas_tipos_dia d ON t.tipo_dia_id = d.id

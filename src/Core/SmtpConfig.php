@@ -6,7 +6,7 @@ class SmtpConfig{
        $this->settings = [
             'smtp_host' => 'smtp.gmail.com',
             'smtp_user' => 'cine0first@gmail.com',
-            'smtp_pass' => 'xbeb ptes ivvg jauu',
+            'smtp_pass' => 'dguy tnrm jthr renc',
             'smtp_port' => 587
         ];
     }

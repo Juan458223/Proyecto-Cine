@@ -199,7 +199,6 @@ if (!isset($_SESSION['usuario_id'])) {
     <?php include './Modales/cine_detail_modal.php'; ?>
     <?php include './Modales/admin_dashboard_modal.php'; ?>
     <?php include './Modales/admin_action_modal.php'; ?>
-    <?php include './Modales/admin_alert_modal.php'; ?>
 
     <script src="../../public/js/pelicula.js"></script>
     <script src="../../public/js/cine.js"></script>

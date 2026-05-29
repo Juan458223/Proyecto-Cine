@@ -11,6 +11,15 @@ $action = $_GET['action'] ?? 'list';
 header('Content-Type: application/json');
 
 switch ($action) {
+    case 'list_all':
+        $peliculas = $peliculaService->obtenerTodas(); 
+        $data = array_map(fn($p) => [
+            'id' => $p->getIdPelicula(),
+            'titulo' => $p->getTitulo()
+        ], $peliculas);
+        echo json_encode(['data' => $data]);
+        break;
+
     case 'list':
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $genero_id = isset($_GET['genero_id']) ? (int)$_GET['genero_id'] : null;

@@ -99,7 +99,7 @@ window.loadCineTarifas = async function(page = 1) {
                 <tr class="hover:bg-white/5 transition-colors">
                     <td class="px-6 py-4 font-bold text-white">${window.capitalize(t.categoria)}</td>
                     <td class="px-6 py-4 text-zinc-400">${window.capitalize(t.tipo_dia)}</td>
-                    <td class="px-6 py-4 text-right font-black text-[#E50914]">${formatPrice(t.precio)}</td>
+                    <td class="px-6 py-4 text-right font-black text-white">${formatPrice(t.precio)}</td>
                 </tr>
             `).join('');
             renderInternalPagination(pagContainer, result.pages, page, 'window.loadCineTarifas');

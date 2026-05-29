@@ -24,6 +24,10 @@ class PeliculaService {
         return $generoDAO->obtenerTodos();
     }
 
+    public function obtenerTodas() {
+        return $this->peliculaDAO->obtenerTodas();
+    }
+
     public function obtenerPeliculasPaginadas($page = 1, $genero_id = null) {
         $peliculas = $this->peliculaDAO->obtenerPeliculasPaginadas($page, $genero_id);
         
