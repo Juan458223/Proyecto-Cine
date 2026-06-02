@@ -53,7 +53,7 @@ function switchAdminTab(tab) {
 
     document.getElementById('current-tab-title').textContent = TAB_LABELS[tab].toUpperCase();
 
-    const addBtn = document.querySelector('header button[onclick="openCreateTokenModal()"]');
+    const addBtn = document.getElementById('admin-add-btn');
     if (addBtn) {
         if (tab === 'users' || tab === 'reports') addBtn.classList.add('hidden');
         else addBtn.classList.remove('hidden');
@@ -69,18 +69,27 @@ function renderReportsView() {
         <div class="flex flex-col items-center justify-center h-full max-w-2xl mx-auto space-y-12 animate-in fade-in zoom-in duration-500 font-outfit">
             <div class="text-center space-y-4">
                 <p class="text-zinc-500 text-sm font-medium leading-relaxed text-center">
-                    Este módulo está diseñado para reportar el alcance de la aplicación. Seleccione el tipo de informe que desea generar para visualizar métricas de ocupación, ventas y actividad de usuarios.
+                    Este módulo está diseñado para reportar el alcance de la aplicación. Seleccione el tipo de informe y los filtros necesarios.
                 </p>
             </div>
 
-            <div class="w-full bg-white/[0.03] backdrop-blur-3xl p-10 rounded-[2.5rem] border border-white/10 space-y-10">
+            <div class="w-full bg-white/[0.03] backdrop-blur-3xl p-10 rounded-[2.5rem] border border-white/10 space-y-8">
                 <div class="flex items-center gap-6">
-                    <label class="text-[11px] font-bold text-zinc-400  tracking-widest whitespace-nowrap">Tipo de informe:</label>
-                    <select id="report-type-select" class="w-full bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-4 rounded-xl focus:border-[#E50914] outline-none transition-all cursor-pointer appearance-none">
+                    <label class="text-[11px] font-bold text-zinc-400 tracking-widest whitespace-nowrap">Informe:</label>
+                    <select id="report-type-select" onchange="toggleReportFilters(this.value)" class="w-full bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-4 rounded-xl focus:border-[#E50914] outline-none transition-all cursor-pointer appearance-none">
                         <option value="" hidden disabled selected>Seleccione un informe</option>
-                        <option value="semanal">Informe semanal</option>
-                        <option value="quincenal">Informe quincenal</option>
-                        <option value="mensual">Informe mensual</option>
+                        <option value="usuarios">Informe de Usuarios (Registros)</option>
+                        <option value="funciones">Informe de Funciones Realizadas</option>
+                        <option value="peliculas">Informe de Películas Insertadas</option>
+                    </select>
+                </div>
+
+                <div id="period-filter-container" class="flex items-center gap-6 hidden animate-in fade-in slide-in-from-top-2">
+                    <label class="text-[11px] font-bold text-zinc-400 tracking-widest whitespace-nowrap">Periodo:</label>
+                    <select id="report-period-select" class="w-full bg-zinc-900 border border-zinc-800 text-white text-xs font-bold px-4 py-4 rounded-xl focus:border-[#E50914] outline-none transition-all cursor-pointer appearance-none">
+                        <option value="semanal">Semanal (últimos 7 días)</option>
+                        <option value="quincenal">Quincenal (últimos 15 días)</option>
+                        <option value="mensual" selected>Mensual (últimos 30 días)</option>
                     </select>
                 </div>
 
@@ -93,16 +102,27 @@ function renderReportsView() {
     `;
 }
 
+window.toggleReportFilters = (type) => {
+    const periodContainer = document.getElementById('period-filter-container');
+    if (type === 'usuarios') periodContainer.classList.remove('hidden');
+    else periodContainer.classList.add('hidden');
+};
+
 window.generateReport = () => {
-    const select = document.getElementById('report-type-select');
+    const typeSelect = document.getElementById('report-type-select');
+    const periodSelect = document.getElementById('report-period-select');
     const err = document.getElementById('report-error');
-    if (!select.value) {
+
+    if (!typeSelect.value) {
         err.textContent = "Debe seleccionar un tipo de informe";
         err.classList.remove('hidden');
         return;
     }
     err.classList.add('hidden');
-    alert(`Generando informe ${select.value}... (Lógica en construcción)`);
+    
+    const type = typeSelect.value;
+    const period = periodSelect.value;
+    window.location.href = `../Controller/ReportController.php?action=generate&type=${type}&period=${period}`;
 };
 
 async function loadAdminData() {

@@ -46,5 +46,13 @@ class UsuarioService {
     public function insertarUsuario(Usuario $usuario) {
         return $this->usuarioDAO->insertarUsuario($usuario);
     }
+
+    public function obtenerEstadisticasRegistro() {
+        return $this->usuarioDAO->obtenerEstadisticasRegistro();
+    }
+
+    public function obtenerUsuariosPorPeriodo($dias) {
+        return $this->usuarioDAO->obtenerUsuariosPorPeriodo($dias);
+    }
 }
 ?>

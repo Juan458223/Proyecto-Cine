@@ -83,5 +83,9 @@ class PeliculaService {
         }
         return $success;
     }
+
+    public function obtenerEstadisticasPeliculas() {
+        return $this->peliculaDAO->obtenerEstadisticasPeliculas();
+    }
 }
 ?>

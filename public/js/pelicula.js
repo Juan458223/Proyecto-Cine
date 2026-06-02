@@ -78,9 +78,9 @@ function renderMovieGrid() {
         const movieData = JSON.stringify(movie).replace(/'/g, "\\'");
         
         return `
-            <li class="group flex flex-col cursor-pointer" onclick='openMovieDetails(${movieData})'>
+            <li class="group flex flex-col cursor-pointer" onclick='window.openMovieAdmin(${movieData})'>
                 <div class="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-2xl transition-all duration-500 group-hover:shadow-[#E50914]/20">
-                    <img src="${movie.url_image}" alt="${movie.titulo}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                    <img src="${movie.url_image}" alt="${movie.titulo}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" onerror="this.onerror=null; this.src='../../public/img/logo.svg'; this.classList.add('p-8', 'opacity-20');">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div class="absolute top-4 left-4">
                         <span class="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md border border-white/10">
@@ -151,8 +151,16 @@ window.openMovieAdmin = function(data) {
     // Poblar datos estáticos
     document.getElementById('movie-admin-title').textContent = cap(data.titulo);
     document.getElementById('movie-admin-director').textContent = `Dirigida por ${cap(data.director)}`;
-    document.getElementById('movie-admin-banner').src = data.url_image || '';
-    document.getElementById('movie-admin-poster').src = data.url_image || '';
+    
+    const banner = document.getElementById('movie-admin-banner');
+    const poster = document.getElementById('movie-admin-poster');
+    
+    banner.src = data.url_image || '';
+    banner.onerror = function() { this.onerror=null; this.src='../../public/img/logo.svg'; this.classList.add('p-20', 'opacity-10'); };
+    
+    poster.src = data.url_image || '';
+    poster.onerror = function() { this.onerror=null; this.src='../../public/img/logo.svg'; this.classList.add('p-8', 'opacity-20'); };
+
     document.getElementById('movie-admin-rating').textContent = cap(data.clasificacion);
     document.getElementById('movie-admin-cast').textContent = data.protagonistas || 'Sin información de reparto';
 

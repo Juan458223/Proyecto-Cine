@@ -135,5 +135,70 @@ class UsuarioDAO {
         }
         return (int)$this->db->query($sql)->fetchColumn();
     }
+
+    public function obtenerEstadisticasRegistro() {
+        try {
+            // Por día (últimos 30 días) - Totales
+            $sqlDia = "SELECT DATE(fecha_registro) as fecha, COUNT(*) as total 
+                       FROM usuarios 
+                       WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                       GROUP BY DATE(fecha_registro) 
+                       ORDER BY fecha DESC";
+            $stmtDia = $this->db->query($sqlDia);
+            $porDia = $stmtDia->fetchAll(PDO::FETCH_ASSOC);
+
+            // Listado detallado de los últimos 30 días
+            $sqlDetalle = "SELECT nombre, correo, fecha_registro as fecha 
+                           FROM usuarios 
+                           WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                           ORDER BY fecha_registro DESC";
+            $stmtDetalle = $this->db->query($sqlDetalle);
+            $detalleReciente = $stmtDetalle->fetchAll(PDO::FETCH_ASSOC);
+
+            // Por semana (últimas 12 semanas)
+            $sqlSemana = "SELECT YEAR(fecha_registro) as anio, WEEK(fecha_registro, 1) as semana, COUNT(*) as total 
+                          FROM usuarios 
+                          WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 12 WEEK)
+                          GROUP BY YEAR(fecha_registro), WEEK(fecha_registro, 1) 
+                          ORDER BY anio DESC, semana DESC";
+            $stmtSemana = $this->db->query($sqlSemana);
+            $porSemana = $stmtSemana->fetchAll(PDO::FETCH_ASSOC);
+
+            // Por mes (últimos 12 meses)
+            $sqlMes = "SELECT YEAR(fecha_registro) as anio, MONTH(fecha_registro) as mes, COUNT(*) as total 
+                       FROM usuarios 
+                       WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                       GROUP BY YEAR(fecha_registro), MONTH(fecha_registro) 
+                       ORDER BY anio DESC, mes DESC";
+            $stmtMes = $this->db->query($sqlMes);
+            $porMes = $stmtMes->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'por_dia' => $porDia,
+                'por_semana' => $porSemana,
+                'por_mes' => $porMes,
+                'listado_detallado' => $detalleReciente
+            ];
+        } catch (PDOException $e) {
+            error_log("Error en obtenerEstadisticasRegistro: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function obtenerUsuariosPorPeriodo($dias) {
+        try {
+            $sql = "SELECT nombre, correo, fecha_registro as fecha 
+                    FROM usuarios 
+                    WHERE fecha_registro >= DATE_SUB(NOW(), INTERVAL :dias DAY)
+                    ORDER BY fecha_registro DESC";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':dias', (int)$dias, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en obtenerUsuariosPorPeriodo: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

@@ -44,7 +44,7 @@
                     <span>Reparto</span>
                 </button>
                 <div class="h-px bg-white/5 my-4"></div>
-                <button onclick="switchAdminTab('reports')" id="tab-reports" class="sidebar-btn group text-[#E50914]">
+                <button onclick="switchAdminTab('reports')" id="tab-reports" class="sidebar-btn group">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
                     <span>Reportes</span>
                 </button>
@@ -55,7 +55,7 @@
             <header class="h-24 p-10 flex items-center justify-between border-b border-white/5">
                 <div class="flex items-center gap-6">
                     <h3 id="current-tab-title" class="text-2xl font-black text-white font-bebas tracking-wider leading-none uppercase">PELÍCULAS</h3>
-                    <button onclick="openCreateTokenModal()" class="flex items-center gap-2 bg-[#E50914] hover:bg-[#b90710] text-white text-[9px] font-black uppercase tracking-widest px-6 py-2 rounded-lg transition-all shadow-xl active:scale-95">
+                    <button id="admin-add-btn" onclick="openCreateTokenModal()" class="flex items-center gap-2 bg-[#E50914] hover:bg-[#b90710] text-white text-[9px] font-black uppercase tracking-widest px-6 py-2 rounded-lg transition-all shadow-xl active:scale-95">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                     </button>
                 </div>

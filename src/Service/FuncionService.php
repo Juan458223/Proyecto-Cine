@@ -52,5 +52,9 @@ class FuncionService {
     public function contarPorCine($cine_id, $sala_id = null) {
         return $this->funcionDAO->contarPorCine($cine_id, $sala_id);
     }
+
+    public function obtenerFuncionesPasadas() {
+        return $this->funcionDAO->obtenerFuncionesPasadas();
+    }
 }
 ?>

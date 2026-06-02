@@ -159,5 +159,22 @@ class FuncionDAO {
         $stmt->execute($params);
         return (int)$stmt->fetchColumn();
     }
+
+    public function obtenerFuncionesPasadas() {
+        try {
+            $sql = "SELECT f.fecha_hora, p.titulo as pelicula, c.nombre as cine, s.numero_sala as sala
+                    FROM funcion f
+                    JOIN pelicula p ON f.pelicula_id_pelicula = p.id_pelicula
+                    JOIN sala s ON f.sala_id_sala = s.id_sala
+                    JOIN cine c ON s.cine_id_cine = c.id_cine
+                    WHERE f.fecha_hora < NOW()
+                    ORDER BY f.fecha_hora DESC";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en obtenerFuncionesPasadas: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

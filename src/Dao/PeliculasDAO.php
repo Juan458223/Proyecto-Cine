@@ -140,5 +140,19 @@ class PeliculaDAO {
             return false;
         }
     }
+
+    public function obtenerEstadisticasPeliculas() {
+        try {
+            $sql = "SELECT p.titulo, p.director, p.clasificacion, g.nombre_genero as genero 
+                    FROM pelicula p 
+                    JOIN genero g ON p.genero_id_genero = g.id_genero 
+                    ORDER BY p.id_pelicula DESC";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error en obtenerEstadisticasPeliculas: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 ?>

@@ -230,7 +230,7 @@ window.changePage = async function(page) {
                                     ${peli.clasificacion}
                                 </span>
                             </div>
-                            <img src='${peli.url_image}' alt='${peli.titulo}' class='w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110' loading='lazy'>
+                            <img src='${peli.url_image}' alt='${peli.titulo}' class='w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110' loading='lazy' onerror="this.onerror=null; this.src='../../public/img/logo.svg'; this.classList.add('p-8', 'opacity-20');">
                             <div class='absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
                             <div class='absolute bottom-0 left-0 w-0 h-1 bg-[#E50914] transition-all duration-500 group-hover:w-full'></div>
                         </div>
